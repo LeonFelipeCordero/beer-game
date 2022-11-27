@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/beer_game
+      database: beer_game
+  graphql:
+    websocket:
+      path: /graphql
+    schema:
+      printer:
+        enabled: true
+    graphiql:
+      enabled: true
+
+---
+# test
+spring:
+  config:
+    activate:
+      on-profile: test
+  data:
+    mongodb:
+      uri: mongodb://${embedded.mongodb.host}:${embedded.mongodb.port}/${embedded.mongodb.database}
+      database: ${embedded.mongodb.database}

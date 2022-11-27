@@ -1,0 +1,76 @@
+type Mutation {
+    createBoard(name: String): Board
+    addPlayer(boardId: String, role: Role): Player
+    createOrder(boardId: String, senderId: String, receiverId: String): Order
+    deliverOrder(orderId: String, boardId: String, amount: Int): Response
+    updateWeeklyOrder(boardId: String, playerId: String, amount: Int): Response
+}
+
+type Query {
+    getBoard(id: String): Board
+    getPlayer(boardId: String, playerId: String): Player
+    getPlayersByBoard(boardId: String): [Player]
+}
+
+type Board {
+    id: ID!
+    name: String!
+    state: BardState!
+    full: String!
+    finished: String!
+    createdAt: String!
+    players: [Player]
+    orders: [Order]
+}
+
+enum BardState {
+    CREATED,
+    RUNNING,
+    FINISHED
+}
+
+type Player {
+    id: ID!
+    name: String!
+    role: Role!
+    stock: String!
+    backlog: String!
+    weeklyOrder: String!
+    lastOrder: String!
+    cpu: String!
+    board: Board,
+    orders: [Order!]
+}
+
+enum Role {
+    RETAILER,
+    WHOLESALER,
+    FACTORY
+}
+
+type Order {
+    id: ID!
+    amount: Int!
+    originalAmount: Int!
+    state: OrderState!
+    type: OrderType!
+    sender: Player!
+    receiver: Player
+    board: Board,
+    createdAt: String
+}
+
+enum OrderState {
+    PENDING,
+    DELIVERED
+}
+
+enum OrderType {
+    PLAYER_ORDER,
+    CPU_ORDER
+}
+
+type Response {
+    message: String
+    status: Int
+}

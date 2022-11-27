@@ -1,0 +1,36 @@
+{
+  "id": "3bcc5296-d8a0-4170-8cba-8baa0853d53b",
+  "amount": 40,
+  "originalAmount": 40,
+  "state": "PENDING",
+  "type": "PLAYER_ORDER",
+  "createdAt": "2022-11-27T16:38:39.774721635",
+  "sender": {
+    "id": "52c013f5-ba1d-4702-8540-6205a3bfabc4",
+    "name": "WHOLESALER",
+    "role": "WHOLESALER",
+    "stock": "1200",
+    "backlog": "1200",
+    "weeklyOrder": "600",
+    "lastOrder": "600",
+    "cpu": "false"
+  },
+  "receiver": {
+    "id": "e9464d47-990c-4750-8672-989fe18f3277",
+    "name": "RETAILER",
+    "role": "RETAILER",
+    "stock": "80",
+    "backlog": "80",
+    "weeklyOrder": "40",
+    "lastOrder": "40",
+    "cpu": "false"
+  },
+  "board": {
+    "id": "6383847f081423095a60527f",
+    "name": "test",
+    "state": "RUNNING",
+    "full": "true",
+    "finished": "false",
+    "createdAt": "2022-11-27T16:38:39.328"
+  }
+}

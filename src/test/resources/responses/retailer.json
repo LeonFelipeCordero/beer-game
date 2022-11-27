@@ -1,0 +1,18 @@
+{
+  "id": "7851315d-34b5-4964-88bd-32c0c5f7affa",
+  "name": "RETAILER",
+  "role": "RETAILER",
+  "stock": "80",
+  "backlog": "80",
+  "weeklyOrder": "40",
+  "lastOrder": "40",
+  "cpu": "false",
+  "board": {
+    "id": "63835e08029f95227a5063be",
+    "name": "test",
+    "state": "CREATED",
+    "full": "false",
+    "finished": "false",
+    "createdAt": "2022-11-27T13:54:32.503"
+  }
+}

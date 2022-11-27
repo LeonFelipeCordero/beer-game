@@ -1,0 +1,5 @@
+{
+  "name": "Beer game graphql schema",
+  "schemaPath": "src/main/resources/graphql/schema.graphql",
+  "extensions": {}
+}
