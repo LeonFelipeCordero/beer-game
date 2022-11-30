@@ -17,13 +17,13 @@ class OrderAndBatchScheduler(
         private val logger = LoggerFactory.getLogger(OrderAndBatchScheduler::class.java)
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 60000)
     fun createOrders() {
         logger.info("running from order scheduler")
         orderService.createCpuOrders()
     }
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 60000)
     fun deliverFactoryBatch() {
         logger.info("running from batch schedulers")
         orderService.deliverFactoryBatches()

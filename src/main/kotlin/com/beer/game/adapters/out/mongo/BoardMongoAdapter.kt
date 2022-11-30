@@ -15,6 +15,10 @@ class BoardMongoAdapter(
         return loadBoardDocument(boardId).toBoard()
     }
 
+    fun loadBoardByName(name: String): Board? {
+        return boardRepository.findOneByName(name)?.toBoard()
+    }
+
     fun loadBoardDocument(boardId: String): BoardDocument {
         return boardRepository.findOneById(ObjectId(boardId))
             ?: throw NotFoundException("Board with id $boardId doesn't exit", "Verify the id provided")
@@ -22,7 +26,7 @@ class BoardMongoAdapter(
 
     fun saveBoard(name: String): Board {
         val saveDocument = upsertBoard(BoardDocument(name = name))
-        return saveDocument.toBoard();
+        return saveDocument.toBoard()
     }
 
     fun upsertBoard(boardDocument: BoardDocument): BoardDocument {

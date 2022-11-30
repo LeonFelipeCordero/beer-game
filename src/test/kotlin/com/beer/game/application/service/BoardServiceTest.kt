@@ -3,6 +3,7 @@ package com.beer.game.application.service
 import com.beer.game.IntegrationTestBase
 import com.beer.game.common.BoardState
 import com.beer.game.common.Role
+import com.beer.game.domain.exceptions.ImpossibleActionException
 import com.beer.game.domain.exceptions.NotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -35,6 +36,10 @@ internal class BoardServiceTest : IntegrationTestBase() {
         assertThat(board.finished).isFalse
         assertThat(board.createdAt.toLocalDate()).isEqualTo(LocalDate.now())
         assertThat(board.players).hasSize(0)
+
+        assertThatExceptionOfType(ImpossibleActionException::class.java)
+            .isThrownBy { boardService.createBoard(boardName) }
+            .withMessage("Name is already used by another board")
     }
 
     @Test

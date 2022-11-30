@@ -1,6 +1,10 @@
 package com.beer.game.domain
 
 import com.beer.game.common.BoardState
+import com.beer.game.events.DocumentType
+import com.beer.game.events.Event
+import com.beer.game.events.EventType
+import com.beer.game.events.InternalEventListener
 import java.time.LocalDateTime
 
 class Board(
@@ -26,5 +30,16 @@ class Board(
         return players
             .flatMap { it.orders }
             .first { it.id == orderId }
+    }
+
+    fun emitUpdate(listener: InternalEventListener) {
+        listener.publish(
+            Event(
+                document = this,
+                documentId = id,
+                documentType = DocumentType.PLAYER,
+                eventType = EventType.UPDATE
+            )
+        )
     }
 }

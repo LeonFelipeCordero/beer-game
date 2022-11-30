@@ -1,17 +1,18 @@
 package com.beer.game.application.service
 
-import com.beer.game.adapters.out.mongo.BoardMongoAdapter
-import com.beer.game.adapters.out.mongo.PlayerMongoAdapter
+import com.beer.game.adapters.out.mongo.*
 import com.beer.game.common.BoardState
 import com.beer.game.domain.Player
 import com.beer.game.common.Role
 import com.beer.game.domain.exceptions.ImpossibleActionException
+import com.beer.game.events.InternalEventListener
 import org.springframework.stereotype.Service
 
 @Service
 class PlayerService(
     private val playerMongoAdapter: PlayerMongoAdapter,
-    private val boardMongoAdapter: BoardMongoAdapter
+    private val boardMongoAdapter: BoardMongoAdapter,
+    private val internalEventListener: InternalEventListener
 ) {
 
     fun addPlayer(boardId: String, role: Role): Player {
@@ -30,12 +31,15 @@ class PlayerService(
         val player = createPlayer(role)
         board.addPlayer(player)
 
+        val savedPlayer = playerMongoAdapter.savePlayer(board, player)
+        player.emitCreation(internalEventListener, board)
+
         if (board.players.size == 3) {
             board.full = true
             board.state = BoardState.RUNNING
+            board.emitUpdate(internalEventListener)
         }
-
-        return playerMongoAdapter.savePlayer(board, player)
+        return savedPlayer
     }
 
     fun getPlayer(boardId: String, playerId: String): Player {
@@ -52,6 +56,7 @@ class PlayerService(
         val player = board.players.first { it.id == playerId }
         player.weeklyOrder = amount
         playerMongoAdapter.savePlayer(board, player)
+        player.emitUpdate(internalEventListener, board)
     }
 
     private fun createPlayer(role: Role) =

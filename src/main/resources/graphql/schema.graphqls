@@ -12,6 +12,13 @@ type Query {
     getPlayersByBoard(boardId: String): [Player]
 }
 
+type Subscription {
+    board(boardId: String): Board
+    player(playerId: String): Player
+    orders(orderId: String): [Order]
+    test: String
+}
+
 type Board {
     id: ID!
     name: String!
