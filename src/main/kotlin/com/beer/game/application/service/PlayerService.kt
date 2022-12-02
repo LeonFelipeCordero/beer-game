@@ -31,14 +31,14 @@ class PlayerService(
         val player = createPlayer(role)
         board.addPlayer(player)
 
-        val savedPlayer = playerMongoAdapter.savePlayer(board, player)
-        player.emitCreation(internalEventListener, board)
-
         if (board.players.size == 3) {
             board.full = true
             board.state = BoardState.RUNNING
             board.emitUpdate(internalEventListener)
         }
+        val savedPlayer = playerMongoAdapter.savePlayer(board, player)
+        player.emitCreation(internalEventListener, board)
+
         return savedPlayer
     }
 
@@ -56,7 +56,7 @@ class PlayerService(
         val player = board.players.first { it.id == playerId }
         player.weeklyOrder = amount
         playerMongoAdapter.savePlayer(board, player)
-        player.emitUpdate(internalEventListener, board)
+        player.emitUpdate(internalEventListener, board.id)
     }
 
     private fun createPlayer(role: Role) =

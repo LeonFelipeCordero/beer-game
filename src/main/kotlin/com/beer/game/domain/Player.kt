@@ -1,6 +1,5 @@
 package com.beer.game.domain
 
-import com.beer.game.adapters.out.mongo.PlayerDocument
 import com.beer.game.common.Role
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
@@ -23,6 +22,10 @@ data class Player(
         orders.add(order)
     }
 
+    fun hasEnoughStock(amount: Int): Boolean {
+        return stock >= amount
+    }
+
     fun emitCreation(listener: InternalEventListener, board: Board) {
         listener.publish(
             Event(
@@ -35,11 +38,11 @@ data class Player(
         )
     }
 
-    fun emitUpdate(listener: InternalEventListener, board: Board) {
+    fun emitUpdate(listener: InternalEventListener, boardId: String) {
         listener.publish(
             Event(
-                document = board,
-                documentId = board.id,
+                document = this,
+                documentId = boardId,
                 entityId = id,
                 documentType = DocumentType.PLAYER,
                 eventType = EventType.UPDATE

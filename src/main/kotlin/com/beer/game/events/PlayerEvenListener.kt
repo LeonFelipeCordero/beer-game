@@ -1,27 +1,26 @@
 package com.beer.game.events
 
-import com.beer.game.domain.Board
+import com.beer.game.domain.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 
 @Component
-class BoardEvenListener(
+class PlayerEvenListener(
     private val internalEventListener: InternalEventListener
 ) {
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(BoardEvenListener::class.java)
+        val logger: Logger = LoggerFactory.getLogger(PlayerEvenListener::class.java)
     }
 
-    fun subscribe(boardId: String): Flux<Board> {
+    fun subscribe(boardId: String, playerId: String): Flux<Player> {
         return internalEventListener
             .subscribe()
-            .filter { it.isSameBoard(boardId) }
-            .filter { it.isRelevantForBoard() }
-            .map { it.document as Board }
+            .filter { it.isSamePlayer(boardId, playerId) }
+            .filter { it.isRelevantForPlayer() }
+            .map { it.document as Player }
             .doOnError { logger.error("Something when wrong filtering the event", it) }
     }
-
 }

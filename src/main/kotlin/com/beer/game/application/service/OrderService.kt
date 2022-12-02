@@ -6,6 +6,7 @@ import com.beer.game.common.OrderType
 import com.beer.game.common.Role
 import com.beer.game.domain.*
 import com.beer.game.domain.exceptions.ImpossibleActionException
+import com.beer.game.events.InternalEventListener
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
@@ -13,7 +14,8 @@ import java.time.LocalDateTime
 class OrderService(
     private val orderMongoAdapter: OrderMongoAdapter,
     private val boardService: BoardService,
-    private val playerService: PlayerService
+    private val playerService: PlayerService,
+    private val internalEventListener: InternalEventListener
 ) {
 
     fun createCpuOrders() {
@@ -35,6 +37,7 @@ class OrderService(
         )
         sender.addOrder(order)
         receiver.addOrder(order)
+        order.emitCreation(internalEventListener, board.id)
         return orderMongoAdapter.createOrder(board, order)
     }
 
@@ -45,13 +48,14 @@ class OrderService(
         val sender = board.players.first { order.sender == it.id }
         val receiver = order.receiver?.let { board.players.first { order.receiver == it.id } }
 
-        if (order.amount > order.originalAmount) {
+        if (!order.validOderAmount()) {
             throw ImpossibleActionException(
                 "deliver amount can't be bigger than original amount",
                 "verify order amount"
             )
         }
-        if (sender.stock < order.amount) {
+        if (!sender.hasEnoughStock(order.amount)) {
+            sender.emitUpdate(internalEventListener, board.id)
             throw ImpossibleActionException(
                 "Sender doesn't have enough stock to deliver the order",
                 "wait until the sender has enough stock, you can order more"
@@ -64,6 +68,10 @@ class OrderService(
             it.lastOrder = order.amount
         }
         order.state = OrderState.DELIVERED
+
+        order.emitUpdate(internalEventListener, board.id)
+        sender.emitUpdate(internalEventListener, board.id)
+        receiver?.apply { emitUpdate(internalEventListener, board.id) }
 
         orderMongoAdapter.deliverOrder(order, board)
     }
@@ -97,6 +105,7 @@ class OrderService(
                     createdAt = LocalDateTime.now()
                 )
                 player.addOrder(order)
+                order.emitCreation(internalEventListener, board.id)
                 orderMongoAdapter.createOrder(board, order)
             }
     }

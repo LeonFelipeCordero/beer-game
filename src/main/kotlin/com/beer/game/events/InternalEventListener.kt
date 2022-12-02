@@ -25,10 +25,7 @@ class InternalEventListener : EventEmitter<Event> {
     override fun subscribe(): Flux<Event> {
         return sink.asFlux()
             .cache()
-            .doOnComplete {
-                logger.info("Stream completed")
-            }.doOnError {
-                logger.error("Something when wrong with the stream", it)
-            }
+            .doOnComplete { logger.info("Stream completed") }
+            .doOnError { logger.error("Something when wrong with the stream", it) }
     }
 }

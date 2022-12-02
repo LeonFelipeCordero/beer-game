@@ -1,15 +1,16 @@
 package com.beer.game.adapters.`in`.api
 
 import com.beer.game.application.service.OrderService
-import com.beer.game.application.service.PlayerService
+import com.beer.game.events.OrderEvenListener
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 
 @Component
 class OrderApiAdapter(
     private val orderService: OrderService,
-    private val playerService: PlayerService
+    private val orderEvenListener: OrderEvenListener
 ) {
 
     fun createOrder(
@@ -34,5 +35,15 @@ class OrderApiAdapter(
         }.map {
             Response(message = "Order delivered", status = 200)
         }
+    }
+
+    fun newOrderSubscription(boardId: String, playerId: String): Flux<OrderGraph> {
+        return orderEvenListener.subscribeNewOrder(boardId, playerId)
+            .map { OrderGraph.fromOrder(it, boardId, it.sender, it.receiver) }
+    }
+
+    fun orderDeliverySubscription(boardId: String, playerId: String): Flux<OrderGraph> {
+        return orderEvenListener.subscribeUpdateDelivery(boardId, playerId)
+            .map { OrderGraph.fromOrder(it, boardId, it.sender, it.receiver) }
     }
 }

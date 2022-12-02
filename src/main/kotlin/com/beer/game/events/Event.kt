@@ -7,7 +7,30 @@ data class Event(
     val entityId: String? = null,
     val documentType: DocumentType,
     val eventType: EventType,
-)
+) {
+    fun isSameBoard(id: String) = documentId == id
+
+    fun isSamePlayer(boardId: String, playerId: String): Boolean {
+        return documentId == boardId && entityId == playerId
+    }
+
+    fun isRelevantForBoard(): Boolean {
+        return (documentType == DocumentType.BOARD && eventType == EventType.UPDATE) ||
+                (documentType == DocumentType.PLAYER && eventType == EventType.NEW)
+    }
+
+    fun isRelevantForPlayer(): Boolean {
+        return documentType == DocumentType.PLAYER && eventType == EventType.UPDATE
+    }
+
+    fun isRelevantForNewOrder(): Boolean {
+        return documentType == DocumentType.ORDER && eventType == EventType.NEW
+    }
+
+    fun isRelevantForUpdateOrder(): Boolean {
+        return documentType == DocumentType.ORDER && eventType == EventType.UPDATE
+    }
+}
 
 enum class EventType {
     NEW,

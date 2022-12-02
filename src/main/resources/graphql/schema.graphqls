@@ -14,9 +14,9 @@ type Query {
 
 type Subscription {
     board(boardId: String): Board
-    player(playerId: String): Player
-    orders(orderId: String): [Order]
-    test: String
+    player(boardId: String, playerId: String): Player
+    newOrder(boardId: String, playerId: String): Order
+    orderDelivery(boardId: String, playerId: String): Order
 }
 
 type Board {
