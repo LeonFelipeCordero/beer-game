@@ -5,7 +5,7 @@ import com.beer.game.common.BoardState
 import com.beer.game.domain.Player
 import com.beer.game.common.Role
 import com.beer.game.domain.exceptions.ImpossibleActionException
-import com.beer.game.events.InternalEventListener
+import com.beer.game.application.events.InternalEventListener
 import org.springframework.stereotype.Service
 
 @Service

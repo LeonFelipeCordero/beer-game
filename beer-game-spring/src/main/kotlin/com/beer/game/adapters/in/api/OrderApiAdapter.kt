@@ -1,7 +1,7 @@
 package com.beer.game.adapters.`in`.api
 
 import com.beer.game.application.service.OrderService
-import com.beer.game.events.OrderEvenListener
+import com.beer.game.application.events.OrderEvenListener
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -15,13 +15,12 @@ class OrderApiAdapter(
 
     fun createOrder(
         boardId: String,
-        senderId: String,
         receiverId: String
     ): Mono<OrderGraph> {
         return Mono.fromCallable {
-            orderService.createOrder(boardId, senderId, receiverId)
+            orderService.createOrder(boardId, receiverId)
         }.map {
-            OrderGraph.fromOrder(it, boardId, senderId, receiverId)
+            OrderGraph.fromOrder(it, boardId, receiverId)
         }.subscribeOn(Schedulers.boundedElastic())
     }
 

@@ -1,5 +1,6 @@
-package com.beer.game.events
+package com.beer.game.application.events
 
+import com.beer.game.events.Event
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -19,7 +20,6 @@ class InternalEventListener : EventEmitter<Event> {
     override fun publish(event: Event) {
         logger.info("Receive event type ${event.eventType.name} for document type ${event.documentType.name}")
         sink.tryEmitNext(event)
-            .orThrowWithCause(RuntimeException("Could not emmit thing"))
     }
 
     override fun subscribe(): Flux<Event> {

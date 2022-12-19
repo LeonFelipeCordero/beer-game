@@ -1,13 +1,14 @@
 type Mutation {
     createBoard(name: String): Board
     addPlayer(boardId: String, role: Role): Player
-    createOrder(boardId: String, senderId: String, receiverId: String): Order
+    createOrder(boardId: String, receiverId: String): Order
     deliverOrder(orderId: String, boardId: String, amount: Int): Response
     updateWeeklyOrder(boardId: String, playerId: String, amount: Int): Response
 }
 
 type Query {
     getBoard(id: String): Board
+    getBoardByName(name: String): Board,
     getPlayer(boardId: String, playerId: String): Player
     getPlayersByBoard(boardId: String): [Player]
 }
@@ -23,11 +24,12 @@ type Board {
     id: ID!
     name: String!
     state: BardState!
-    full: String!
-    finished: String!
+    full: Boolean!
+    finished: Boolean!
     createdAt: String!
     players: [Player]
     orders: [Order]
+    availableRoles: [String]
 }
 
 enum BardState {
@@ -40,11 +42,11 @@ type Player {
     id: ID!
     name: String!
     role: Role!
-    stock: String!
-    backlog: String!
-    weeklyOrder: String!
-    lastOrder: String!
-    cpu: String!
+    stock: Int!
+    backlog: Int!
+    weeklyOrder: Int!
+    lastOrder: Int!
+    cpu: Boolean!
     board: Board,
     orders: [Order!]
 }

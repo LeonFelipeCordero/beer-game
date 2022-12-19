@@ -4,7 +4,7 @@ import com.beer.game.common.Role
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
 import com.beer.game.events.EventType
-import com.beer.game.events.InternalEventListener
+import com.beer.game.application.events.InternalEventListener
 import java.util.UUID
 
 data class Player(

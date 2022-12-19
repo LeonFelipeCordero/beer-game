@@ -4,7 +4,7 @@ import com.beer.game.application.service.BoardService
 import com.beer.game.application.service.OrderService
 import com.beer.game.application.service.PlayerService
 import com.beer.game.common.Role
-import com.beer.game.events.PlayerEvenListener
+import com.beer.game.application.events.PlayerEvenListener
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono

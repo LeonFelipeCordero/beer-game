@@ -1,4 +1,4 @@
-package com.beer.game.events
+package com.beer.game.application.events
 
 import reactor.core.publisher.Flux
 

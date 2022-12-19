@@ -19,10 +19,9 @@ class OrderController(
     @MutationMapping
     fun createOrder(
         @Argument boardId: String,
-        @Argument senderId: String,
         @Argument receiverId: String
     ): Mono<OrderGraph> {
-        return orderApiAdapter.createOrder(boardId, senderId, receiverId)
+        return orderApiAdapter.createOrder(boardId, receiverId)
     }
 
     @MutationMapping

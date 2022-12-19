@@ -1,4 +1,4 @@
-package com.beer.game.schedulers
+package com.beer.game.application.schedulers
 
 import com.beer.game.application.service.OrderService
 import org.slf4j.LoggerFactory

@@ -13,6 +13,10 @@ class BoardService(
         return boardMongoAdapter.loadBoard(boardId)
     }
 
+    fun loadBoardByName(name: String): Board {
+        return boardMongoAdapter.loadBoardByName(name)!!
+    }
+
     fun createBoard(name: String): Board {
         return boardMongoAdapter.loadBoardByName(name)
             ?.let {

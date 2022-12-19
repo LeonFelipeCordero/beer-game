@@ -3,7 +3,8 @@ package com.beer.game.adapters.`in`.api
 import com.beer.game.application.service.BoardService
 import com.beer.game.application.service.OrderService
 import com.beer.game.application.service.PlayerService
-import com.beer.game.events.BoardEvenListener
+import com.beer.game.application.events.BoardEvenListener
+import com.beer.game.common.Role
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -33,6 +34,14 @@ class BoardApiAdapter(
         }.subscribeOn(Schedulers.boundedElastic())
     }
 
+    fun getBoardByName(name: String): Mono<BoardGraph> {
+        return Mono.fromCallable {
+            boardService.loadBoardByName(name)
+        }.map {
+            BoardGraph.fromBoard(it)
+        }.subscribeOn(Schedulers.boundedElastic())
+    }
+
     fun getPlayerForBoard(boardGraph: BoardGraph): Flux<PlayerGraph> {
         return Flux.fromIterable(playerService.getPlayersInBoard(boardGraph.id!!))
             .map {
@@ -50,5 +59,9 @@ class BoardApiAdapter(
     fun subscribeToBoard(boardId: String): Flux<BoardGraph> {
         return boardEvenListener.subscribe(boardId)
             .map { BoardGraph.fromBoard(it) }
-   }
+    }
+
+    fun getAvailableRoles(boardGraph: BoardGraph): Flux<Role> {
+        return Flux.fromIterable(boardService.loadBoard(boardGraph.id!!).availableRoles())
+    }
 }

@@ -6,7 +6,7 @@ import com.beer.game.common.OrderType
 import com.beer.game.common.Role
 import com.beer.game.domain.*
 import com.beer.game.domain.exceptions.ImpossibleActionException
-import com.beer.game.events.InternalEventListener
+import com.beer.game.application.events.InternalEventListener
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
@@ -23,10 +23,10 @@ class OrderService(
             .forEach { createCpuOrderForBoard(it) }
     }
 
-    fun createOrder(boardId: String, senderId: String, receiverId: String): Order {
+    fun createOrder(boardId: String, receiverId: String): Order {
         val board = boardService.loadBoard(boardId)
-        val sender = board.findPlayer(senderId)
         val receiver = board.findPlayer(receiverId)
+        val sender = board.findContraPart(receiver)
         val order = Order(
             amount = receiver.weeklyOrder,
             originalAmount = receiver.weeklyOrder,
@@ -69,11 +69,10 @@ class OrderService(
         }
         order.state = OrderState.DELIVERED
 
+        orderMongoAdapter.deliverOrder(order, board)
         order.emitUpdate(internalEventListener, board.id)
         sender.emitUpdate(internalEventListener, board.id)
         receiver?.apply { emitUpdate(internalEventListener, board.id) }
-
-        orderMongoAdapter.deliverOrder(order, board)
     }
 
     fun deliverFactoryBatches() {
@@ -105,20 +104,19 @@ class OrderService(
                     createdAt = LocalDateTime.now()
                 )
                 player.addOrder(order)
-                order.emitCreation(internalEventListener, board.id)
                 orderMongoAdapter.createOrder(board, order)
+                order.emitCreation(internalEventListener, board.id)
             }
     }
 
     private fun deliverFactoryBatch(board: Board) {
-        board
+        val factory = board
             .players
             .first { it.role == Role.FACTORY }
-            .let { factory ->
-                factory.stock += factory.weeklyOrder
-                factory.backlog = factory.weeklyOrder
-                factory.lastOrder = factory.weeklyOrder
-            }
+        factory.stock += factory.weeklyOrder
+        factory.backlog = factory.weeklyOrder
+        factory.lastOrder = factory.weeklyOrder
         orderMongoAdapter.deliverFactoryBatch(board)
+        factory.emitUpdate(internalEventListener, board.id)
     }
 }

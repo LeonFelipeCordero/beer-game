@@ -1,27 +1,21 @@
-import type { Component } from 'solid-js';
-
-import logo from './logo.svg';
-import styles from './App.module.css';
+import type {Component} from 'solid-js';
+import {Route, Routes} from "solid-app-router";
+import Home from "./pages/Home";
+import CreateBoard from "./pages/CreateBoard";
+import PlayerSelection from "./pages/PlayerSelection";
+import Game from "./pages/Game";
 
 const App: Component = () => {
-  return (
-    <div class={styles.App}>
-      <header class={styles.header}>
-        <img src={logo} class={styles.logo} alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          class={styles.link}
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <>
+            <Routes>
+                <Route path="/" element={Home}></Route>
+                <Route path="/board/new" element={CreateBoard}></Route>
+                <Route path="/player/selection" element={PlayerSelection}></Route>
+                <Route path="/game" element={Game}></Route>
+            </Routes>
+        </>
+    );
 };
 
 export default App;

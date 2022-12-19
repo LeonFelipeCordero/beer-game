@@ -1,4 +1,4 @@
-package com.beer.game.events
+package com.beer.game.application.events
 
 import com.beer.game.domain.Order
 import org.slf4j.Logger

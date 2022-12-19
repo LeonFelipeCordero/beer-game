@@ -4,7 +4,9 @@ import com.beer.game.common.BoardState
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
 import com.beer.game.events.EventType
-import com.beer.game.events.InternalEventListener
+import com.beer.game.application.events.InternalEventListener
+import com.beer.game.common.Role
+import java.lang.RuntimeException
 import java.time.LocalDateTime
 
 class Board(
@@ -30,6 +32,27 @@ class Board(
         return players
             .flatMap { it.orders }
             .first { it.id == orderId }
+    }
+
+    fun findPlayerByRole(role: Role): Player {
+        return players
+            .first { it.role == role }
+    }
+
+    fun findContraPart(receiver: Player): Player {
+        return when (receiver.role) {
+            Role.RETAILER -> findPlayerByRole(Role.WHOLESALER)
+            Role.WHOLESALER -> findPlayerByRole(Role.FACTORY)
+            else -> throw RuntimeException("This role ${receiver.role} can't create orders")
+        }
+    }
+
+    fun availableRoles(): List<Role> {
+        return Role.values()
+            .asList()
+            .filter { role ->
+                !this.players.map { player -> player.role }.contains(role)
+            }
     }
 
     fun emitUpdate(listener: InternalEventListener) {

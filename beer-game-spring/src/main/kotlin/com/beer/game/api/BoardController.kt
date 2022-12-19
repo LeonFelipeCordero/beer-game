@@ -4,6 +4,7 @@ import com.beer.game.adapters.`in`.api.BoardApiAdapter
 import com.beer.game.adapters.`in`.api.BoardGraph
 import com.beer.game.adapters.`in`.api.OrderGraph
 import com.beer.game.adapters.`in`.api.PlayerGraph
+import com.beer.game.common.Role
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
@@ -30,6 +31,11 @@ class BoardController(
         return boardApiAdapter.getBoard(id)
     }
 
+    @QueryMapping
+    fun getBoardByName(@Argument name: String): Mono<BoardGraph> {
+        return boardApiAdapter.getBoardByName(name)
+    }
+
     @SubscriptionMapping
     fun board(@Argument boardId: String): Flux<BoardGraph> {
         return boardApiAdapter.subscribeToBoard(boardId)
@@ -51,5 +57,10 @@ class BoardController(
     @SchemaMapping(typeName = "Board", field = "orders")
     fun orders(boardGraph: BoardGraph): Flux<OrderGraph> {
         return boardApiAdapter.getOrdersForBoard(boardGraph)
+    }
+
+    @SchemaMapping(typeName = "Board", field = "availableRoles")
+    fun availableRoles(boardGraph: BoardGraph): Flux<Role> {
+        return boardApiAdapter.getAvailableRoles(boardGraph)
     }
 }

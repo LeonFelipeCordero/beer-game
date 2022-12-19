@@ -5,7 +5,7 @@ import com.beer.game.common.OrderType
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
 import com.beer.game.events.EventType
-import com.beer.game.events.InternalEventListener
+import com.beer.game.application.events.InternalEventListener
 import java.time.LocalDateTime
 import java.util.UUID
 
