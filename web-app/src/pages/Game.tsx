@@ -45,6 +45,9 @@ function Game() {
 
     const createOrder = (boardId: string, senderId: string, receiverId: string) => {
         orderClient.doQuery(orderQueryType.createOrder, {boardId: boardId, receiverId: receiverId})
+            .then(_ => {
+                console.log(`order created}`)
+            })
     }
 
     return (
@@ -61,7 +64,7 @@ function Game() {
                                     <div class="mb-4">
                                         <GameHeader boardName={board()!!.name}
                                                     playerRole={player()!!.role}></GameHeader>
-                                        <GameStatus player={player()!!}></GameStatus>
+                                        <GameStatus player={player()!!} createOrder={createOrder}></GameStatus>
                                     </div>
                                 </div>
                                 <OrdersTable orders={orders()!!} player={player()!!}></OrdersTable>

@@ -2,17 +2,17 @@
   "id": "1a0303a4-02b4-49a0-bc80-285a2691af77",
   "name": "WHOLESALER",
   "role": "WHOLESALER",
-  "stock": "1200",
-  "backlog": "1200",
-  "weeklyOrder": "600",
-  "lastOrder": "600",
-  "cpu": "false",
+  "stock": 1200,
+  "backlog": 1200,
+  "weeklyOrder": 600,
+  "lastOrder": 600,
+  "cpu": false,
   "board": {
     "id": "63835e08029f95227a5063be",
     "name": "test",
     "state": "CREATED",
-    "full": "false",
-    "finished": "false",
+    "full": false,
+    "finished": false,
     "createdAt": "2022-11-27T13:54:32.503"
   }
 }

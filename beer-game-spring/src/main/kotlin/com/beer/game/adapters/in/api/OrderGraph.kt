@@ -17,14 +17,14 @@ data class OrderGraph(
     val createdAt: LocalDateTime?
 ) {
     companion object {
-        fun fromOrder(order: Order, boardId: String, senderId: String, receiverId: String? = null): OrderGraph {
+        fun fromOrder(order: Order, boardId: String, receiverId: String? = null): OrderGraph {
             return OrderGraph(
                 id = order.id,
                 amount = order.amount,
                 originalAmount = order.originalAmount,
                 state = order.state,
                 type = order.type,
-                senderId = senderId,
+                senderId = order.sender,
                 receiverId = receiverId,
                 boardId = boardId,
                 createdAt = order.createdAt,

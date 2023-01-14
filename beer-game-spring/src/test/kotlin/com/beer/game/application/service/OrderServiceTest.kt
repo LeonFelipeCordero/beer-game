@@ -110,8 +110,8 @@ internal class OrderServiceTest : IntegrationTestBase() {
         val wholesaler = playerService.addPlayer(board.id, Role.WHOLESALER)
         val factory = playerService.addPlayer(board.id, Role.FACTORY)
 
-        orderService.createOrder(board.id, wholesaler.id, retailer.id)
-        orderService.createOrder(board.id, factory.id, wholesaler.id)
+        orderService.createOrder(board.id, retailer.id)
+        orderService.createOrder(board.id, wholesaler.id)
 
         board = boardService.loadBoard(board.id)
         assertThat(board.players[0].orders).hasSize(1)
@@ -175,7 +175,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
         val wholesaler = playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
 
-        val order = orderService.createOrder(board.id, wholesaler.id, retailer.id)
+        val order = orderService.createOrder(board.id, retailer.id)
 
         val loadOrder = orderService.getOrder(order.id, board.id)
         assertThat(order.id).isEqualTo(loadOrder.id)

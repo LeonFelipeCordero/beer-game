@@ -52,7 +52,7 @@ class BoardApiAdapter(
     fun getOrdersForBoard(boardGraph: BoardGraph): Flux<OrderGraph> {
         return Flux.fromIterable(orderService.getOrdersByBoard(boardGraph.id!!))
             .map {
-                OrderGraph.fromOrder(it, boardGraph.id, it.sender, it.receiver)
+                OrderGraph.fromOrder(it, boardGraph.id, it.receiver)
             }.subscribeOn(Schedulers.boundedElastic())
     }
 

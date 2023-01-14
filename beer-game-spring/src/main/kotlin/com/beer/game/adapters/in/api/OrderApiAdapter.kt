@@ -38,11 +38,11 @@ class OrderApiAdapter(
 
     fun newOrderSubscription(boardId: String, playerId: String): Flux<OrderGraph> {
         return orderEvenListener.subscribeNewOrder(boardId, playerId)
-            .map { OrderGraph.fromOrder(it, boardId, it.sender, it.receiver) }
+            .map { OrderGraph.fromOrder(it, boardId, it.receiver) }
     }
 
     fun orderDeliverySubscription(boardId: String, playerId: String): Flux<OrderGraph> {
         return orderEvenListener.subscribeUpdateDelivery(boardId, playerId)
-            .map { OrderGraph.fromOrder(it, boardId, it.sender, it.receiver) }
+            .map { OrderGraph.fromOrder(it, boardId, it.receiver) }
     }
 }

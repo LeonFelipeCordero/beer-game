@@ -3,6 +3,7 @@ package com.beer.game.api
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
 import com.beer.game.adapters.`in`.api.BoardGraph
+import com.beer.game.adapters.`in`.api.OrderGraph
 import com.beer.game.adapters.`in`.api.PlayerGraph
 import com.beer.game.api.GraphQlDocuments.documentAddPlayerMinimal
 import com.beer.game.api.GraphQlDocuments.documentCreateBoard
@@ -40,7 +41,6 @@ class OrderControllerTest : IntegrationTestBase() {
         val order = graphQlTester
             .document(documentCreateOrder)
             .variable("boardId", board.id)
-            .variable("senderId", wholesaler.id)
             .variable("receiverId", retailer.id)
             .execute()
             .path("createOrder")

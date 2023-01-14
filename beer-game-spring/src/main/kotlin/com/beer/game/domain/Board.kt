@@ -34,9 +34,8 @@ class Board(
             .first { it.id == orderId }
     }
 
-    fun findPlayerByRole(role: Role): Player {
-        return players
-            .first { it.role == role }
+    private fun findPlayerByRole(role: Role): Player {
+        return players.first { it.role == role }
     }
 
     fun findContraPart(receiver: Player): Player {

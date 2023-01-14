@@ -2,17 +2,17 @@
   "id": "9e20b6fd-d7df-4b7b-8e4e-b1b40e66f2ed",
   "name": "FACTORY",
   "role": "FACTORY",
-  "stock": "12000",
-  "backlog": "12000",
-  "weeklyOrder": "6000",
-  "lastOrder": "6000",
-  "cpu": "false",
+  "stock": 12000,
+  "backlog": 12000,
+  "weeklyOrder": 6000,
+  "lastOrder": 6000,
+  "cpu": false,
   "board": {
     "id": "63835e08029f95227a5063be",
     "name": "test",
     "state": "RUNNING",
-    "full": "true",
-    "finished": "false",
+    "full": true,
+    "finished": false,
     "createdAt": "2022-11-27T13:54:32.503"
   }
 }

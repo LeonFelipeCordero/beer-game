@@ -1,7 +1,7 @@
 import {Player} from "../../gql/graphql";
 import {Show} from "solid-js";
 
-function GameStatus(props: { player: Player }) {
+function GameStatus(props: { player: Player, createOrder: Function }) {
     return (
         <div class="mt-5">
             board
@@ -54,7 +54,7 @@ function GameStatus(props: { player: Player }) {
                         value="order"
                         onClick={(e) => {
                             e.preventDefault()
-
+                            props.createOrder()
                         }}
                     />
                 </Show>

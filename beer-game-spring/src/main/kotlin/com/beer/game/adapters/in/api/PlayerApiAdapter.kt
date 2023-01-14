@@ -63,7 +63,7 @@ class PlayerApiAdapter(
     fun orders(playerGraph: PlayerGraph): Flux<OrderGraph> {
         return Flux.fromIterable(orderService.getOrdersByPlayer(playerGraph.id!!, playerGraph.boardId!!))
             .map {
-                OrderGraph.fromOrder(it, playerGraph.boardId, it.sender, it.receiver)
+                OrderGraph.fromOrder(it, playerGraph.boardId, it.receiver)
             }.subscribeOn(Schedulers.boundedElastic())
     }
 
