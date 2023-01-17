@@ -5,31 +5,33 @@ function GameStatus(props: { player: Player, board: Board, createOrder: Function
     return (
         <div class="mt-5">
             <strong>Current status</strong>
-            <table class="border-separate border border-slate-500 table-fixed w-full">
-                <thead>
-                <tr>
-                    <th class="border border-slate-600">Stock</th>
-                    <th class="border border-slate-600">Last week</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <Show when={props.player.stock > 10} keyed
-                          fallback={
-                              <td class="border border-slate-700 text-red-600 font-bold">
-                                  {props.player.stock}
-                              </td>
-                          }>
-                        <td class="border border-slate-700">
-                            {props.player.stock}
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Last week</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <Show when={props.player.stock > 10} keyed
+                              fallback={
+                                  <td>
+                                      {props.player.stock}
+                                  </td>
+                              }>
+                            <td>
+                                {props.player.stock}
+                            </td>
+                        </Show>
+                        <td>
+                            {props.player.lastOrder}
                         </td>
-                    </Show>
-                    <td class="border border-slate-700">
-                        {props.player.lastOrder}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
             <form phx-submit="create_order" class="flex flex-col mt-5">
                 <Show when={props.player.role == "FACTORY"} keyed
                       fallback={

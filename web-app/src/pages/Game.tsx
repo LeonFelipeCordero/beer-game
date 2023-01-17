@@ -82,9 +82,9 @@ function Game() {
                     <div class="h-screen">
                         <div class="flex justify-between p-5">
                             <Show when={player()} fallback={<Loading></Loading>} keyed>
-                                <div class="bg-slate-100 shadow-md rounded p-2 mr-5 w-full">
+                                <div class="w-full">
                                     <div class="flex grid-rows-2">
-                                        <div class="row-start-2">
+                                        <div class="bg-slate-100 p-5 rounded mr-5 row-end-2">
                                             <GameHeader boardName={board()!!.name}
                                                         playerRole={player()!!.role}></GameHeader>
                                             <GameStatus player={player()!!} board={board()!!}

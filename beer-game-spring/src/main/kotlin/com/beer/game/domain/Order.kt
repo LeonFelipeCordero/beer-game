@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class Order(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = UUID.randomUUID().toString().replace("-", ""),
     var amount: Int,
     val originalAmount: Int,
     var state: OrderState = OrderState.PENDING,
