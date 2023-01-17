@@ -23,6 +23,8 @@ class OrderMongoAdapter(
 
     fun deliverOrder(order: Order, board: Board) {
         val boardDocument = BoardDocument.fromBoard(board)
+        boardDocument.orders.removeIf { it.id == order.id }
+        boardDocument.orders.add(OrderDocument.fromOrder(order))
         boardMongoAdapter.upsertBoard(boardDocument)
     }
 

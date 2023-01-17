@@ -2,13 +2,17 @@ import {gql, TypedDocumentNode} from "@urql/core"
 
 export const orderQueryType = {
     createOrder: "createOrder",
-    newOrder: "newOrder"
+    newOrder: "newOrder",
+    deliverOrder: "deliverOrder",
+    orderDelivery: "orderDelivery"
 }
 
 function orderQueries(query: string): TypedDocumentNode {
     const queries = new Map<string, TypedDocumentNode>([
         [orderQueryType.createOrder, createOrderMutation],
+        [orderQueryType.deliverOrder, deliverOrderMutation],
         [orderQueryType.newOrder, newOrderSubscription],
+        [orderQueryType.orderDelivery, orderDeliverySubscription]
     ])
     if (queries.has(query)) {
         return queries.get(query)!!
@@ -31,6 +35,15 @@ mutation createOrder($boardId: String, $receiverId: String) {
 }
 `;
 
+const deliverOrderMutation = gql`
+mutation deliverOrder($orderId: String, $boardId: String, $amount: Int) {
+  deliverOrder(orderId: $orderId, boardId: $boardId, amount: $amount) {
+    message
+    status
+  }
+}
+`;
+
 const newOrderSubscription = gql`
 subscription newOrder($boardId: String, $playerId: String) {
   newOrder(boardId: $boardId, playerId: $playerId) {
@@ -44,6 +57,17 @@ subscription newOrder($boardId: String, $playerId: String) {
     sender {
       id
     }
+  }
+}
+`;
+
+const orderDeliverySubscription = gql`
+subscription orderDelivery($boardId: String, $playerId: String) {
+  orderDelivery(boardId: $boardId, playerId: $playerId) {
+    id
+    amount
+    originalAmount
+    state
   }
 }
 `;

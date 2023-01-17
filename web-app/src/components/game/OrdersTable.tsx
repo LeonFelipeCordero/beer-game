@@ -1,10 +1,15 @@
 import {Orders} from "../../types/order/Orders";
-import {Order, OrderState, Player} from "../../gql/graphql";
+import {Board, Order, OrderState, Player} from "../../gql/graphql";
 import {For, Show} from "solid-js";
 
-function OrdersTable(props: { orders: Orders, player: Player }) {
+function OrdersTable(props: { orders: Orders, player: Player, board: Board, deliver: Function }) {
+
+    const deliverOrder = (orderId: string, boardId: string, amount: number) => {
+        props.deliver(orderId, boardId, amount)
+    }
+
     return (
-        <div>
+        <div class="flex grid-rows-2">
             <div class="bg-slate-100 shadow-md rounded p-2 mr-5 w-full">
                 <strong class="text-xl">
                     Incoming.
@@ -20,10 +25,10 @@ function OrdersTable(props: { orders: Orders, player: Player }) {
                     <tbody>
                     <For each={props.orders.value.filter(o => o.receiver?.id == props.player.id)}>
                         {(order: Order) => (
-                            <tr>
-                                <td class="border border-slate-700">{order.id}</td>
-                                <td class="border border-slate-700">{order.originalAmount}</td>
-                                <td class="border border-slate-700">{order.state}</td>
+                            <tr class="p-2">
+                                <td class="p-2 border border-slate-700">{order.id}</td>
+                                <td class="p-2 border border-slate-700">{order.originalAmount}</td>
+                                <td class="p-2 border border-slate-700">{order.state}</td>
                             </tr>
                         )}
                     </For>
@@ -48,22 +53,22 @@ function OrdersTable(props: { orders: Orders, player: Player }) {
                         <For each={props.orders.value.filter(o => o.sender?.id == props.player.id)}>
                             {(order: Order) => (
                                 <tr>
-                                    <td class="border border-slate-700">
+                                    <td class="p-2 border border-slate-700">
                                         {order.id}
                                     </td>
-                                    <td class="border border-slate-700">
+                                    <td class="p-2 border border-slate-700">
                                         {order.originalAmount}
                                     </td>
-                                    <td class="border border-slate-700">
+                                    <td class="p-2 border border-slate-700">
                                         {order.state}
                                     </td>
                                     <Show
                                         when={order.state === OrderState.Pending}
                                         keyed
                                         fallback={
-                                            <td class="border border-slate-600">N/A</td>
+                                            <td class="p-2 border border-slate-600">N/A</td>
                                         }>
-                                        <td class="border border-slate-600">
+                                        <td class="p-2 border border-slate-600">
                                             <Show when={props.player.stock >= order.originalAmount} keyed
                                                   fallback={
                                                       <button disabled class="bg-gray-600 text-white py-1 px-2
@@ -72,7 +77,11 @@ function OrdersTable(props: { orders: Orders, player: Player }) {
                                                       </button>
                                                   }>
                                                 <button class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2
-                          rounded focus:outline-none focus:shadow-outline w-full">
+                          rounded focus:outline-none focus:shadow-outline w-full"
+                                                        onclick={e => {
+                                                            e.preventDefault()
+                                                            deliverOrder(order.id, props.board.id, order.amount)
+                                                        }}>
                                                     deliver
                                                 </button>
                                             </Show>

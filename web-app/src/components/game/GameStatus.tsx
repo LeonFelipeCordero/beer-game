@@ -1,10 +1,9 @@
-import {Player} from "../../gql/graphql";
+import {Board, Player} from "../../gql/graphql";
 import {Show} from "solid-js";
 
-function GameStatus(props: { player: Player, createOrder: Function }) {
+function GameStatus(props: { player: Player, board: Board, createOrder: Function }) {
     return (
         <div class="mt-5">
-            board
             <strong>Current status</strong>
             <table class="border-separate border border-slate-500 table-fixed w-full">
                 <thead>
@@ -54,7 +53,7 @@ function GameStatus(props: { player: Player, createOrder: Function }) {
                         value="order"
                         onClick={(e) => {
                             e.preventDefault()
-                            props.createOrder()
+                            props.createOrder(props.board.id, props.player.id)
                         }}
                     />
                 </Show>
