@@ -42,8 +42,8 @@ class PlayerService(
         return savedPlayer
     }
 
-    fun getPlayer(boardId: String, playerId: String): Player {
-        return playerMongoAdapter.loadPlayer(boardId, playerId)
+    fun getPlayer(playerId: String): Pair<Player, String> {
+        return playerMongoAdapter.loadPlayer(playerId)
     }
 
     fun getPlayersInBoard(boardId: String): MutableList<Player> {
@@ -51,8 +51,8 @@ class PlayerService(
             .players
     }
 
-    fun changeWeeklyOrder(boardId: String, playerId: String, amount: Int) {
-        val board = boardMongoAdapter.loadBoard(boardId)
+    fun changeWeeklyOrder(playerId: String, amount: Int) {
+        val board = boardMongoAdapter.loadBoardByPlayerId(playerId)
         val player = board.players.first { it.id == playerId }
         player.weeklyOrder = amount
         playerMongoAdapter.savePlayer(board, player)

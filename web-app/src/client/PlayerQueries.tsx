@@ -31,8 +31,8 @@ mutation addPlayer($boardId: String, $role: Role) {
 `;
 
 const getPlayerQuery = gql`
-query getPlayer($boardId: String, $playerId: String) {
-  getPlayer(boardId: $boardId, playerId: $playerId) {
+query getPlayer($playerId: String) {
+  getPlayer(playerId: $playerId) {
     id
     role
     stock
@@ -56,8 +56,8 @@ query getPlayer($boardId: String, $playerId: String) {
 `;
 
 const playerSubscription = gql`
-subscription player($boardId: String, $playerId: String) {
-  player(boardId: $boardId, playerId: $playerId) {
+subscription player($playerId: String) {
+  player(playerId: $playerId) {
     id
     backlog
     stock

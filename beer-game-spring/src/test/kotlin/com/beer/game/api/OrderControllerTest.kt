@@ -40,7 +40,6 @@ class OrderControllerTest : IntegrationTestBase() {
 
         val order = graphQlTester
             .document(documentCreateOrder)
-            .variable("boardId", board.id)
             .variable("receiverId", retailer.id)
             .execute()
             .path("createOrder")

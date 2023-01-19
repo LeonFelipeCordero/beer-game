@@ -18,39 +18,37 @@ class OrderController(
 
     @MutationMapping
     fun createOrder(
-        @Argument boardId: String,
         @Argument receiverId: String
     ): Mono<OrderGraph> {
-        return orderApiAdapter.createOrder(boardId, receiverId)
+        return orderApiAdapter.createOrder(receiverId)
     }
 
     @MutationMapping
     fun deliverOrder(
         @Argument orderId: String,
-        @Argument boardId: String,
         @Argument amount: Int? = null
     ): Mono<Response> {
-        return orderApiAdapter.deliverOrder(orderId, boardId, amount)
+        return orderApiAdapter.deliverOrder(orderId, amount)
     }
 
     @SubscriptionMapping
-    fun newOrder(@Argument boardId: String, @Argument playerId: String): Flux<OrderGraph> {
-        return orderApiAdapter.newOrderSubscription(boardId, playerId)
+    fun newOrder(@Argument playerId: String): Flux<OrderGraph> {
+        return orderApiAdapter.newOrderSubscription(playerId)
     }
 
     @SubscriptionMapping
-    fun orderDelivery(@Argument boardId: String, @Argument playerId: String): Flux<OrderGraph> {
-        return orderApiAdapter.orderDeliverySubscription(boardId, playerId)
+    fun orderDelivery(@Argument playerId: String): Flux<OrderGraph> {
+        return orderApiAdapter.orderDeliverySubscription(playerId)
     }
 
     @SchemaMapping(typeName = "Order", field = "sender")
     fun sender(order: OrderGraph): Mono<PlayerGraph> {
-        return playerApiAdapter.getPlayer(order.boardId!!, order.senderId!!)
+        return playerApiAdapter.getPlayer(order.senderId!!)
     }
 
     @SchemaMapping(typeName = "Order", field = "receiver")
     fun receiver(order: OrderGraph): Mono<PlayerGraph> {
-        return order.receiverId?.let { playerApiAdapter.getPlayer(order.boardId!!, order.receiverId) } ?: Mono.empty()
+        return order.receiverId?.let { playerApiAdapter.getPlayer(order.receiverId) } ?: Mono.empty()
     }
 
     @SchemaMapping(typeName = "Order", field = "board")

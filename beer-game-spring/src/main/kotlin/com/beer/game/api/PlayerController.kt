@@ -23,26 +23,25 @@ class PlayerController(
 
     @MutationMapping
     fun updateWeeklyOrder(
-        @Argument boardId: String,
         @Argument playerId: String,
         @Argument amount: Int
     ): Mono<Response> {
-        return playerApiAdapter.updateWeeklyOrder(boardId, playerId, amount)
+        return playerApiAdapter.updateWeeklyOrder(playerId, amount)
     }
 
     @QueryMapping
-    fun getPlayer(@Argument boardId: String, @Argument playerId: String): Mono<PlayerGraph> {
-        return playerApiAdapter.getPlayer(boardId, playerId)
+    fun getPlayer(@Argument playerId: String): Mono<PlayerGraph> {
+        return playerApiAdapter.getPlayer(playerId)
     }
 
     @QueryMapping
-    fun getPlayersByOrder(@Argument boardId: String): Flux<PlayerGraph> {
-        return playerApiAdapter.getPlayersByOrder(boardId)
+    fun getPlayersByBoard(@Argument boardId: String): Flux<PlayerGraph> {
+        return playerApiAdapter.getPlayersByBoard(boardId)
     }
 
     @SubscriptionMapping
-    fun player(@Argument boardId: String, @Argument playerId: String): Flux<PlayerGraph> {
-        return playerApiAdapter.subscribeToPlayer(boardId, playerId)
+    fun player(@Argument playerId: String): Flux<PlayerGraph> {
+        return playerApiAdapter.subscribeToPlayer(playerId)
     }
 
     @SchemaMapping(typeName = "Player", field = "board")

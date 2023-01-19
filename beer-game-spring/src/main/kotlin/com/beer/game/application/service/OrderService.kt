@@ -23,8 +23,8 @@ class OrderService(
             .forEach { createCpuOrderForBoard(it) }
     }
 
-    fun createOrder(boardId: String, receiverId: String): Order {
-        val board = boardService.loadBoard(boardId)
+    fun createOrder(receiverId: String): Pair<Order, String> {
+        val board = boardService.loadBoardByPlayerId(receiverId)
         val receiver = board.findPlayer(receiverId)
         val sender = board.findContraPart(receiver)
         val order = Order(
@@ -38,11 +38,11 @@ class OrderService(
         sender.addOrder(order)
         receiver.addOrder(order)
         order.emitCreation(internalEventListener, board.id)
-        return orderMongoAdapter.createOrder(board, order)
+        return Pair(orderMongoAdapter.createOrder(board, order), board.id)
     }
 
-    fun deliverOrder(orderId: String, boardId: String, amount: Int? = null) {
-        val board = boardService.loadBoard(boardId)
+    fun deliverOrder(orderId: String, amount: Int? = null) {
+        val board = boardService.loadBoardByOrderId(orderId)
         val order = board.findOrder(orderId)
         amount?.let { order.amount = it }
         val sender = board.players.first { order.sender == it.id }
@@ -79,8 +79,10 @@ class OrderService(
         boardService.loadActiveBoards().forEach { deliverFactoryBatch(it) }
     }
 
-    fun getOrder(orderId: String, boardId: String): Order {
-        return boardService.loadBoard(boardId).findOrder(orderId)
+    fun getOrder(orderId: String): Pair<Order, String> {
+        val board = boardService.loadBoardByOrderId(orderId)
+        val order = board.findOrder(orderId)
+        return Pair(order, board.id)
     }
 
     fun getOrdersByBoard(boardId: String): List<Order> {
@@ -89,8 +91,9 @@ class OrderService(
             .flatMap { it.orders }
     }
 
-    fun getOrdersByPlayer(playerId: String, boardId: String): List<Order> {
-        return playerService.getPlayer(boardId, playerId).orders
+    fun getOrdersByPlayer(playerId: String): List<Order> {
+        val (player, _) = playerService.getPlayer(playerId)
+        return player.orders
     }
 
     private fun createCpuOrderForBoard(board: Board) {

@@ -41,4 +41,14 @@ class BoardMongoAdapter(
     fun loadActiveBoardDocuments(): List<BoardDocument> {
         return boardRepository.findBoardDocumentByState(BoardState.RUNNING.toString())
     }
+
+    fun loadBoardByPlayerId(playerId: String): Board {
+        return boardRepository.findOneByPlayersId(playerId)?.toBoard()
+            ?: throw NotFoundException("Board with player id $playerId doesn't exit", "Verify the id provided")
+    }
+
+    fun loadBoardByOrderId(orderId: String): Board {
+        return boardRepository.findOneByOrdersId(orderId)?.toBoard()
+            ?: throw NotFoundException("Board with order id $orderId doesn't exit", "Verify the id provided")
+    }
 }

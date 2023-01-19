@@ -71,7 +71,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
         board.players
             .flatMap { it.orders }
             .forEach { order ->
-                orderService.deliverOrder(order.id, board.id, order.amount)
+                orderService.deliverOrder(order.id, order.amount)
             }
 
         board = boardService.loadBoard(board.id)
@@ -98,7 +98,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
             .first()
 
         assertThatExceptionOfType(ImpossibleActionException::class.java)
-            .isThrownBy { orderService.deliverOrder(orderToDeliver.id, board.id, orderToDeliver.amount + 1) }
+            .isThrownBy { orderService.deliverOrder(orderToDeliver.id, orderToDeliver.amount + 1) }
             .withMessage("deliver amount can't be bigger than original amount")
     }
 
@@ -110,8 +110,8 @@ internal class OrderServiceTest : IntegrationTestBase() {
         val wholesaler = playerService.addPlayer(board.id, Role.WHOLESALER)
         val factory = playerService.addPlayer(board.id, Role.FACTORY)
 
-        orderService.createOrder(board.id, retailer.id)
-        orderService.createOrder(board.id, wholesaler.id)
+        orderService.createOrder(retailer.id)
+        orderService.createOrder(wholesaler.id)
 
         board = boardService.loadBoard(board.id)
         assertThat(board.players[0].orders).hasSize(1)
@@ -136,7 +136,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
         retailer.orders
             .filter { it.sender == retailer.id }
             .forEach {
-                orderService.deliverOrder(it.id, board.id, it.amount)
+                orderService.deliverOrder(it.id, it.amount)
             }
 
         orderService.createCpuOrders()
@@ -146,7 +146,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
             .filter { it.sender == retailer.id && it.state == OrderState.PENDING }
             .forEach {
                 assertThatExceptionOfType(ImpossibleActionException::class.java)
-                    .isThrownBy { orderService.deliverOrder(it.id, board.id, it.amount) }
+                    .isThrownBy { orderService.deliverOrder(it.id, it.amount) }
                     .withMessage("Sender doesn't have enough stock to deliver the order")
             }
     }
@@ -175,9 +175,9 @@ internal class OrderServiceTest : IntegrationTestBase() {
         val wholesaler = playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
 
-        val order = orderService.createOrder(board.id, retailer.id)
+        val order = orderService.createOrder(retailer.id)
 
-        val loadOrder = orderService.getOrder(order.id, board.id)
-        assertThat(order.id).isEqualTo(loadOrder.id)
+        val loadOrder = orderService.getOrder(order.first.id)
+        assertThat(order.first.id).isEqualTo(loadOrder.first.id)
     }
 }

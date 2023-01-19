@@ -24,8 +24,7 @@ class Board(
     }
 
     fun findPlayer(playerId: String): Player {
-        return players
-            .first { it.id == playerId }
+        return players.first { it.id == playerId }
     }
 
     fun findOrder(orderId: String): Order {

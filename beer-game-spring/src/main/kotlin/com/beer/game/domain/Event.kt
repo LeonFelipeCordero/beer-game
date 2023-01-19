@@ -10,8 +10,8 @@ data class Event(
 ) {
     fun isSameBoard(id: String) = documentId == id
 
-    fun isSamePlayer(boardId: String, playerId: String): Boolean {
-        return documentId == boardId && entityId == playerId
+    fun isSamePlayer(playerId: String): Boolean {
+        return entityId == playerId
     }
 
     fun isRelevantForBoard(): Boolean {

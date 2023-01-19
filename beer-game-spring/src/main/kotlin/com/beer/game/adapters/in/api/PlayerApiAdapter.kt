@@ -26,9 +26,9 @@ class PlayerApiAdapter(
         }.subscribeOn(Schedulers.boundedElastic())
     }
 
-    fun updateWeeklyOrder(boardId: String, playerId: String, amount: Int): Mono<Response> {
+    fun updateWeeklyOrder(playerId: String, amount: Int): Mono<Response> {
         return Mono.fromCallable {
-            playerService.changeWeeklyOrder(boardId, playerId, amount)
+            playerService.changeWeeklyOrder(playerId, amount)
         }.map {
             Response(
                 message = "weekly order updated",
@@ -37,15 +37,15 @@ class PlayerApiAdapter(
         }.subscribeOn(Schedulers.boundedElastic())
     }
 
-    fun getPlayer(boardId: String, playerId: String): Mono<PlayerGraph> {
+    fun getPlayer(playerId: String): Mono<PlayerGraph> {
         return Mono.fromCallable {
-            playerService.getPlayer(boardId, playerId)
+            playerService.getPlayer(playerId)
         }.map {
-            PlayerGraph.fromPlayer(it, boardId)
+            PlayerGraph.fromPlayer(it.first, it.second)
         }.subscribeOn(Schedulers.boundedElastic())
     }
 
-    fun getPlayersByOrder(boardId: String): Flux<PlayerGraph> {
+    fun getPlayersByBoard(boardId: String): Flux<PlayerGraph> {
         return Flux.fromIterable(
             playerService.getPlayersInBoard(boardId)
         ).map {
@@ -61,14 +61,15 @@ class PlayerApiAdapter(
     }
 
     fun orders(playerGraph: PlayerGraph): Flux<OrderGraph> {
-        return Flux.fromIterable(orderService.getOrdersByPlayer(playerGraph.id!!, playerGraph.boardId!!))
+        return Flux.fromIterable(orderService.getOrdersByPlayer(playerGraph.id!!))
             .map {
-                OrderGraph.fromOrder(it, playerGraph.boardId, it.receiver)
+                OrderGraph.fromOrder(it, playerGraph.boardId!!, it.receiver)
             }.subscribeOn(Schedulers.boundedElastic())
     }
 
-    fun subscribeToPlayer(boardId: String, playerId: String): Flux<PlayerGraph> {
-        return playerEvenListener.subscribe(boardId, playerId)
-            .map { PlayerGraph.fromPlayer(it, boardId) }
+    fun subscribeToPlayer(playerId: String): Flux<PlayerGraph> {
+        val board = boardService.loadBoardByPlayerId(playerId)
+        return playerEvenListener.subscribe(playerId)
+            .map { PlayerGraph.fromPlayer(it, board.id) }
     }
 }

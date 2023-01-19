@@ -31,4 +31,12 @@ class BoardService(
     fun loadActiveBoards(): List<Board> {
         return boardMongoAdapter.loadActiveBoards()
     }
+
+    fun loadBoardByPlayerId(playerId: String): Board {
+        return boardMongoAdapter.loadBoardByPlayerId(playerId)
+    }
+
+    fun loadBoardByOrderId(orderId: String): Board {
+        return boardMongoAdapter.loadBoardByOrderId(orderId)
+    }
 }

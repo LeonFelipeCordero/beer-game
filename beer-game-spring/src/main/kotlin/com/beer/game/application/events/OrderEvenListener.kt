@@ -15,20 +15,18 @@ class OrderEvenListener(
         val logger: Logger = LoggerFactory.getLogger(OrderEvenListener::class.java)
     }
 
-    fun subscribeNewOrder(boardId: String, playerId: String): Flux<Order> {
+    fun subscribeNewOrder(playerId: String): Flux<Order> {
         return internalEventListener
             .subscribe()
-            .filter { it.isSameBoard(boardId) }
             .filter { it.isRelevantForNewOrder() }
             .map { it.document as Order }
             .filter { it.isPlayerInvolved(playerId) }
             .doOnError { logger.error("Something when wrong filtering the event", it) }
     }
 
-    fun subscribeUpdateDelivery(boardId: String, playerId: String): Flux<Order> {
+    fun subscribeUpdateDelivery(playerId: String): Flux<Order> {
         return internalEventListener
             .subscribe()
-            .filter { it.isSameBoard(boardId) }
             .filter { it.isRelevantForUpdateOrder() }
             .map { it.document as Order }
             .filter { it.isPlayerInvolved(playerId) }

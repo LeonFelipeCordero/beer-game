@@ -54,21 +54,18 @@ export type MutationCreateBoardArgs = {
 
 
 export type MutationCreateOrderArgs = {
-  boardId?: InputMaybe<Scalars['String']>;
   receiverId?: InputMaybe<Scalars['String']>;
 };
 
 
 export type MutationDeliverOrderArgs = {
   amount?: InputMaybe<Scalars['Int']>;
-  boardId?: InputMaybe<Scalars['String']>;
   orderId?: InputMaybe<Scalars['String']>;
 };
 
 
 export type MutationUpdateWeeklyOrderArgs = {
   amount?: InputMaybe<Scalars['Int']>;
-  boardId?: InputMaybe<Scalars['String']>;
   playerId?: InputMaybe<Scalars['String']>;
 };
 
@@ -129,7 +126,6 @@ export type QueryGetBoardByNameArgs = {
 
 
 export type QueryGetPlayerArgs = {
-  boardId?: InputMaybe<Scalars['String']>;
   playerId?: InputMaybe<Scalars['String']>;
 };
 
@@ -165,18 +161,15 @@ export type SubscriptionBoardArgs = {
 
 
 export type SubscriptionNewOrderArgs = {
-  boardId?: InputMaybe<Scalars['String']>;
   playerId?: InputMaybe<Scalars['String']>;
 };
 
 
 export type SubscriptionOrderDeliveryArgs = {
-  boardId?: InputMaybe<Scalars['String']>;
   playerId?: InputMaybe<Scalars['String']>;
 };
 
 
 export type SubscriptionPlayerArgs = {
-  boardId?: InputMaybe<Scalars['String']>;
   playerId?: InputMaybe<Scalars['String']>;
 };

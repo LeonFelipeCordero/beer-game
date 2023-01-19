@@ -1,23 +1,23 @@
 type Mutation {
     createBoard(name: String): Board
     addPlayer(boardId: String, role: Role): Player
-    createOrder(boardId: String, receiverId: String): Order
-    deliverOrder(orderId: String, boardId: String, amount: Int): Response
-    updateWeeklyOrder(boardId: String, playerId: String, amount: Int): Response
+    createOrder(receiverId: String): Order
+    deliverOrder(orderId: String, amount: Int): Response
+    updateWeeklyOrder(playerId: String, amount: Int): Response
 }
 
 type Query {
     getBoard(id: String): Board
     getBoardByName(name: String): Board,
-    getPlayer(boardId: String, playerId: String): Player
+    getPlayer(playerId: String): Player
     getPlayersByBoard(boardId: String): [Player]
 }
 
 type Subscription {
     board(boardId: String): Board
-    player(boardId: String, playerId: String): Player
-    newOrder(boardId: String, playerId: String): Order
-    orderDelivery(boardId: String, playerId: String): Order
+    player(playerId: String): Player
+    newOrder(playerId: String): Order
+    orderDelivery(playerId: String): Order
 }
 
 type Board {

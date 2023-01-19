@@ -15,10 +15,10 @@ class PlayerEvenListener(
         val logger: Logger = LoggerFactory.getLogger(PlayerEvenListener::class.java)
     }
 
-    fun subscribe(boardId: String, playerId: String): Flux<Player> {
+    fun subscribe(playerId: String): Flux<Player> {
         return internalEventListener
             .subscribe()
-            .filter { it.isSamePlayer(boardId, playerId) }
+            .filter { it.isSamePlayer(playerId) }
             .filter { it.isRelevantForPlayer() }
             .map { it.document as Player }
             .doOnError { logger.error("Something when wrong filtering the event", it) }

@@ -15,9 +15,9 @@ class PlayerMongoAdapter(
         return player
     }
 
-    fun loadPlayer(board: String, playerId: String): Player {
-        return boardMongoAdapter.loadBoard(board)
-            .players
-            .first { it.id == playerId }
+    fun loadPlayer(playerId: String): Pair<Player, String> {
+        val board = boardMongoAdapter.loadBoardByPlayerId(playerId)
+        val player = board.players.first { it.id == playerId }
+        return Pair(player, board.id)
     }
 }

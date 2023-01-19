@@ -55,7 +55,7 @@ internal class PlayerServiceTest : IntegrationTestBase() {
         val board = boardService.createBoard(boardName)
 
         val player = playerService.addPlayer(board.id, RETAILER)
-        val loadedPayer = playerService.getPlayer(board.id, player.id)
+        val loadedPayer = playerService.getPlayer(player.id).first
 
         assertThat(player).isEqualTo(loadedPayer)
     }
@@ -79,8 +79,8 @@ internal class PlayerServiceTest : IntegrationTestBase() {
         val board = boardService.createBoard(boardName)
 
         val player = playerService.addPlayer(board.id, RETAILER)
-        playerService.changeWeeklyOrder(board.id, player.id, 200)
-        val loadedPayer = playerService.getPlayer(board.id, player.id)
+        playerService.changeWeeklyOrder(player.id, 200)
+        val loadedPayer = playerService.getPlayer(player.id).first
 
         assertThat(loadedPayer.weeklyOrder).isEqualTo(200)
     }

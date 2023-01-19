@@ -24,8 +24,8 @@ function orderQueries(query: string): TypedDocumentNode {
 export default orderQueries
 
 const createOrderMutation = gql`
-mutation createOrder($boardId: String, $receiverId: String) {
-  createOrder(boardId: $boardId, receiverId: $receiverId) {
+mutation createOrder($receiverId: String) {
+  createOrder(receiverId: $receiverId) {
     id
     originalAmount
     state
@@ -36,8 +36,8 @@ mutation createOrder($boardId: String, $receiverId: String) {
 `;
 
 const deliverOrderMutation = gql`
-mutation deliverOrder($orderId: String, $boardId: String, $amount: Int) {
-  deliverOrder(orderId: $orderId, boardId: $boardId, amount: $amount) {
+mutation deliverOrder($orderId: String, $amount: Int) {
+  deliverOrder(orderId: $orderId, amount: $amount) {
     message
     status
   }
@@ -45,8 +45,8 @@ mutation deliverOrder($orderId: String, $boardId: String, $amount: Int) {
 `;
 
 const newOrderSubscription = gql`
-subscription newOrder($boardId: String, $playerId: String) {
-  newOrder(boardId: $boardId, playerId: $playerId) {
+subscription newOrder($playerId: String) {
+  newOrder(playerId: $playerId) {
     id
     originalAmount
     state
@@ -62,8 +62,8 @@ subscription newOrder($boardId: String, $playerId: String) {
 `;
 
 const orderDeliverySubscription = gql`
-subscription orderDelivery($boardId: String, $playerId: String) {
-  orderDelivery(boardId: $boardId, playerId: $playerId) {
+subscription orderDelivery($playerId: String) {
+  orderDelivery(playerId: $playerId) {
     id
     amount
     originalAmount

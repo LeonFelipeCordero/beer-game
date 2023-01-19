@@ -67,8 +67,8 @@ object GraphQlDocuments {
     """.trimIndent()
 
     val documentCreateOrder = """
-       mutation createOrder(${'$'}boardId: String, ${'$'}receiverId: String)  {
-           createOrder(boardId: ${'$'}boardId, receiverId: ${'$'}receiverId) {
+       mutation createOrder(${'$'}receiverId: String)  {
+           createOrder(receiverId: ${'$'}receiverId) {
                $orderData
                sender {
                    $playerData
