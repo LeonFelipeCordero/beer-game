@@ -93,14 +93,57 @@ class OrderControllerTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `should deliver an order and update players`() {
+        val board = createBoardAndPlayers()
+        val receiverId = board?.playersId?.first()!!
+        val order = orderController.createOrder(receiverId).block()
+        orderController.deliverOrder(order?.id.toString(), 10).block()
+        StepVerifier.create(
+            boardController.players(board)
+        ).assertNext {
+            assertThat(it.stock).isEqualTo(90)
+            assertThat(it.lastOrder).isEqualTo(10)
+        }.assertNext {
+            assertThat(it.stock).isEqualTo(1190)
+        }.assertNext {
+            assertThat(it.stock).isEqualTo(12000)
+        }.verifyComplete()
+    }
+
+    @Test
     fun `should get a sender player from an order`() {
+        val board = createBoardAndPlayers()
+        val receiverId = board?.playersId?.first()!!
+        val senderId = board.playersId!![1]
+        val order = orderController.createOrder(receiverId).block()
+        StepVerifier.create(
+            orderController.sender(order!!)
+        ).assertNext {
+            assertThat(it.id).isEqualTo(senderId)
+        }.verifyComplete()
     }
 
     @Test
     fun `should get a receiver player from an order`() {
+        val board = createBoardAndPlayers()
+        val receiverId = board?.playersId?.first()!!
+        val order = orderController.createOrder(receiverId).block()
+        StepVerifier.create(
+            orderController.receiver(order!!)
+        ).assertNext {
+            assertThat(it.id).isEqualTo(receiverId)
+        }.verifyComplete()
     }
 
     @Test
     fun `should get the board from an order`() {
+        val board = createBoardAndPlayers()
+        val receiverId = board?.playersId?.first()!!
+        val order = orderController.createOrder(receiverId).block()
+        StepVerifier.create(
+            orderController.board(order!!)
+        ).assertNext {
+            assertThat(it.id).isEqualTo(board.id)
+        }.verifyComplete()
     }
 }

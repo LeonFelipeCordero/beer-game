@@ -77,5 +77,20 @@ class PlayerControllerTest : IntegrationTestBase() {
 
     @Test
     fun `should get the in and out orders of player`() {
+        val board = createBoardAndPlayers()
+        val receiver = playerController.getPlayer(board?.playersId?.first()!!).block()
+        val sender = playerController.getPlayer(board.playersId!![1]).block()
+        val order = orderController.createOrder(receiver?.id.toString()).block()
+        StepVerifier.create(
+            playerController.orders(receiver!!)
+        ).assertNext {
+            assertThat(it.id).isEqualTo(order?.id)
+        }.verifyComplete()
+
+        StepVerifier.create(
+            playerController.orders(sender!!)
+        ).assertNext {
+            assertThat(it.id).isEqualTo(order?.id)
+        }.verifyComplete()
     }
 }

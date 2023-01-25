@@ -91,6 +91,16 @@ class BoardControllerTest : IntegrationTestBase() {
 
     @Test
     fun `should get corresponding orders from board graph`() {
+        val board = createBoardAndPlayers()
+        val receiverId = board?.playersId?.first()!!
+        val order = orderController.createOrder(receiverId).block()
+        StepVerifier.create(
+            boardController.orders(board)
+        ).assertNext {
+            assertThat(it.id).isEqualTo(order?.id)
+        }.assertNext {
+            assertThat(it.id).isEqualTo(order?.id)
+        }.verifyComplete()
     }
 
     @Test
