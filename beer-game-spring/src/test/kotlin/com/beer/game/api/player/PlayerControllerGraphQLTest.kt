@@ -1,4 +1,4 @@
-package com.beer.game.api
+package com.beer.game.api.player
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
@@ -13,7 +13,7 @@ import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.comparator.CustomComparator
 
-class PlayerControllerTest : IntegrationTestBase() {
+class PlayerControllerGraphQLTest : IntegrationTestBase() {
 
     @AfterEach
     fun setup() {

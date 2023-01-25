@@ -1,4 +1,4 @@
-package com.beer.game.api
+package com.beer.game.api.order
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
@@ -15,7 +15,7 @@ import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.comparator.CustomComparator
 
-class OrderControllerTest : IntegrationTestBase() {
+class OrderControllerGraphQLTest : IntegrationTestBase() {
 
     @AfterEach
     fun setup() {

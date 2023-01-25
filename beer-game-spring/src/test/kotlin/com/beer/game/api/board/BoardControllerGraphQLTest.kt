@@ -1,8 +1,7 @@
-package com.beer.game.api
+package com.beer.game.api.board
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
-import com.beer.game.api.board.BoardGraph
 import com.beer.game.api.GraphQlDocuments.documentCreateBoard
 import com.beer.game.api.GraphQlDocuments.documentGetBoard
 import org.junit.jupiter.api.AfterEach
@@ -14,7 +13,7 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator
 import java.time.LocalDateTime
 
 
-internal class BoardControllerTest : IntegrationTestBase() {
+internal class BoardControllerGraphQLTest : IntegrationTestBase() {
 
     @AfterEach
     fun setup() {

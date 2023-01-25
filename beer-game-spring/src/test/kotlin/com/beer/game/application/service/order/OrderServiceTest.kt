@@ -1,4 +1,4 @@
-package com.beer.game.application.service
+package com.beer.game.application.service.order
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.common.OrderState
