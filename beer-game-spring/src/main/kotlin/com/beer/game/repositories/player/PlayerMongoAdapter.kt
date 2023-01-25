@@ -1,23 +1,22 @@
 package com.beer.game.repositories.player
 
+import com.beer.game.application.player.PlayerStorageAdapter
 import com.beer.game.domain.Board
 import com.beer.game.domain.Player
-import com.beer.game.repositories.board.BoardDocument
 import com.beer.game.repositories.board.BoardMongoAdapter
 import org.springframework.stereotype.Component
 
 @Component
 class PlayerMongoAdapter(
     private val boardMongoAdapter: BoardMongoAdapter,
-) {
+) : PlayerStorageAdapter {
 
-    fun savePlayer(board: Board, player: Player): Player {
-        val boardDocument = BoardDocument.fromBoard(board)
-        boardMongoAdapter.upsertBoard(boardDocument)
+    override fun savePlayer(board: Board, player: Player): Player {
+        boardMongoAdapter.upsertBoard(board)
         return player
     }
 
-    fun loadPlayer(playerId: String): Pair<Player, String> {
+    override fun loadPlayer(playerId: String): Pair<Player, String> {
         val board = boardMongoAdapter.loadBoardByPlayerId(playerId)
         val player = board.players.first { it.id == playerId }
         return Pair(player, board.id)

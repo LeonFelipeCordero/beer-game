@@ -1,6 +1,5 @@
 package com.beer.game.repositories.board
 
-import com.beer.game.repositories.board.BoardDocument
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query

@@ -2,41 +2,40 @@ package com.beer.game.application.board
 
 import com.beer.game.domain.Board
 import com.beer.game.domain.exceptions.ImpossibleActionException
-import com.beer.game.repositories.board.BoardMongoAdapter
 import org.springframework.stereotype.Service
 
 @Service
 class BoardService(
-    private val boardMongoAdapter: BoardMongoAdapter,
+    private val boardStorageAdapter: BoardStorageAdapter,
 ) {
     fun loadBoard(boardId: String): Board {
-        return boardMongoAdapter.loadBoard(boardId)
+        return boardStorageAdapter.loadBoard(boardId)
     }
 
     fun loadBoardByName(name: String): Board {
-        return boardMongoAdapter.loadBoardByName(name)!!
+        return boardStorageAdapter.loadBoardByName(name)!!
     }
 
     fun createBoard(name: String): Board {
-        return boardMongoAdapter.loadBoardByName(name)
+        return boardStorageAdapter.loadBoardByName(name)
             ?.let {
                 throw ImpossibleActionException(
                     "Name is already used by another board",
                     "find another name for your game"
                 )
             }
-            ?: boardMongoAdapter.saveBoard(name)
+            ?: boardStorageAdapter.saveBoard(name)
     }
 
     fun loadActiveBoards(): List<Board> {
-        return boardMongoAdapter.loadActiveBoards()
+        return boardStorageAdapter.loadActiveBoards()
     }
 
     fun loadBoardByPlayerId(playerId: String): Board {
-        return boardMongoAdapter.loadBoardByPlayerId(playerId)
+        return boardStorageAdapter.loadBoardByPlayerId(playerId)
     }
 
     fun loadBoardByOrderId(orderId: String): Board {
-        return boardMongoAdapter.loadBoardByOrderId(orderId)
+        return boardStorageAdapter.loadBoardByOrderId(orderId)
     }
 }

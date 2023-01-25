@@ -1,7 +1,7 @@
 package com.beer.game.application.order
 
 import com.beer.game.application.board.BoardService
-import com.beer.game.repositories.order.OrderMongoAdapter
+import com.beer.game.repositories.order.OrderStorageAdapter
 import com.beer.game.common.OrderState
 import com.beer.game.common.OrderType
 import com.beer.game.common.Role
@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 
 @Component
 class OrderService(
-    private val orderMongoAdapter: OrderMongoAdapter,
+    private val orderStorageAdapter: OrderStorageAdapter,
     private val boardService: BoardService,
     private val playerService: PlayerService,
     private val internalEventListener: InternalEventListener
@@ -40,7 +40,7 @@ class OrderService(
         sender.addOrder(order)
         receiver.addOrder(order)
         order.emitCreation(internalEventListener, board.id)
-        return Pair(orderMongoAdapter.createOrder(board, order), board.id)
+        return Pair(orderStorageAdapter.createOrder(board, order), board.id)
     }
 
     fun deliverOrder(orderId: String, amount: Int? = null) {
@@ -71,7 +71,7 @@ class OrderService(
         }
         order.state = OrderState.DELIVERED
 
-        orderMongoAdapter.deliverOrder(order, board)
+        orderStorageAdapter.deliverOrder(order, board)
         order.emitUpdate(internalEventListener, board.id)
         sender.emitUpdate(internalEventListener, board.id)
         receiver?.apply { emitUpdate(internalEventListener, board.id) }
@@ -109,7 +109,7 @@ class OrderService(
                     createdAt = LocalDateTime.now()
                 )
                 player.addOrder(order)
-                orderMongoAdapter.createOrder(board, order)
+                orderStorageAdapter.createOrder(board, order)
                 order.emitCreation(internalEventListener, board.id)
             }
     }
@@ -121,7 +121,7 @@ class OrderService(
         factory.stock += factory.weeklyOrder
         factory.backlog = factory.weeklyOrder
         factory.lastOrder = factory.weeklyOrder
-        orderMongoAdapter.deliverFactoryBatch(board)
+        orderStorageAdapter.deliverFactoryBatch(board)
         factory.emitUpdate(internalEventListener, board.id)
     }
 }

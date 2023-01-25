@@ -19,6 +19,20 @@ class Board(
     val players: MutableList<Player>,
 ) {
 
+    companion object {
+        fun fromName(name: String): Board {
+            return Board(
+                id = "",
+                name = name,
+                state = BoardState.CREATED,
+                full = false,
+                finished = false,
+                createdAt = LocalDateTime.now(),
+                players = mutableListOf()
+            )
+        }
+    }
+
     fun addPlayer(player: Player) {
         players.add(player)
     }

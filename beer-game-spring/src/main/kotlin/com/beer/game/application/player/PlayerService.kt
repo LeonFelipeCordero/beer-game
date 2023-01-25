@@ -1,23 +1,22 @@
 package com.beer.game.application.player
 
+import com.beer.game.application.board.BoardStorageAdapter
 import com.beer.game.common.BoardState
 import com.beer.game.domain.Player
 import com.beer.game.common.Role
 import com.beer.game.domain.exceptions.ImpossibleActionException
 import com.beer.game.application.events.InternalEventListener
-import com.beer.game.repositories.board.BoardMongoAdapter
-import com.beer.game.repositories.player.PlayerMongoAdapter
 import org.springframework.stereotype.Service
 
 @Service
 class PlayerService(
-    private val playerMongoAdapter: PlayerMongoAdapter,
-    private val boardMongoAdapter: BoardMongoAdapter,
+    private val playerStorageAdapter: PlayerStorageAdapter,
+    private val boardStorageAdapter: BoardStorageAdapter,
     private val internalEventListener: InternalEventListener
 ) {
 
     fun addPlayer(boardId: String, role: Role): Player {
-        val board = boardMongoAdapter.loadBoard(boardId)
+        val board = boardStorageAdapter.loadBoard(boardId)
         if (board.full) {
             throw ImpossibleActionException("Board $boardId is full", "Verify the id provided")
         }
@@ -37,26 +36,26 @@ class PlayerService(
             board.state = BoardState.RUNNING
             board.emitUpdate(internalEventListener)
         }
-        val savedPlayer = playerMongoAdapter.savePlayer(board, player)
+        val savedPlayer = playerStorageAdapter.savePlayer(board, player)
         player.emitCreation(internalEventListener, board)
 
         return savedPlayer
     }
 
     fun getPlayer(playerId: String): Pair<Player, String> {
-        return playerMongoAdapter.loadPlayer(playerId)
+        return playerStorageAdapter.loadPlayer(playerId)
     }
 
     fun getPlayersInBoard(boardId: String): MutableList<Player> {
-        return boardMongoAdapter.loadBoard(boardId)
+        return boardStorageAdapter.loadBoard(boardId)
             .players
     }
 
     fun changeWeeklyOrder(playerId: String, amount: Int) {
-        val board = boardMongoAdapter.loadBoardByPlayerId(playerId)
+        val board = boardStorageAdapter.loadBoardByPlayerId(playerId)
         val player = board.players.first { it.id == playerId }
         player.weeklyOrder = amount
-        playerMongoAdapter.savePlayer(board, player)
+        playerStorageAdapter.savePlayer(board, player)
         player.emitUpdate(internalEventListener, board.id)
     }
 
