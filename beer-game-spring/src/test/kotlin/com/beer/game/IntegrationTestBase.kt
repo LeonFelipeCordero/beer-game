@@ -1,15 +1,12 @@
 package com.beer.game
 
-import com.beer.game.adapters.out.mongo.BoardRepository
-import com.beer.game.api.BoardController
-import com.beer.game.api.BoardControllerTest
-import com.beer.game.application.service.BoardService
-import com.beer.game.application.service.OrderService
-import com.beer.game.application.service.PlayerService
+import com.beer.game.repositories.board.BoardRepository
+import com.beer.game.application.board.BoardService
+import com.beer.game.application.order.OrderService
+import com.beer.game.application.player.PlayerService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.graphql.test.tester.AbstractDelegatingGraphQlTester
 import org.springframework.graphql.test.tester.GraphQlTester
 import org.springframework.test.context.ActiveProfiles
 import java.lang.IllegalStateException

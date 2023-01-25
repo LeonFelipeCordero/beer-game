@@ -2,7 +2,7 @@ package com.beer.game.api
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
-import com.beer.game.adapters.`in`.api.BoardGraph
+import com.beer.game.api.board.BoardGraph
 import com.beer.game.api.GraphQlDocuments.documentCreateBoard
 import com.beer.game.api.GraphQlDocuments.documentGetBoard
 import org.junit.jupiter.api.AfterEach
