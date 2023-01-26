@@ -4,8 +4,8 @@ import {For, Show} from "solid-js";
 
 function OrdersTable(props: { orders: Orders, player: Player, board: Board, deliver: Function }) {
 
-    const deliverOrder = (orderId: string, boardId: string, amount: number) => {
-        props.deliver(orderId, boardId, amount)
+    const deliverOrder = (orderId: string, amount: number) => {
+        props.deliver(orderId, amount)
     }
 
     return (
@@ -82,7 +82,7 @@ function OrdersTable(props: { orders: Orders, player: Player, board: Board, deli
                           rounded focus:outline-none focus:shadow-outline w-full"
                                                         onclick={e => {
                                                             e.preventDefault()
-                                                            deliverOrder(order.id, props.board.id, order.amount)
+                                                            deliverOrder(order.id, order.amount)
                                                         }}>
                                                     deliver
                                                 </button>

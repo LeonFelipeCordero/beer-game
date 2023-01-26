@@ -26,7 +26,6 @@ function PlayerSelection() {
         setLoading(true)
         playerClient.doMutation(playerQueryType.addPlayer, {boardId: board()?.id, role: role})
             .then(player => {
-                console.log(player)
                 setState({player: player.id})
                 setLoading(false)
                 navigate("/game")

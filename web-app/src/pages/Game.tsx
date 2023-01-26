@@ -42,31 +42,35 @@ function Game() {
             setBoard(result)
         })
 
-    playerClient.doQuery(playerQueryType.getPlayer, {boardId: state.board, playerId: state.player})
+    playerClient.doQuery(playerQueryType.getPlayer, {playerId: state.player})
         .then(result => {
             setOrders({value: result.orders?.filter(o => o.state == OrderState.Pending)} as Orders)
             result.orders = null
             setPlayer(result)
         })
 
-    playerClient.doSubscription(playerQueryType.player, {boardId: state.board, playerId: state.player}, updatePlayer)
+    playerClient.doSubscription(playerQueryType.player, {playerId: state.player}, updatePlayer)
 
-    orderClient.doSubscription(orderQueryType.newOrder, {boardId: state.board, playerId: state.player}, addOrder)
+    orderClient.doSubscription(orderQueryType.newOrder, {playerId: state.player}, addOrder)
 
-    orderClient.doSubscription(orderQueryType.orderDelivery, {
-        boardId: state.board,
-        playerId: state.player
-    }, orderDelivery)
+    orderClient.doSubscription(orderQueryType.orderDelivery, {playerId: state.player}, orderDelivery)
 
-    const createOrder = (boardId: string, receiverId: string) => {
-        orderClient.doMutation(orderQueryType.createOrder, {boardId: boardId, receiverId: receiverId})
+    const updateOrderDetails = (amount: number) => {
+        playerClient.doMutation(playerQueryType.updateWeeklyOrder, {playerId: state.player, amount: amount})
+            .then(_ => {
+                console.log("details updated.")
+            })
+    }
+
+    const createOrder = (receiverId: string) => {
+        orderClient.doMutation(orderQueryType.createOrder, {receiverId: receiverId})
             .then(_ => {
                 console.log(`order created`)
             })
     }
 
-    const deliverOrder = (orderId: string, boardId: string, amount: number) => {
-        orderClient.doMutation(orderQueryType.deliverOrder, {orderId: orderId, boardId: boardId, amount: amount})
+    const deliverOrder = (orderId: string, amount: number) => {
+        orderClient.doMutation(orderQueryType.deliverOrder, {orderId: orderId, amount: amount})
             .then(_ => {
                 console.log("order delivered")
             })
@@ -87,8 +91,11 @@ function Game() {
                                         <div class="bg-slate-100 p-5 rounded mr-5 row-end-2">
                                             <GameHeader boardName={board()!!.name}
                                                         playerRole={player()!!.role}></GameHeader>
-                                            <GameStatus player={player()!!} board={board()!!}
-                                                        createOrder={createOrder}></GameStatus>
+                                            <GameStatus player={player()!!}
+                                                        board={board()!!}
+                                                        createOrder={createOrder}
+                                                        updateOrderDetails={updateOrderDetails}
+                                            ></GameStatus>
                                         </div>
                                         <div class="row-start-3">
                                             <OrdersTable

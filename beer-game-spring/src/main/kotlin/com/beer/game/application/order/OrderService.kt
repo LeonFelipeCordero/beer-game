@@ -70,7 +70,7 @@ class OrderService(
             it.lastOrder = order.amount
         }
         order.state = OrderState.DELIVERED
-        order.amount = amount!!
+        amount?.let { order.amount = amount }
 
         orderStorageAdapter.deliverOrder(order, board)
         order.emitUpdate(internalEventListener, board.id)

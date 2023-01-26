@@ -3,14 +3,16 @@ import {gql, TypedDocumentNode} from "@urql/core"
 export const playerQueryType = {
     addPlayer: "addPlayer",
     getPlayer: "getPlayer",
-    player: "player"
+    player: "player",
+    updateWeeklyOrder: "updateWeeklyOrder"
 }
 
 function PlayerQueries(query: string): TypedDocumentNode {
     const queries = new Map<string, TypedDocumentNode>([
         [playerQueryType.addPlayer, createPlayerMutation],
         [playerQueryType.getPlayer, getPlayerQuery],
-        [playerQueryType.player, playerSubscription]
+        [playerQueryType.player, playerSubscription],
+        [playerQueryType.updateWeeklyOrder, updateWeeklyOrderMutation]
     ])
     if (queries.has(query)) {
         return queries.get(query)!!
@@ -54,6 +56,15 @@ query getPlayer($playerId: String) {
   }
 }
 `;
+
+const updateWeeklyOrderMutation = gql`
+mutation updateWeeklyOrder($playerId: String, $amount: Int) {
+  updateWeeklyOrder(playerId: $playerId, amount: $amount) {
+    message
+    status 
+  }
+}
+`
 
 const playerSubscription = gql`
 subscription player($playerId: String) {
