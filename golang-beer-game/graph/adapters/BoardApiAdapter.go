@@ -62,6 +62,17 @@ func (b *BoardApiAdapter) GetAvailableRoles(ctx context.Context, id string) ([]*
 	return rolesResponse, nil
 }
 
+func (b *BoardApiAdapter) GetByPlayer(ctx context.Context, playerId string) (*model.Board, error) {
+	board, err := b.service.GetByPlayer(ctx, playerId)
+	if err != nil {
+		return nil, err
+	}
+
+	boardResponse := &model.Board{}
+	fromBoard(*board, boardResponse)
+	return boardResponse, nil
+}
+
 func fromBoard(board domain.Board, target *model.Board) {
 	target.ID = board.Id
 	target.Name = board.Name

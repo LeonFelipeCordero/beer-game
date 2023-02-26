@@ -12,9 +12,14 @@ import (
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )
 
+// AddPlayer is the resolver for the addPlayer field.
+func (r *mutationResolver) AddPlayer(ctx context.Context, boardID *string, role *model.Role) (*model.Player, error) {
+	return r.PlayerApiAdapter.AddPlayer(ctx, *boardID, role.String())
+}
+
 // Board is the resolver for the board field.
 func (r *playerResolver) Board(ctx context.Context, obj *model.Player) (*model.Board, error) {
-	panic(fmt.Errorf("not implemented: Board - board"))
+	return r.BoardApiAdapter.GetByPlayer(ctx, obj.ID)
 }
 
 // Orders is the resolver for the orders field.
@@ -24,17 +29,12 @@ func (r *playerResolver) Orders(ctx context.Context, obj *model.Player) ([]*mode
 
 // GetPlayer is the resolver for the getPlayer field.
 func (r *queryResolver) GetPlayer(ctx context.Context, playerID *string) (*model.Player, error) {
-	panic(fmt.Errorf("not implemented: GetPlayer - getPlayer"))
+	return r.PlayerApiAdapter.Get(ctx, *playerID)
 }
 
 // GetPlayersByBoard is the resolver for the getPlayersByBoard field.
 func (r *queryResolver) GetPlayersByBoard(ctx context.Context, boardID *string) ([]*model.Player, error) {
-	panic(fmt.Errorf("not implemented: GetPlayersByBoard - getPlayersByBoard"))
-}
-
-// AddPlayer is the resolver for the addPlayer field.
-func (r *mutationResolver) AddPlayer(ctx context.Context, boardID *string, role *model.Role) (*model.Player, error) {
-	return r.PlayerApiAdapter.AddPlayer(ctx, *boardID, role.String())
+	return r.PlayerApiAdapter.GetPlayersByBoard(ctx, *boardID)
 }
 
 // Player is the resolver for the player field.

@@ -11,6 +11,7 @@ type IBoardApi interface {
 	Get(ctx context.Context, id string) (*model.Board, error)
 	GetByName(ctx context.Context, name string) (*model.Board, error)
 	GetAvailableRoles(ctx context.Context, id string) ([]*model.Role, error)
+	GetByPlayer(ctx context.Context, playerId string) (*model.Board, error)
 }
 
 type IBoardService interface {

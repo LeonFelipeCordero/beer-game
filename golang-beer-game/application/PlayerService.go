@@ -49,6 +49,6 @@ func (p *PlayerService) Get(ctx context.Context, id string) (*domain.Player, err
 	return p.repository.Get(ctx, id)
 }
 
-func (p *PlayerService) GetPlayersByBoard(ctx context.Context, boardId string) (*[]domain.Player, error) {
+func (p *PlayerService) GetPlayersByBoard(ctx context.Context, boardId string) ([]domain.Player, error) {
 	return p.repository.GetPlayersByBoard(ctx, boardId)
 }

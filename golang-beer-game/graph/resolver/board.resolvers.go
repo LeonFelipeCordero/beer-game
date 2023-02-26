@@ -7,13 +7,14 @@ package resolver
 import (
 	"context"
 	"fmt"
+
 	"github.com/LeonFelipeCordero/golang-beer-game/graph"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )
 
 // Players is the resolver for the players field.
 func (r *boardResolver) Players(ctx context.Context, obj *model.Board) ([]*model.Player, error) {
-	panic(fmt.Errorf("not implemented: Players - players"))
+	return r.PlayerApiAdapter.GetPlayersByBoard(ctx, obj.ID)
 }
 
 // Orders is the resolver for the orders field.
