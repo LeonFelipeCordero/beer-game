@@ -45,6 +45,6 @@ func (p *PlayerService) AddPlayer(ctx context.Context, boardId string, role stri
 	return player, nil
 }
 
-func (p *PlayerService) Get(ctx context.Context, id string) (*domain.Player, *string, error) {
+func (p *PlayerService) Get(ctx context.Context, id string) (*domain.Player, error) {
 	return p.repository.Get(ctx, id)
 }

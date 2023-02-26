@@ -7,12 +7,14 @@ import (
 )
 
 type PlayerApiAdapter struct {
-	service ports.IPlayerService
+	service      ports.IPlayerService
+	boardService ports.IBoardService
 }
 
-func NewPlayerApiAdapter(service ports.IPlayerService) ports.IPlayerApi {
+func NewPlayerApiAdapter(service ports.IPlayerService, boardService ports.IBoardService) ports.IPlayerApi {
 	return &PlayerApiAdapter{
-		service: service,
+		service:      service,
+		boardService: boardService,
 	}
 }
 
@@ -27,11 +29,17 @@ func (b *PlayerApiAdapter) AddPlayer(ctx context.Context, boardId string, role s
 }
 
 func (b *PlayerApiAdapter) Get(ctx context.Context, id string) (*model.Player, error) {
-	player, boardId, err := b.service.Get(ctx, id)
+	player, err := b.service.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+
+	board, err := b.boardService.GetByPlayer(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
 	playerResponse := &model.Player{}
-	playerResponse.FromPlayer(*player, *boardId)
+	playerResponse.FromPlayer(*player, board.Id)
 	return playerResponse, nil
 }

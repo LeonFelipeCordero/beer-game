@@ -15,7 +15,7 @@ func TestPlayer(t *testing.T) {
 	playerRepository := adapters2.NewPlayerRepositoryFaker(boardRepository)
 	boardService := application.NewBoardService(boardRepository)
 	playerService := application.NewPlayerService(playerRepository, boardService)
-	playerApiAdapter := NewPlayerApiAdapter(playerService)
+	playerApiAdapter := NewPlayerApiAdapter(playerService, boardService)
 
 	t.Run("a player should be created if role not taken", func(t *testing.T) {
 		ctx := context.Background()
@@ -33,6 +33,7 @@ func TestPlayer(t *testing.T) {
 		assert.Equal(t, player.WeeklyOrder, result.WeeklyOrder, "wrong weekly order amount")
 		assert.Equal(t, player.LastOrder, result.LastOrder, "wrong last order amount")
 		assert.Equal(t, player.CPU, result.CPU, "wrong cpu")
+		assert.Equal(t, player.BoardId, board.Id, "wrong cpu")
 		assert.Equal(t, len(player.OrdersId), len(result.OrdersId), "wrong size")
 
 		playerRepository.DeleteAll(ctx)

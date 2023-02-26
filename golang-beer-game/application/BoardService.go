@@ -51,6 +51,10 @@ func (s *BoardService) Get(ctx context.Context, id string) (*domain.Board, error
 	return s.repository.Get(ctx, id)
 }
 
+func (s *BoardService) GetByPlayer(ctx context.Context, playerId string) (*domain.Board, error) {
+	return s.repository.GetByPlayer(ctx, playerId)
+}
+
 func (s *BoardService) CompleteBoard(ctx context.Context, id string) error {
 	board, err := s.repository.Get(ctx, id)
 	if err != nil {

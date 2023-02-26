@@ -13,11 +13,11 @@ type IPlayerApi interface {
 
 type IPlayerService interface {
 	AddPlayer(ctx context.Context, boardId string, role string) (*domain.Player, error)
-	Get(ctx context.Context, id string) (*domain.Player, *string, error)
+	Get(ctx context.Context, id string) (*domain.Player, error)
 }
 
 type IPlayerRepository interface {
 	AddPlayer(ctx context.Context, boardId string, player domain.Player) (*domain.Player, error)
-	Get(ctx context.Context, id string) (*domain.Player, *string, error)
+	Get(ctx context.Context, id string) (*domain.Player, error)
 	DeleteAll(ctx context.Context)
 }

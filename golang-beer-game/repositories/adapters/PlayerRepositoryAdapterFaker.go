@@ -35,14 +35,13 @@ func (p *PlayerRepositoryAdapterFaker) AddPlayer(ctx context.Context, boardId st
 	return &player, nil
 }
 
+func (p *PlayerRepositoryAdapterFaker) Get(ctx context.Context, id string) (*domain.Player, error) {
+	player := p.players[id]
+	return &player, nil
+}
+
 func (p *PlayerRepositoryAdapterFaker) DeleteAll(ctx context.Context) {
 	for key := range p.players {
 		delete(p.players, key)
 	}
-}
-
-func (p *PlayerRepositoryAdapterFaker) Get(ctx context.Context, id string) (*domain.Player, *string, error) {
-	board, _ := p.boardRepository.GetByPlayer(ctx, id)
-	player := p.players[id]
-	return &player, &board.Id, nil
 }
