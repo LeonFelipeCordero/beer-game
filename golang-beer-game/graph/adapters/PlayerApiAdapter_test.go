@@ -110,8 +110,8 @@ func TestPlayer(t *testing.T) {
 		if err != nil {
 			t.Error("There should not be errors")
 		}
-		assert.Equal(t, len(*players), 3)
-		for _, player := range *players {
+		assert.Equal(t, len(players), 3)
+		for _, player := range players {
 			if player.ID != retailer.ID || player.ID != wholesaler.ID || player.ID != factory.ID {
 				assert.Error(t, errors.New(fmt.Sprintf("Player %s should not be part of board", player.ID)))
 			}

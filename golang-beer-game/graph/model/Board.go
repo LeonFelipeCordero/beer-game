@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"io"
 	"strconv"
 )
@@ -53,4 +54,26 @@ func (e *BoardState) UnmarshalGQL(v interface{}) error {
 
 func (e BoardState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Board) FromBoard(board domain.Board) {
+	e.ID = board.Id
+	e.Name = board.Name
+	e.State = fromBoardSate(board.State)
+	e.Full = board.Full
+	e.Finished = board.Finished
+	e.CreatedAt = board.CreatedAt.String()
+}
+
+func fromBoardSate(state domain.State) BoardState {
+	var result BoardState
+	switch state {
+	case domain.StateCreated:
+		result = BoardStateCreated
+	case domain.StateRunning:
+		result = BoardStateRunning
+	case domain.StateFinished:
+		result = BoardStateFinished
+	}
+	return result
 }
