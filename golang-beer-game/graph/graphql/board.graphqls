@@ -20,7 +20,7 @@ type Board {
     createdAt: String!
     players: [Player]
     orders: [Order]
-    availableRoles: [String]
+    availableRoles: [Role]
 }
 
 enum BoardState {

@@ -11,6 +11,21 @@ type BoardApiAdapter struct {
 	service ports.IBoardService
 }
 
+func (b *BoardApiAdapter) GetAvailableRoles(ctx context.Context, id string) ([]model.Role, error) {
+	roles, err := b.service.GetAvailableRoles(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var rolesResponse []model.Role
+	for _, role := range roles {
+		roleResponse := model.FromPlayerRole(role)
+		rolesResponse = append(rolesResponse, roleResponse)
+	}
+
+	return rolesResponse, nil
+}
+
 func NewBoardApiAdapter(service ports.IBoardService) ports.IBoardApi {
 	return &BoardApiAdapter{
 		service: service,

@@ -10,6 +10,7 @@ type IBoardApi interface {
 	Create(ctx context.Context, name string) (*model.Board, error)
 	Get(ctx context.Context, id string) (*model.Board, error)
 	GetByName(ctx context.Context, name string) (*model.Board, error)
+	GetAvailableRoles(ctx context.Context, id string) ([]model.Role, error)
 }
 
 type IBoardService interface {
@@ -18,6 +19,7 @@ type IBoardService interface {
 	GetByName(ctx context.Context, name string) (*domain.Board, error)
 	GetByPlayer(ctx context.Context, playerId string) (*domain.Board, error)
 	CompleteBoard(ctx context.Context, id string) error
+	GetAvailableRoles(ctx context.Context, id string) ([]domain.Role, error)
 }
 
 type IBoardRepository interface {

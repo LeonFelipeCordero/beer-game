@@ -31,7 +31,7 @@ const (
 func (p *Player) FromPlayer(player domain.Player, boardId string) {
 	p.ID = player.Id
 	p.Name = player.Name
-	p.Role = fromPlayerRole(player.Role)
+	p.Role = FromPlayerRole(player.Role)
 	p.Stock = player.Stock
 	p.Backlog = player.Backlog
 	p.WeeklyOrder = player.WeeklyOrder
@@ -41,7 +41,7 @@ func (p *Player) FromPlayer(player domain.Player, boardId string) {
 	p.OrdersId = []string{}
 }
 
-func fromPlayerRole(role domain.Role) Role {
+func FromPlayerRole(role domain.Role) Role {
 	var result Role
 	switch role {
 	case domain.RoleRetailer:

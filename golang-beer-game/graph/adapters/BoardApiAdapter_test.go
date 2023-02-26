@@ -13,8 +13,11 @@ func TestBoard(t *testing.T) {
 	boardName := "test"
 
 	boardRepository := adapters2.NewBoardRepositoryFaker()
+	playerRepository := adapters2.NewPlayerRepositoryFaker(boardRepository)
 	boardService := application.NewBoardService(boardRepository)
+	playerService := application.NewPlayerService(playerRepository, boardService)
 	boardApiAdapter := NewBoardApiAdapter(boardService)
+	playerApiAdapter := NewPlayerApiAdapter(playerService, boardService)
 
 	t.Run("a board should be created if name is not taken", func(t *testing.T) {
 		ctx := context.Background()
@@ -54,5 +57,23 @@ func TestBoard(t *testing.T) {
 		assert.Equal(t, len(secondBoard.PlayersId), len(result.PlayersId), "wrong size")
 
 		boardRepository.DeleteAll(ctx)
+	})
+
+	t.Run("should return available roles", func(t *testing.T) {
+		ctx := context.Background()
+		board, _ := boardApiAdapter.Create(ctx, boardName)
+
+		availableRoles, _ := boardApiAdapter.GetAvailableRoles(ctx, board.ID)
+		assert.Equal(t, len(availableRoles), 3)
+		_, _ = playerApiAdapter.AddPlayer(ctx, board.ID, "RETAILER")
+		_, _ = playerApiAdapter.AddPlayer(ctx, board.ID, "WHOLESALER")
+		_, _ = playerApiAdapter.AddPlayer(ctx, board.ID, "FACTORY")
+
+		board, _ = boardApiAdapter.Get(ctx, board.ID)
+		availableRoles, _ = boardApiAdapter.GetAvailableRoles(ctx, board.ID)
+		assert.Equal(t, len(availableRoles), 0)
+
+		boardRepository.DeleteAll(ctx)
+		playerRepository.DeleteAll(ctx)
 	})
 }

@@ -70,3 +70,11 @@ func (s *BoardService) CompleteBoard(ctx context.Context, id string) error {
 
 	return nil
 }
+
+func (s *BoardService) GetAvailableRoles(ctx context.Context, id string) ([]domain.Role, error) {
+	board, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return board.AvailableRoles(), nil
+}
