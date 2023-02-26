@@ -22,8 +22,8 @@ func (r *boardResolver) Orders(ctx context.Context, obj *model.Board) ([]*model.
 }
 
 // AvailableRoles is the resolver for the availableRoles field.
-func (r *boardResolver) AvailableRoles(ctx context.Context, obj *model.Board) ([]*string, error) {
-	panic(fmt.Errorf("not implemented: AvailableRoles - availableRoles"))
+func (r *boardResolver) AvailableRoles(ctx context.Context, obj *model.Board) ([]*model.Role, error) {
+	return r.BoardApiAdapter.GetAvailableRoles(ctx, obj.ID)
 }
 
 // CreateBoard is the resolver for the createBoard field.

@@ -10,7 +10,7 @@ type IBoardApi interface {
 	Create(ctx context.Context, name string) (*model.Board, error)
 	Get(ctx context.Context, id string) (*model.Board, error)
 	GetByName(ctx context.Context, name string) (*model.Board, error)
-	GetAvailableRoles(ctx context.Context, id string) ([]model.Role, error)
+	GetAvailableRoles(ctx context.Context, id string) ([]*model.Role, error)
 }
 
 type IBoardService interface {

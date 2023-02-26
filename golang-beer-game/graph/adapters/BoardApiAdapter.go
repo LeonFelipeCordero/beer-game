@@ -11,21 +11,6 @@ type BoardApiAdapter struct {
 	service ports.IBoardService
 }
 
-func (b *BoardApiAdapter) GetAvailableRoles(ctx context.Context, id string) ([]model.Role, error) {
-	roles, err := b.service.GetAvailableRoles(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	var rolesResponse []model.Role
-	for _, role := range roles {
-		roleResponse := model.FromPlayerRole(role)
-		rolesResponse = append(rolesResponse, roleResponse)
-	}
-
-	return rolesResponse, nil
-}
-
 func NewBoardApiAdapter(service ports.IBoardService) ports.IBoardApi {
 	return &BoardApiAdapter{
 		service: service,
@@ -60,6 +45,21 @@ func (b *BoardApiAdapter) GetByName(ctx context.Context, name string) (*model.Bo
 	boardResponse := &model.Board{}
 	fromBoard(*board, boardResponse)
 	return boardResponse, nil
+}
+
+func (b *BoardApiAdapter) GetAvailableRoles(ctx context.Context, id string) ([]*model.Role, error) {
+	roles, err := b.service.GetAvailableRoles(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var rolesResponse []*model.Role
+	for _, role := range roles {
+		roleResponse := model.FromPlayerRole(role)
+		rolesResponse = append(rolesResponse, &roleResponse)
+	}
+
+	return rolesResponse, nil
 }
 
 func fromBoard(board domain.Board, target *model.Board) {
