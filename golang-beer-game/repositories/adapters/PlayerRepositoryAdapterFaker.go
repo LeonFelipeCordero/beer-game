@@ -45,3 +45,8 @@ func (p *PlayerRepositoryAdapterFaker) DeleteAll(ctx context.Context) {
 		delete(p.players, key)
 	}
 }
+
+func (p *PlayerRepositoryAdapterFaker) GetPlayersByBoard(ctx context.Context, boardId string) (*[]domain.Player, error) {
+	board, _ := p.boardRepository.Get(ctx, boardId)
+	return &board.Players, nil
+}

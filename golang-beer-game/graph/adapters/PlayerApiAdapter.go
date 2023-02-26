@@ -43,3 +43,19 @@ func (b *PlayerApiAdapter) Get(ctx context.Context, id string) (*model.Player, e
 	playerResponse.FromPlayer(*player, board.Id)
 	return playerResponse, nil
 }
+
+func (b *PlayerApiAdapter) GetPlayersByBoard(ctx context.Context, boardId string) (*[]model.Player, error) {
+	players, err := b.service.GetPlayersByBoard(ctx, boardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var playersGraph []model.Player
+	for _, player := range *players {
+		playerResponse := &model.Player{}
+		playerResponse.FromPlayer(player, boardId)
+		playersGraph = append(playersGraph, *playerResponse)
+	}
+
+	return &playersGraph, nil
+}

@@ -2,6 +2,8 @@ package adapters
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	adapters2 "github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
@@ -83,23 +85,37 @@ func TestPlayer(t *testing.T) {
 	t.Run("All players should be added to the board", func(t *testing.T) {
 		ctx := context.Background()
 		board, _ := boardService.Create(ctx, boardName)
-		player, err := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
-		if err != nil {
-			t.Error("There should not be errors")
-		}
-		player, err = playerApiAdapter.AddPlayer(ctx, board.Id, "WHOLESALER")
-		if err != nil {
-			t.Error("There should not be errors")
-		}
-		player, err = playerApiAdapter.AddPlayer(ctx, board.Id, "FACTORY")
-		if err != nil {
-			t.Error("There should not be errors")
-		}
+		player, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
+		player, _ = playerApiAdapter.AddPlayer(ctx, board.Id, "FACTORY")
+		player, _ = playerApiAdapter.AddPlayer(ctx, board.Id, "WHOLESALER")
 
-		board, err = boardService.Get(ctx, player.BoardId)
+		board, _ = boardService.Get(ctx, player.BoardId)
 		assert.Equal(t, len(board.Players), 3, "players size is wrong")
 		assert.Equal(t, board.State, domain.StateRunning, "players size is wrong")
 		assert.Equal(t, board.Full, true, "players size is wrong")
+
+		playerRepository.DeleteAll(ctx)
+		boardRepository.DeleteAll(ctx)
+	})
+
+	t.Run("get all players by board board", func(t *testing.T) {
+		ctx := context.Background()
+		board, _ := boardService.Create(ctx, boardName)
+
+		retailer, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
+		wholesaler, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "WHOLESALER")
+		factory, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "FACTORY")
+
+		players, err := playerApiAdapter.GetPlayersByBoard(ctx, board.Id)
+		if err != nil {
+			t.Error("There should not be errors")
+		}
+		assert.Equal(t, len(*players), 3)
+		for _, player := range *players {
+			if player.ID != retailer.ID || player.ID != wholesaler.ID || player.ID != factory.ID {
+				assert.Error(t, errors.New(fmt.Sprintf("Player %s should not be part of board", player.ID)))
+			}
+		}
 
 		playerRepository.DeleteAll(ctx)
 		boardRepository.DeleteAll(ctx)
