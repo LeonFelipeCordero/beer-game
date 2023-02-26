@@ -22,7 +22,7 @@ const (
 	StateFinished State = "FINISHED"
 )
 
-func (b Board) HasRoleAvailable(role Role) bool {
+func (b *Board) HasRoleAvailable(role Role) bool {
 	availableRoles := b.AvailableRoles()
 	for _, availableRole := range availableRoles {
 		if availableRole == role {
@@ -32,7 +32,7 @@ func (b Board) HasRoleAvailable(role Role) bool {
 	return false
 }
 
-func (b Board) AvailableRoles() []Role {
+func (b *Board) AvailableRoles() []Role {
 	availableRoles := []Role{RoleRetailer, RoleWholesaler, RoleFactory}
 	for _, player := range b.Players {
 		for index, role := range availableRoles {
@@ -42,4 +42,9 @@ func (b Board) AvailableRoles() []Role {
 		}
 	}
 	return availableRoles
+}
+
+func (b *Board) Start() {
+	b.Full = true
+	b.State = StateRunning
 }

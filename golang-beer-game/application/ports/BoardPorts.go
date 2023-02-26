@@ -16,7 +16,7 @@ type IBoardService interface {
 	Create(ctx context.Context, name string) (*domain.Board, error)
 	Get(ctx context.Context, id string) (*domain.Board, error)
 	GetByName(ctx context.Context, name string) (*domain.Board, error)
-	//GetByPlayer(ctx context.Context, id string) (*domain.Board, error)
+	CompleteBoard(ctx context.Context, id string) error
 }
 
 type IBoardRepository interface {

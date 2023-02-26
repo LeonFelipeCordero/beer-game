@@ -51,3 +51,18 @@ func (s *BoardService) Get(ctx context.Context, id string) (*domain.Board, error
 	return s.repository.Get(ctx, id)
 }
 
+func (s *BoardService) CompleteBoard(ctx context.Context, id string) error {
+	board, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if len(board.Players) != 3 {
+		return err
+	}
+
+	board.Start()
+	board, err = s.repository.Save(ctx, *board)
+
+	return nil
+}

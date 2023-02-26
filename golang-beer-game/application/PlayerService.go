@@ -38,6 +38,10 @@ func (p *PlayerService) AddPlayer(ctx context.Context, boardId string, role stri
 		return nil, err
 	}
 
+	if len(board.Players) == 2 {
+		p.boardService.CompleteBoard(ctx, boardId)
+	}
+
 	return player, nil
 }
 

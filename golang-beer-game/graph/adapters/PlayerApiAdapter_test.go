@@ -3,6 +3,7 @@ package adapters
 import (
 	"context"
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	adapters2 "github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -96,6 +97,8 @@ func TestPlayer(t *testing.T) {
 
 		board, err = boardService.Get(ctx, player.BoardId)
 		assert.Equal(t, len(board.Players), 3, "players size is wrong")
+		assert.Equal(t, board.State, domain.StateRunning, "players size is wrong")
+		assert.Equal(t, board.Full, true, "players size is wrong")
 
 		playerRepository.DeleteAll(ctx)
 		boardRepository.DeleteAll(ctx)
