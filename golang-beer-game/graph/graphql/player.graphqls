@@ -1,0 +1,31 @@
+extend type Query {
+    getPlayer(playerId: String): Player
+    getPlayersByBoard(boardId: String): [Player]
+}
+
+extend type Mutation {
+    addPlayer(boardId: String, role: Role): Player
+}
+
+extend type Subscription {
+    player(playerId: String): Player
+}
+
+type Player {
+    id: ID!
+    name: String!
+    role: Role!
+    stock: Int!
+    backlog: Int!
+    weeklyOrder: Int!
+    lastOrder: Int!
+    cpu: Boolean!
+    board: Board,
+    orders: [Order!]
+}
+
+enum Role {
+    RETAILER,
+    WHOLESALER,
+    FACTORY
+}

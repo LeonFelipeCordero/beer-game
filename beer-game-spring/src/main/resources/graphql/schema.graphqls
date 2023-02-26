@@ -23,7 +23,7 @@ type Subscription {
 type Board {
     id: ID!
     name: String!
-    state: BardState!
+    state: BoardState!
     full: Boolean!
     finished: Boolean!
     createdAt: String!
@@ -32,7 +32,7 @@ type Board {
     availableRoles: [String]
 }
 
-enum BardState {
+enum BoardState {
     CREATED,
     RUNNING,
     FINISHED

@@ -1,0 +1,30 @@
+type Mutation {
+    createBoard(name: String): Board
+}
+
+type Query {
+    getBoard(id: String): Board
+    getBoardByName(name: String): Board,
+}
+
+type Subscription {
+    board(boardId: String): Board
+}
+
+type Board {
+    id: ID!
+    name: String!
+    state: BoardState!
+    full: Boolean!
+    finished: Boolean!
+    createdAt: String!
+    players: [Player]
+    orders: [Order]
+    availableRoles: [String]
+}
+
+enum BoardState {
+    CREATED,
+    RUNNING,
+    FINISHED
+}
