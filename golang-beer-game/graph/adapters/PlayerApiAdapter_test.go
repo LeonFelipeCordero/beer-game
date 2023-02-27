@@ -120,4 +120,26 @@ func TestPlayer(t *testing.T) {
 		playerRepository.DeleteAll(ctx)
 		boardRepository.DeleteAll(ctx)
 	})
+
+	t.Run("get all players by board board", func(t *testing.T) {
+		ctx := context.Background()
+		board, _ := boardService.Create(ctx, boardName)
+
+		retailer, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
+		assert.Equal(t, retailer.WeeklyOrder, 40)
+
+		response, err := playerApiAdapter.UpdateWeeklyOrder(ctx, retailer.ID, 10000)
+		if err != nil {
+			t.Error("There should not be errors")
+		}
+
+		assert.Equal(t, *response.Message, "weekly order updated")
+		assert.Equal(t, *response.Status, 200)
+
+		player, _ := playerApiAdapter.Get(ctx, retailer.ID)
+		assert.Equal(t, player.WeeklyOrder, 10000)
+
+		playerRepository.DeleteAll(ctx)
+		boardRepository.DeleteAll(ctx)
+	})
 }

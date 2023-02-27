@@ -59,3 +59,16 @@ func (b *PlayerApiAdapter) GetPlayersByBoard(ctx context.Context, boardId string
 
 	return playersGraph, nil
 }
+
+func (b *PlayerApiAdapter) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int) (*model.Response, error) {
+	_, err := b.service.UpdateWeeklyOrder(ctx, playerId, amount)
+	if err != nil {
+		return nil, err
+	}
+	message := "weekly order updated"
+	status := 200
+	return &model.Response{
+		Message: &message,
+		Status:  &status,
+	}, nil
+}

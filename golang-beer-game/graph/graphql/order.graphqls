@@ -1,7 +1,6 @@
 extend type Mutation {
     createOrder(receiverId: String): Order
     deliverOrder(orderId: String, amount: Int): Response
-    updateWeeklyOrder(playerId: String, amount: Int): Response
 }
 
 extend type Subscription {

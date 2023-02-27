@@ -40,6 +40,16 @@ func (p *PlayerRepositoryAdapterFaker) Get(ctx context.Context, id string) (*dom
 	return &player, nil
 }
 
+func (p *PlayerRepositoryAdapterFaker) Save(ctx context.Context, player domain.Player) (*domain.Player, error) {
+	_, err := p.Get(ctx, player.Id)
+	if err == nil {
+		delete(p.players, player.Id)
+		p.players[player.Id] = player
+		return &player, nil
+	}
+	return nil, err
+}
+
 func (p *PlayerRepositoryAdapterFaker) DeleteAll(ctx context.Context) {
 	for key := range p.players {
 		delete(p.players, key)

@@ -52,3 +52,14 @@ func (p *PlayerService) Get(ctx context.Context, id string) (*domain.Player, err
 func (p *PlayerService) GetPlayersByBoard(ctx context.Context, boardId string) ([]domain.Player, error) {
 	return p.repository.GetPlayersByBoard(ctx, boardId)
 }
+
+func (p *PlayerService) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int) (*domain.Player, error) {
+	player, err := p.repository.Get(ctx, playerId)
+	if err != nil {
+		return nil, err
+	}
+
+	player.WeeklyOrder = amount
+
+	return p.repository.Save(ctx, *player)
+}
