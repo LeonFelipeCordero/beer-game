@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"io"
 	"strconv"
 )
@@ -15,7 +16,41 @@ type Order struct {
 	SenderId       string     `json:"senderId"`
 	ReceiverId     string     `json:"receiverId"`
 	BoardId        string     `json:"boardId"`
-	CreatedAt      *string    `json:"createdAt"`
+	CreatedAt      string     `json:"createdAt"`
+}
+
+func (o *Order) FromOrder(order domain.Order) {
+	// todo find the way to pass the board here if need for graphql
+	o.ID = order.Id
+	o.Amount = order.Amount
+	o.OriginalAmount = order.OriginalAmount
+	o.State = FromOrderStatus(order.State)
+	o.Type = FromOrderType(order.OrderType)
+	o.SenderId = order.Sender
+	o.ReceiverId = order.Receiver
+	o.CreatedAt = order.CreatedAt.String()
+}
+
+func FromOrderStatus(status domain.Status) OrderState {
+	var result OrderState
+	switch status {
+	case domain.StatePending:
+		result = OrderStatePending
+	case domain.StateDelivered:
+		result = OrderStateDelivered
+	}
+	return result
+}
+
+func FromOrderType(orderType domain.OrderType) OrderType {
+	var result OrderType
+	switch orderType {
+	case domain.OrderTypePlayerOrder:
+		result = OrderTypePlayerOrder
+	case domain.OrderTypeCPUOrder:
+		result = OrderTypeCPUOrder
+	}
+	return result
 }
 
 type OrderState string

@@ -14,10 +14,12 @@ type IPlayerApi interface {
 }
 
 type IPlayerService interface {
+	Save(ctx context.Context, player domain.Player) (*domain.Player, error)
 	AddPlayer(ctx context.Context, boardId string, role string) (*domain.Player, error)
 	Get(ctx context.Context, id string) (*domain.Player, error)
 	GetPlayersByBoard(ctx context.Context, boardId string) ([]domain.Player, error)
 	UpdateWeeklyOrder(ctx context.Context, playerId string, amount int) (*domain.Player, error)
+	GetContraPart(ctx context.Context, player domain.Player) (*domain.Player, error)
 }
 
 type IPlayerRepository interface {

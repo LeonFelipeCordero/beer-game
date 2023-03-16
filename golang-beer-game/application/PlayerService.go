@@ -22,6 +22,10 @@ func NewPlayerService(
 	}
 }
 
+func (p *PlayerService) Save(ctx context.Context, player domain.Player) (*domain.Player, error) {
+	return p.repository.Save(ctx, player)
+}
+
 func (p *PlayerService) AddPlayer(ctx context.Context, boardId string, role string) (*domain.Player, error) {
 	selectedRole, err := domain.GetRole(role)
 	if err != nil {
@@ -62,4 +66,24 @@ func (p *PlayerService) UpdateWeeklyOrder(ctx context.Context, playerId string, 
 	player.WeeklyOrder = amount
 
 	return p.repository.Save(ctx, *player)
+}
+
+func (p *PlayerService) GetContraPart(ctx context.Context, player domain.Player) (*domain.Player, error) {
+	board, err := p.boardService.GetByPlayer(ctx, player.Id)
+	if err != nil {
+		return nil, err
+	}
+	contraPart := getContraPart(*board, player)
+	return &contraPart, nil
+}
+
+func getContraPart(board domain.Board, receiver domain.Player) domain.Player {
+	var sender domain.Player
+	switch receiver.Role {
+	case domain.RoleRetailer:
+		sender = board.GetPlayerByRole(domain.RoleWholesaler)
+	case domain.RoleWholesaler:
+		sender = board.GetPlayerByRole(domain.RoleFactory)
+	}
+	return sender
 }

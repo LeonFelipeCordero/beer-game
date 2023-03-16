@@ -40,9 +40,9 @@ out/
 **/node_modules/
 
 ### Neo4J Docker ###
-./golang-beer-game/development/conf
-./golang-beer-game/development/data
-./golang-beer-game/development/logs
-./golang-beer-game/development/import
-./golang-beer-game/development/plugins
+golang-beer-game/development/conf
+golang-beer-game/development/data
+golang-beer-game/development/logs
+golang-beer-game/development/import
+golang-beer-game/development/plugins
 

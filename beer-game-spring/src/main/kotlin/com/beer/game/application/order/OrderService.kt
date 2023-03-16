@@ -64,6 +64,7 @@ class OrderService(
             )
         }
 
+        // todo last order?
         sender.stock -= order.amount
         receiver?.let {
             it.stock += order.amount

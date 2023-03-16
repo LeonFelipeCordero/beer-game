@@ -63,3 +63,11 @@ func GetRole(role string) (Role, error) {
 	}
 	return RoleRetailer, errors.New(fmt.Sprintf("Given role is not supported %s", role))
 }
+
+func (p *Player) AddOrder(order Order) {
+	p.Orders = append(p.Orders, order)
+}
+
+func (p *Player) HasStock(amount int) bool {
+	return p.Stock >= amount
+}

@@ -44,6 +44,15 @@ func (b *Board) AvailableRoles() []Role {
 	return availableRoles
 }
 
+func (b *Board) GetPlayerByRole(role Role) Player {
+	for _, player := range b.Players {
+		if role == player.Role {
+			return player
+		}
+	}
+	panic("role doesn't exit in the board")
+}
+
 func (b *Board) Start() {
 	b.Full = true
 	b.State = StateRunning
