@@ -37,6 +37,11 @@ func (r *queryResolver) GetPlayersByBoard(ctx context.Context, boardID *string) 
 	return r.PlayerApiAdapter.GetPlayersByBoard(ctx, *boardID)
 }
 
+// UpdateWeeklyOrder is the resolver for the updateWeeklyOrder field.
+func (r *queryResolver) UpdateWeeklyOrder(ctx context.Context, playerID *string, amount *int) (*model.Response, error) {
+	return r.PlayerApiAdapter.UpdateWeeklyOrder(ctx, *playerID, *amount)
+}
+
 // Player is the resolver for the player field.
 func (r *subscriptionResolver) Player(ctx context.Context, playerID *string) (<-chan *model.Player, error) {
 	panic(fmt.Errorf("not implemented: Player - player"))

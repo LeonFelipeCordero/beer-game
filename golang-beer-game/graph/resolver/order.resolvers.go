@@ -14,17 +14,12 @@ import (
 
 // CreateOrder is the resolver for the createOrder field.
 func (r *mutationResolver) CreateOrder(ctx context.Context, receiverID *string) (*model.Order, error) {
-	panic(fmt.Errorf("not implemented: CreateOrder - createOrder"))
+	return r.OrderApiAdapter.CreateOrder(ctx, *receiverID)
 }
 
 // DeliverOrder is the resolver for the deliverOrder field.
 func (r *mutationResolver) DeliverOrder(ctx context.Context, orderID *string, amount *int) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: DeliverOrder - deliverOrder"))
-}
-
-// UpdateWeeklyOrder is the resolver for the updateWeeklyOrder field.
-func (r *mutationResolver) UpdateWeeklyOrder(ctx context.Context, playerID *string, amount *int) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: UpdateWeeklyOrder - updateWeeklyOrder"))
+	return r.OrderApiAdapter.DeliverOrder(ctx, *orderID, *amount)
 }
 
 // Sender is the resolver for the sender field.

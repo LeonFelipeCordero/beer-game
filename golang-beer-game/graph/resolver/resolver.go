@@ -13,4 +13,5 @@ import (
 type Resolver struct {
 	BoardApiAdapter  ports.IBoardApi
 	PlayerApiAdapter ports.IPlayerApi
+	OrderApiAdapter  ports.IOrderApi
 }

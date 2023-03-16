@@ -63,11 +63,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddPlayer         func(childComplexity int, boardID *string, role *model.Role) int
-		CreateBoard       func(childComplexity int, name *string) int
-		CreateOrder       func(childComplexity int, receiverID *string) int
-		DeliverOrder      func(childComplexity int, orderID *string, amount *int) int
-		UpdateWeeklyOrder func(childComplexity int, playerID *string, amount *int) int
+		AddPlayer    func(childComplexity int, boardID *string, role *model.Role) int
+		CreateBoard  func(childComplexity int, name *string) int
+		CreateOrder  func(childComplexity int, receiverID *string) int
+		DeliverOrder func(childComplexity int, orderID *string, amount *int) int
 	}
 
 	Order struct {
@@ -100,6 +99,7 @@ type ComplexityRoot struct {
 		GetBoardByName    func(childComplexity int, name *string) int
 		GetPlayer         func(childComplexity int, playerID *string) int
 		GetPlayersByBoard func(childComplexity int, boardID *string) int
+		UpdateWeeklyOrder func(childComplexity int, playerID *string, amount *int) int
 	}
 
 	Response struct {
@@ -124,7 +124,6 @@ type MutationResolver interface {
 	CreateBoard(ctx context.Context, name *string) (*model.Board, error)
 	CreateOrder(ctx context.Context, receiverID *string) (*model.Order, error)
 	DeliverOrder(ctx context.Context, orderID *string, amount *int) (*model.Response, error)
-	UpdateWeeklyOrder(ctx context.Context, playerID *string, amount *int) (*model.Response, error)
 	AddPlayer(ctx context.Context, boardID *string, role *model.Role) (*model.Player, error)
 }
 type OrderResolver interface {
@@ -141,6 +140,7 @@ type QueryResolver interface {
 	GetBoardByName(ctx context.Context, name *string) (*model.Board, error)
 	GetPlayer(ctx context.Context, playerID *string) (*model.Player, error)
 	GetPlayersByBoard(ctx context.Context, boardID *string) ([]*model.Player, error)
+	UpdateWeeklyOrder(ctx context.Context, playerID *string, amount *int) (*model.Response, error)
 }
 type SubscriptionResolver interface {
 	Board(ctx context.Context, boardID *string) (<-chan *model.Board, error)
@@ -274,18 +274,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeliverOrder(childComplexity, args["orderId"].(*string), args["amount"].(*int)), true
-
-	case "Mutation.updateWeeklyOrder":
-		if e.complexity.Mutation.UpdateWeeklyOrder == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateWeeklyOrder_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateWeeklyOrder(childComplexity, args["playerId"].(*string), args["amount"].(*int)), true
 
 	case "Order.amount":
 		if e.complexity.Order.Amount == nil {
@@ -467,6 +455,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetPlayersByBoard(childComplexity, args["boardId"].(*string)), true
+
+	case "Query.updateWeeklyOrder":
+		if e.complexity.Query.UpdateWeeklyOrder == nil {
+			break
+		}
+
+		args, err := ec.field_Query_updateWeeklyOrder_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.UpdateWeeklyOrder(childComplexity, args["playerId"].(*string), args["amount"].(*int)), true
 
 	case "Response.message":
 		if e.complexity.Response.Message == nil {
@@ -714,30 +714,6 @@ func (ec *executionContext) field_Mutation_deliverOrder_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateWeeklyOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["playerId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("playerId"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["playerId"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["amount"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["amount"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -810,6 +786,30 @@ func (ec *executionContext) field_Query_getPlayersByBoard_args(ctx context.Conte
 		}
 	}
 	args["boardId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_updateWeeklyOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["playerId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("playerId"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["playerId"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["amount"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["amount"] = arg1
 	return args, nil
 }
 
@@ -1539,63 +1539,6 @@ func (ec *executionContext) fieldContext_Mutation_deliverOrder(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateWeeklyOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateWeeklyOrder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateWeeklyOrder(rctx, fc.Args["playerId"].(*string), fc.Args["amount"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Response)
-	fc.Result = res
-	return ec.marshalOResponse2ᚖgithubᚗcomᚋLeonFelipeCorderoᚋgolangᚑbeerᚑgameᚋgraphᚋmodelᚐResponse(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateWeeklyOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "message":
-				return ec.fieldContext_Response_message(ctx, field)
-			case "status":
-				return ec.fieldContext_Response_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Response", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateWeeklyOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_addPlayer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_addPlayer(ctx, field)
 	if err != nil {
@@ -2100,11 +2043,14 @@ func (ec *executionContext) _Order_createdAt(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Order_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2876,6 +2822,63 @@ func (ec *executionContext) fieldContext_Query_getPlayersByBoard(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getPlayersByBoard_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_updateWeeklyOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_updateWeeklyOrder(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UpdateWeeklyOrder(rctx, fc.Args["playerId"].(*string), fc.Args["amount"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Response)
+	fc.Result = res
+	return ec.marshalOResponse2ᚖgithubᚗcomᚋLeonFelipeCorderoᚋgolangᚑbeerᚑgameᚋgraphᚋmodelᚐResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_updateWeeklyOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_Response_message(ctx, field)
+			case "status":
+				return ec.fieldContext_Response_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Response", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_updateWeeklyOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -5364,12 +5367,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_deliverOrder(ctx, field)
 			})
 
-		case "updateWeeklyOrder":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateWeeklyOrder(ctx, field)
-			})
-
 		case "addPlayer":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -5487,6 +5484,9 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Values[i] = ec._Order_createdAt(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5697,6 +5697,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getPlayersByBoard(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "updateWeeklyOrder":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_updateWeeklyOrder(ctx, field)
 				return res
 			}
 
