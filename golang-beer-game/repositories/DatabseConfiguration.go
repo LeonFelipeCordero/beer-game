@@ -17,7 +17,7 @@ func ConfigureDatabase() gogm.SessionV2 {
 		Username:      "neo4j",
 	}
 
-	_gogm, err := gogm.New(&config, gogm.UUIDPrimaryKeyStrategy, &entities.BoardNode{})
+	_gogm, err := gogm.New(&config, gogm.UUIDPrimaryKeyStrategy, &entities.BoardNode{}, &entities.PlayerNode{}, &entities.OrderNode{})
 	if err != nil {
 		panic(err)
 	}
