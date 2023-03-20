@@ -65,7 +65,14 @@ func (p PlayerRepositoryAdapter) DeleteAll(ctx context.Context) {
 }
 
 func (p PlayerRepositoryAdapter) Save(ctx context.Context, player domain.Player) (*domain.Player, error) {
-	panic("implement me")
+	playerNode := &entities.PlayerNode{}
+	playerNode.FromPlayer(player)
+	err := p.repository.Save(ctx, playerNode)
+	if err != nil {
+		return nil, err
+	}
+	savePlayer := playerNode.ToPlayer()
+	return &savePlayer, nil
 }
 
 func (p PlayerRepositoryAdapter) GetPlayersByBoard(ctx context.Context, boardId string) ([]domain.Player, error) {

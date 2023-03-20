@@ -29,6 +29,7 @@ func TestBoardAndPlayer(t *testing.T) {
 		checkPlayerByBoard(ctx, t, playerRepository, retailer, board)
 		checkPlayerByBoard(ctx, t, playerRepository, wholesaler, board)
 		checkPlayer(ctx, t, playerRepository, retailer)
+		updatePlayerAndValidate(ctx, t, playerRepository, retailer)
 	})
 }
 
@@ -124,6 +125,20 @@ func checkPlayerByBoard(ctx context.Context, t *testing.T, repository ports.IPla
 		}
 	}
 	assert.Equal(t, checked, true, "there was no player to compare to")
+}
+
+func updatePlayerAndValidate(ctx context.Context, t *testing.T, repository ports.IPlayerRepository, player *domain.Player) {
+	player.Stock = 100
+	player.Backlog = 101
+	player.WeeklyOrder = 102
+	player.LastOrder = 103
+
+	savedPlayer, err := repository.Save(ctx, *player)
+	assert.Nil(t, err, "there should no be errors")
+	assert.Equal(t, savedPlayer.Stock, 100, "stock is wrong")
+	assert.Equal(t, savedPlayer.Backlog, 101, "backlog is wrong")
+	assert.Equal(t, savedPlayer.WeeklyOrder, 102, "weekly order is wrong")
+	assert.Equal(t, savedPlayer.LastOrder, 103, "last order is wrong")
 }
 
 func checkPlayer(ctx context.Context, t *testing.T, repository ports.IPlayerRepository, player *domain.Player) {

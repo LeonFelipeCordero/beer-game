@@ -17,8 +17,8 @@ type PlayerNode struct {
 	LastOrder      int          `gogm:"name=last_order"`
 	Cpu            bool         `gogm:"name=cpu"`
 	Board          *BoardNode   `gogm:"direction=outgoing;relationship=plays_in"`
-	OutgoingOrders []*OrderNode `gogm:"direction=outgoing;relationship=received"`
-	IncomingOrders []*OrderNode `gogm:"direction=incoming;relationship=ordered"`
+	OutgoingOrders []*OrderNode `gogm:"direction=outgoing;relationship=deliver"`
+	IncomingOrders []*OrderNode `gogm:"direction=incoming;relationship=receive"`
 }
 
 func (p *PlayerNode) FromPlayer(player domain.Player) {

@@ -24,7 +24,7 @@ func (o *Order) FromOrder(order domain.Order) {
 	o.ID = order.Id
 	o.Amount = order.Amount
 	o.OriginalAmount = order.OriginalAmount
-	o.State = FromOrderStatus(order.State)
+	o.State = FromOrderStatus(order.Status)
 	o.Type = FromOrderType(order.OrderType)
 	o.SenderId = order.Sender
 	o.ReceiverId = order.Receiver
@@ -34,9 +34,9 @@ func (o *Order) FromOrder(order domain.Order) {
 func FromOrderStatus(status domain.Status) OrderState {
 	var result OrderState
 	switch status {
-	case domain.StatePending:
+	case domain.StatusPending:
 		result = OrderStatePending
-	case domain.StateDelivered:
+	case domain.StatusDelivered:
 		result = OrderStateDelivered
 	}
 	return result

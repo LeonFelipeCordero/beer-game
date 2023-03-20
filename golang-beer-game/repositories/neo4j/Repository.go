@@ -56,6 +56,21 @@ func (r Repository) Query(ctx context.Context, query string, values map[string]i
 	return nil
 }
 
+func (r Repository) LoadDepth(ctx context.Context, id int64, target interface{}) error {
+	session := GlobalSession()
+	err := session.LoadDepth(ctx, target, id, 1)
+
+	if err != nil {
+		fmt.Print(err)
+		return fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting node %d", id),
+			err,
+		)
+	}
+
+	return nil
+}
+
 func (r Repository) QueryRaw(ctx context.Context, query string, values map[string]interface{}) ([][]interface{}, error) {
 	session := GlobalSession()
 

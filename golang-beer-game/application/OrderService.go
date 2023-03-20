@@ -40,7 +40,7 @@ func (o OrderService) CreateOrder(ctx context.Context, receiverId string) (*doma
 		Amount:         receiver.WeeklyOrder,
 		OriginalAmount: receiver.WeeklyOrder,
 		OrderType:      domain.OrderTypePlayerOrder,
-		State:          domain.StatePending,
+		Status:         domain.StatusPending,
 		Sender:         sender.Id,
 		Receiver:       receiverId,
 		CreatedAt:      time.Now(),
@@ -88,7 +88,7 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 	if order.Receiver != "" {
 		receiver.Stock += order.Amount
 	}
-	order.State = domain.StateDelivered
+	order.Status = domain.StatusDelivered
 	o.playerService.Save(ctx, *receiver)
 	o.playerService.Save(ctx, *sender)
 	return o.repository.Save(ctx, *order)

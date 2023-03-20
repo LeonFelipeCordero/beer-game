@@ -6,7 +6,7 @@ type Order struct {
 	Id             string
 	Amount         int
 	OriginalAmount int
-	State          Status
+	Status         Status
 	OrderType      OrderType
 	Sender         string
 	Receiver       string
@@ -16,8 +16,8 @@ type Order struct {
 type Status string
 
 const (
-	StatePending   Status = "PENDING"
-	StateDelivered Status = "DELIVERED"
+	StatusPending   Status = "PENDING"
+	StatusDelivered Status = "DELIVERED"
 )
 
 type OrderType string

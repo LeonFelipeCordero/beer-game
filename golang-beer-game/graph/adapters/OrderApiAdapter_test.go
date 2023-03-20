@@ -102,7 +102,7 @@ func TestOrder(t *testing.T) {
 		assert.Equal(t, *response.Message, "order delivered", "wrong response message")
 
 		assert.Equal(t, savedOrder.Amount, retailerOrder.Amount-1, "wrong order amount")
-		assert.Equal(t, savedOrder.State, domain.StateDelivered, "wrong order state")
+		assert.Equal(t, savedOrder.Status, domain.StatusDelivered, "wrong order state")
 
 		assert.Equal(t, savedRetailer.Stock, retailer.Stock+savedOrder.Amount, "wrong retailer stock")
 		assert.Equal(t, savedWholesaler.Stock, wholesaler.Stock-savedOrder.Amount, "wrong wholesaler stock")
