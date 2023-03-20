@@ -6,6 +6,7 @@ import (
 
 type IRepository interface {
 	Save(ctx context.Context, value interface{}) error
+	SaveDepth(ctx context.Context, value interface{}) error
 	Query(ctx context.Context, query string, values map[string]interface{}, target interface{}) error
 	QueryRaw(ctx context.Context, query string, values map[string]interface{}) ([][]interface{}, error)
 }

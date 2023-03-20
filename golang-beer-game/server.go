@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/adapters"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories"
 	adapters2 "github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
 	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j"
 	"log"
@@ -19,15 +18,19 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	repositories.ConfigureDatabase()
+	neo4j.ConfigureDatabase()
 	neo4jRepository := neo4j.NewRepository()
 	boardRepository := adapters2.NewBoardRepository(neo4jRepository)
+	playerRepository := adapters2.NewPlayerRepository(neo4jRepository, boardRepository)
 	boardService := application.NewBoardService(boardRepository)
+	playerService := application.NewPlayerService(playerRepository, boardService)
 	boardApiAdapter := adapters.NewBoardApiAdapter(boardService)
+	playerApiAdapter := adapters.NewPlayerApiAdapter(playerService, boardService)
 
-	gogmResolver := graph.Config{
+	graphResolver := graph.Config{
 		Resolvers: &resolver.Resolver{
-			BoardApiAdapter: boardApiAdapter,
+			BoardApiAdapter:  boardApiAdapter,
+			PlayerApiAdapter: playerApiAdapter,
 		},
 	}
 
@@ -36,7 +39,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(gogmResolver))
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graphResolver))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

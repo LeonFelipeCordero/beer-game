@@ -57,3 +57,7 @@ func (b *Board) Start() {
 	b.Full = true
 	b.State = StateRunning
 }
+
+func (b *Board) AddPlayer(player Player) {
+	b.Players = append(b.Players, player)
+}
