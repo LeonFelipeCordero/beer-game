@@ -7,16 +7,12 @@ import (
 )
 
 type OrderApiAdapter struct {
-	service       ports.IOrderService
-	boardService  ports.IBoardService
-	playerService ports.IPlayerService
+	service ports.IOrderService
 }
 
-func NewOrderApiAdapter(service ports.IOrderService, boardService ports.IBoardService, playerService ports.IPlayerService) ports.IOrderApi {
+func NewOrderApiAdapter(service ports.IOrderService) ports.IOrderApi {
 	return &OrderApiAdapter{
-		service:       service,
-		boardService:  boardService,
-		playerService: playerService,
+		service: service,
 	}
 }
 
@@ -43,4 +39,32 @@ func (o OrderApiAdapter) DeliverOrder(ctx context.Context, orderId string, amoun
 		Message: &message,
 		Status:  &status,
 	}, nil
+}
+
+func (o OrderApiAdapter) LoadByBoard(ctx context.Context, boardId string) ([]*model.Order, error) {
+	loadedOrders, err := o.service.LoadByBoard(ctx, boardId)
+	if err != nil {
+		return nil, err
+	}
+	var ordersResponse []*model.Order
+	for _, order := range loadedOrders {
+		orderResponse := &model.Order{}
+		orderResponse.FromOrder(*order)
+		ordersResponse = append(ordersResponse, orderResponse)
+	}
+	return ordersResponse, nil
+}
+
+func (o OrderApiAdapter) LoadByPlayer(ctx context.Context, playerId string) ([]*model.Order, error) {
+	loadedOrders, err := o.service.LoadByBoard(ctx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	var ordersResponse []*model.Order
+	for _, order := range loadedOrders {
+		orderResponse := &model.Order{}
+		orderResponse.FromOrder(*order)
+		ordersResponse = append(ordersResponse, orderResponse)
+	}
+	return ordersResponse, nil
 }

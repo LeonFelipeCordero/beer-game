@@ -24,7 +24,7 @@ func (r *playerResolver) Board(ctx context.Context, obj *model.Player) (*model.B
 
 // Orders is the resolver for the orders field.
 func (r *playerResolver) Orders(ctx context.Context, obj *model.Player) ([]*model.Order, error) {
-	panic(fmt.Errorf("not implemented: Orders - orders"))
+	return r.OrderApiAdapter.LoadByPlayer(ctx, obj.ID)
 }
 
 // GetPlayer is the resolver for the getPlayer field.

@@ -22,20 +22,34 @@ func TestBoardPlayerAndOrder(t *testing.T) {
 		retailer := createPlayer(ctx, playerRepository, board, "RETAILER")
 		wholesaler := createPlayer(ctx, playerRepository, board, "WHOLESALER")
 
-		order := domain.Order{
-			Amount:         5,
-			OriginalAmount: 5,
-			Status:         domain.StatusPending,
-			OrderType:      domain.OrderTypePlayerOrder,
-			CreatedAt:      time.Now().UTC(),
-			Receiver:       retailer.Id,
-			Sender:         wholesaler.Id,
-		}
-		savedOrder, err := orderRepository.Save(ctx, order)
-		assert.Nil(t, err, "error when saving order")
+		var ids []string
+		savedOrder := createOrder(ctx, t, orderRepository, *retailer, *wholesaler)
 		validateOrder(ctx, t, orderRepository, *savedOrder)
 		deliverOrder(ctx, t, orderRepository, *savedOrder)
+
+		ids = append(ids, savedOrder.Id)
+		for i := 0; i < 4; i++ {
+			extraOrder := createOrder(ctx, t, orderRepository, *retailer, *wholesaler)
+			ids = append(ids, extraOrder.Id)
+		}
+		loadOrdersByBoard(ctx, t, orderRepository, board.Id, ids)
+		loadOrdersByPlayer(ctx, t, orderRepository, retailer.Id, ids)
 	})
+}
+
+func createOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepository, receiver domain.Player, sender domain.Player) *domain.Order {
+	order := domain.Order{
+		Amount:         5,
+		OriginalAmount: 5,
+		Status:         domain.StatusPending,
+		OrderType:      domain.OrderTypePlayerOrder,
+		CreatedAt:      time.Now().UTC(),
+		Receiver:       receiver.Id,
+		Sender:         sender.Id,
+	}
+	savedOrder, err := repository.Save(ctx, order)
+	assert.Nil(t, err, "error when saving order")
+	return savedOrder
 }
 
 func validateOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepository, order domain.Order) {
@@ -58,4 +72,24 @@ func deliverOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepo
 	assert.Nil(t, err, "error when saving order")
 	assert.Equal(t, savedOrder.Amount, 1, "wrong amount")
 	assert.Equal(t, savedOrder.Status, domain.StatusDelivered, "wrong status")
+}
+
+func loadOrdersByBoard(ctx context.Context, t *testing.T, repository ports.IOrderRepository, board string, orders []string) {
+	savedOrders, err := repository.LoadByBoard(ctx, board)
+	var savedIds []string
+	for _, order := range savedOrders {
+		savedIds = append(savedIds, order.Id)
+	}
+	assert.Nil(t, err, "error when saving order")
+	assert.ElementsMatch(t, savedIds, orders, "wrong response")
+}
+
+func loadOrdersByPlayer(ctx context.Context, t *testing.T, repository ports.IOrderRepository, player string, orders []string) {
+	savedOrders, err := repository.LoadByBoard(ctx, player)
+	var savedIds []string
+	for _, order := range savedOrders {
+		savedIds = append(savedIds, order.Id)
+	}
+	assert.Nil(t, err, "error when saving order")
+	assert.ElementsMatch(t, savedIds, orders, "wrong response")
 }

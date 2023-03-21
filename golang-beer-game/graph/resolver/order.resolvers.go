@@ -24,17 +24,17 @@ func (r *mutationResolver) DeliverOrder(ctx context.Context, orderID *string, am
 
 // Sender is the resolver for the sender field.
 func (r *orderResolver) Sender(ctx context.Context, obj *model.Order) (*model.Player, error) {
-	panic(fmt.Errorf("not implemented: Sender - sender"))
+	return r.PlayerApiAdapter.Get(ctx, obj.SenderId)
 }
 
 // Receiver is the resolver for the receiver field.
 func (r *orderResolver) Receiver(ctx context.Context, obj *model.Order) (*model.Player, error) {
-	panic(fmt.Errorf("not implemented: Receiver - receiver"))
+	return r.PlayerApiAdapter.Get(ctx, obj.ReceiverId)
 }
 
 // Board is the resolver for the board field.
 func (r *orderResolver) Board(ctx context.Context, obj *model.Order) (*model.Board, error) {
-	panic(fmt.Errorf("not implemented: Board - board"))
+	return r.BoardApiAdapter.GetByPlayer(ctx, obj.SenderId)
 }
 
 // NewOrder is the resolver for the newOrder field.

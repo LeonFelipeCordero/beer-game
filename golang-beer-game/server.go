@@ -22,15 +22,19 @@ func main() {
 	neo4jRepository := neo4j.NewRepository()
 	boardRepository := adapters2.NewBoardRepository(neo4jRepository)
 	playerRepository := adapters2.NewPlayerRepository(neo4jRepository, boardRepository)
+	orderRepository := adapters2.NewOrderRepository(neo4jRepository, playerRepository)
 	boardService := application.NewBoardService(boardRepository)
 	playerService := application.NewPlayerService(playerRepository, boardService)
+	orderService := application.NewOrderService(orderRepository, playerService)
 	boardApiAdapter := adapters.NewBoardApiAdapter(boardService)
 	playerApiAdapter := adapters.NewPlayerApiAdapter(playerService, boardService)
+	orderApiAdapter := adapters.NewOrderApiAdapter(orderService)
 
 	graphResolver := graph.Config{
 		Resolvers: &resolver.Resolver{
 			BoardApiAdapter:  boardApiAdapter,
 			PlayerApiAdapter: playerApiAdapter,
+			OrderApiAdapter:  orderApiAdapter,
 		},
 	}
 

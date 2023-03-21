@@ -10,18 +10,15 @@ import (
 
 type OrderService struct {
 	repository    ports.IOrderRepository
-	boardService  ports.IBoardService
 	playerService ports.IPlayerService
 }
 
 func NewOrderService(
 	repository ports.IOrderRepository,
-	boardService ports.IBoardService,
 	playerService ports.IPlayerService,
 ) ports.IOrderService {
 	return &OrderService{
 		repository:    repository,
-		boardService:  boardService,
 		playerService: playerService,
 	}
 }
@@ -96,4 +93,12 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 
 func (o OrderService) Get(ctx context.Context, orderId string) (*domain.Order, error) {
 	return o.repository.Get(ctx, orderId)
+}
+
+func (o OrderService) LoadByBoard(ctx context.Context, boardId string) ([]*domain.Order, error) {
+	return o.repository.LoadByBoard(ctx, boardId)
+}
+
+func (o OrderService) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
+	return o.repository.LoadByBoard(ctx, playerId)
 }

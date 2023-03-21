@@ -73,3 +73,65 @@ func (o OrderRepositoryAdapter) DeleteAll(ctx context.Context) {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (o OrderRepositoryAdapter) LoadByBoard(ctx context.Context, boardId string) ([]*domain.Order, error) {
+	entityId, _ := strconv.ParseInt(boardId, 0, 64)
+	board := &entities.BoardNode{}
+	err := o.repository.LoadDepth(ctx, entityId, board)
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting board %s", boardId),
+			err,
+		)
+	}
+
+	ordersNode := map[int64]*entities.OrderNode{}
+	for _, player := range board.Players {
+		for _, order := range player.IncomingOrders {
+			if _, exist := ordersNode[*order.Id]; !exist {
+				ordersNode[*order.Id] = order
+			}
+		}
+		for _, order := range player.OutgoingOrders {
+			if _, exist := ordersNode[*order.Id]; !exist {
+				ordersNode[*order.Id] = order
+			}
+		}
+	}
+
+	var ordersResponse []*domain.Order
+	for _, orderNode := range ordersNode {
+		orderResponse := orderNode.ToOrder()
+		ordersResponse = append(ordersResponse, &orderResponse)
+	}
+	return ordersResponse, nil
+}
+
+func (o OrderRepositoryAdapter) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
+	entityId, _ := strconv.ParseInt(playerId, 0, 64)
+	player := &entities.PlayerNode{}
+	err := o.repository.LoadDepth(ctx, entityId, player)
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting board %s", playerId),
+			err,
+		)
+	}
+
+	ordersNode := map[int64]*entities.OrderNode{}
+	for _, order := range player.IncomingOrders {
+		ordersNode[*order.Id] = order
+	}
+	for _, order := range player.OutgoingOrders {
+		ordersNode[*order.Id] = order
+	}
+
+	var ordersResponse []*domain.Order
+	for _, orderNode := range ordersNode {
+		orderResponse := orderNode.ToOrder()
+		ordersResponse = append(ordersResponse, &orderResponse)
+	}
+	return ordersResponse, nil
+}

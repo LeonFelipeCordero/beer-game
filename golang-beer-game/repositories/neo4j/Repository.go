@@ -58,7 +58,7 @@ func (r Repository) Query(ctx context.Context, query string, values map[string]i
 
 func (r Repository) LoadDepth(ctx context.Context, id int64, target interface{}) error {
 	session := GlobalSession()
-	err := session.LoadDepth(ctx, target, id, 1)
+	err := session.LoadDepth(ctx, target, id, 2)
 
 	if err != nil {
 		fmt.Print(err)

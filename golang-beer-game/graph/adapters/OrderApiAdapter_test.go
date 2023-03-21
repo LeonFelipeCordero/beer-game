@@ -17,7 +17,7 @@ func TestOrder(t *testing.T) {
 	boardService := application.NewBoardService(boardRepository)
 	playerService := application.NewPlayerService(playerRepository, boardService)
 	orderService := application.NewOrderService(orderRepository, boardService, playerService)
-	orderApiAdapter := NewOrderApiAdapter(orderService, boardService, playerService)
+	orderApiAdapter := NewOrderApiAdapter(orderService)
 
 	t.Run("order should created and contain the correct data", func(t *testing.T) {
 		ctx := context.Background()

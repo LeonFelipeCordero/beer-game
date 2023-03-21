@@ -51,3 +51,13 @@ func (o OrderRepositoryAdapterFaker) DeleteAll(ctx context.Context) {
 		delete(o.orders, key)
 	}
 }
+
+func (o OrderRepositoryAdapterFaker) LoadByBoard(ctx context.Context, boardId string) ([]*domain.Order, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (o OrderRepositoryAdapterFaker) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
+	//TODO implement me
+	panic("implement me")
+}
