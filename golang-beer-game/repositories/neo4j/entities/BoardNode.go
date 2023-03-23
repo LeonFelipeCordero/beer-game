@@ -28,7 +28,7 @@ func (b *BoardNode) FromBoard(board domain.Board) {
 	b.Full = board.Full
 	b.Finished = board.Finished
 	b.CreatedAt = board.CreatedAt
-	b.Players = mapPlayers(board.Players)
+	b.Players = mapToPlayersNode(board.Players)
 }
 
 func (b *BoardNode) ToBoard() *domain.Board {
@@ -39,6 +39,7 @@ func (b *BoardNode) ToBoard() *domain.Board {
 	board.Full = b.Full
 	board.Finished = b.Finished
 	board.CreatedAt = b.CreatedAt
+	board.Players = mapFromPlayersNode(b.Players)
 	return board
 }
 
@@ -55,7 +56,16 @@ func toState(state string) domain.State {
 	return result
 }
 
-func mapPlayers(players []domain.Player) []*PlayerNode {
+func mapFromPlayersNode(playersNode []*PlayerNode) []domain.Player {
+	players := []domain.Player{}
+	for _, playerNode := range playersNode {
+		player := playerNode.ToPlayer()
+		players = append(players, player)
+	}
+	return players
+}
+
+func mapToPlayersNode(players []domain.Player) []*PlayerNode {
 	nodePlayers := []*PlayerNode{}
 	for _, player := range players {
 		nodePlayer := PlayerNode{}

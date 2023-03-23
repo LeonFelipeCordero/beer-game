@@ -35,9 +35,8 @@ func (b *BoardRepositoryAdapter) Save(ctx context.Context, board domain.Board) (
 
 func (b *BoardRepositoryAdapter) Get(ctx context.Context, id string) (*domain.Board, error) {
 	entityId, _ := strconv.ParseInt(id, 0, 64)
-	query := "MATCH (b:BoardNode) WHERE ID(b) = $id RETURN b"
 	boardNode := &entities.BoardNode{}
-	err := b.repository.Query(ctx, query, map[string]interface{}{"id": entityId}, boardNode)
+	err := b.repository.LoadDepth(ctx, entityId, boardNode)
 
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -86,7 +85,14 @@ func (b *BoardRepositoryAdapter) DeleteAll(ctx context.Context) {}
 
 func (b *BoardRepositoryAdapter) GetByPlayer(ctx context.Context, id string) (*domain.Board, error) {
 	entityId, _ := strconv.ParseInt(id, 0, 64)
-	query := "MATCH (p:PlayerNode)-[r:plays_in]->(b:BoardNode) WHERE ID(p) = $id RETURN b"
+	query := `
+		MATCH (p:PlayerNode)-[r:plays_in]->(b:BoardNode) WHERE ID(p) = $id
+		CALL {
+			WITH b
+			MATCH (p2:PlayerNode)-[r2:plays_in]->(b2:BoardNode) WHERE b2.name = b.name RETURN b2,r2,p2
+		}
+		RETURN b2,r2,p2
+	`
 
 	boardNode := &entities.BoardNode{}
 

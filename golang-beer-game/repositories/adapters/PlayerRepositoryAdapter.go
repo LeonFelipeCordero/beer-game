@@ -83,7 +83,7 @@ func (p PlayerRepositoryAdapter) GetPlayersByBoard(ctx context.Context, boardId 
 
 	err := p.repository.Query(ctx, query, map[string]interface{}{"id": entityId}, playerNodes)
 
-	if err != nil {
+	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
 			fmt.Sprintf("Something went wrong getting board %s", boardId),
 			err,

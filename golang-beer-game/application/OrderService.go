@@ -40,18 +40,13 @@ func (o OrderService) CreateOrder(ctx context.Context, receiverId string) (*doma
 		Status:         domain.StatusPending,
 		Sender:         sender.Id,
 		Receiver:       receiverId,
-		CreatedAt:      time.Now(),
+		CreatedAt:      time.Now().UTC(),
 	}
 
 	savedOrder, err := o.repository.Save(ctx, order)
 	if err != nil {
 		return nil, err
 	}
-
-	sender.AddOrder(*savedOrder)
-	receiver.AddOrder(*savedOrder)
-	o.playerService.Save(ctx, *sender)
-	o.playerService.Save(ctx, *receiver)
 
 	return savedOrder, nil
 }

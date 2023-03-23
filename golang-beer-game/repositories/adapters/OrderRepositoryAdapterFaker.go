@@ -10,17 +10,26 @@ import (
 )
 
 type OrderRepositoryAdapterFaker struct {
-	orders map[string]domain.Order
+	orders           map[string]domain.Order
+	playerRepository ports.IPlayerRepository
 }
 
-func NewOrderRepositoryFaker() ports.IOrderRepository {
+func NewOrderRepositoryFaker(playerRepository ports.IPlayerRepository) ports.IOrderRepository {
 	return &OrderRepositoryAdapterFaker{
-		orders: make(map[string]domain.Order),
+		orders:           make(map[string]domain.Order),
+		playerRepository: playerRepository,
 	}
 }
 
 func (o OrderRepositoryAdapterFaker) Save(ctx context.Context, order domain.Order) (*domain.Order, error) {
 	if order.Id == "" {
+		receiver, _ := o.playerRepository.Get(ctx, order.Receiver)
+		sender, _ := o.playerRepository.Get(ctx, order.Sender)
+		sender.AddOrder(order)
+		receiver.AddOrder(order)
+		o.playerRepository.Save(ctx, *receiver)
+		o.playerRepository.Save(ctx, *sender)
+
 		id, _ := uuid.NewUUID()
 		order.Id = id.String()
 		o.orders[id.String()] = order

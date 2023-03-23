@@ -79,7 +79,7 @@ func (o OrderRepositoryAdapter) LoadByBoard(ctx context.Context, boardId string)
 	board := &entities.BoardNode{}
 	err := o.repository.LoadDepth(ctx, entityId, board)
 
-	if err != nil {
+	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
 			fmt.Sprintf("Something went wrong getting board %s", boardId),
 			err,
@@ -113,7 +113,7 @@ func (o OrderRepositoryAdapter) LoadByPlayer(ctx context.Context, playerId strin
 	player := &entities.PlayerNode{}
 	err := o.repository.LoadDepth(ctx, entityId, player)
 
-	if err != nil {
+	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
 			fmt.Sprintf("Something went wrong getting board %s", playerId),
 			err,

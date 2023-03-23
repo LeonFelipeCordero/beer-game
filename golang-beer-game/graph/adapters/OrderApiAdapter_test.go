@@ -13,10 +13,10 @@ func TestOrder(t *testing.T) {
 	boardName := "test"
 	boardRepository := adapters2.NewBoardRepositoryFaker()
 	playerRepository := adapters2.NewPlayerRepositoryFaker(boardRepository)
-	orderRepository := adapters2.NewOrderRepositoryFaker()
+	orderRepository := adapters2.NewOrderRepositoryFaker(playerRepository)
 	boardService := application.NewBoardService(boardRepository)
 	playerService := application.NewPlayerService(playerRepository, boardService)
-	orderService := application.NewOrderService(orderRepository, boardService, playerService)
+	orderService := application.NewOrderService(orderRepository, playerService)
 	orderApiAdapter := NewOrderApiAdapter(orderService)
 
 	t.Run("order should created and contain the correct data", func(t *testing.T) {
