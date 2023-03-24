@@ -51,7 +51,7 @@ func (p PlayerRepositoryAdapter) Get(ctx context.Context, id string) (*domain.Pl
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", id),
+			fmt.Sprintf("Something went wrong getting player %s", id),
 			err,
 		)
 	}
@@ -85,7 +85,7 @@ func (p PlayerRepositoryAdapter) GetPlayersByBoard(ctx context.Context, boardId 
 
 	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", boardId),
+			fmt.Sprintf("Something went wrong getting player by board %s", boardId),
 			err,
 		)
 	}

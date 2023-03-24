@@ -23,6 +23,9 @@ func NewOrderRepositoryFaker(playerRepository ports.IPlayerRepository) ports.IOr
 
 func (o OrderRepositoryAdapterFaker) Save(ctx context.Context, order domain.Order) (*domain.Order, error) {
 	if order.Id == "" {
+		id, _ := uuid.NewUUID()
+		order.Id = id.String()
+
 		receiver, _ := o.playerRepository.Get(ctx, order.Receiver)
 		sender, _ := o.playerRepository.Get(ctx, order.Sender)
 		sender.AddOrder(order)
@@ -30,8 +33,6 @@ func (o OrderRepositoryAdapterFaker) Save(ctx context.Context, order domain.Orde
 		o.playerRepository.Save(ctx, *receiver)
 		o.playerRepository.Save(ctx, *sender)
 
-		id, _ := uuid.NewUUID()
-		order.Id = id.String()
 		o.orders[id.String()] = order
 		return &order, nil
 	}

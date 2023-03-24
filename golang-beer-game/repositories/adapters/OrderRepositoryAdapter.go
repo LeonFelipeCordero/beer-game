@@ -60,7 +60,7 @@ func (o OrderRepositoryAdapter) Get(ctx context.Context, orderId string) (*domai
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", orderId),
+			fmt.Sprintf("Something went wrong getting order %s", orderId),
 			err,
 		)
 	}
@@ -81,7 +81,7 @@ func (o OrderRepositoryAdapter) LoadByBoard(ctx context.Context, boardId string)
 
 	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", boardId),
+			fmt.Sprintf("Something went wrong getting order by board %s", boardId),
 			err,
 		)
 	}
@@ -115,7 +115,7 @@ func (o OrderRepositoryAdapter) LoadByPlayer(ctx context.Context, playerId strin
 
 	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", playerId),
+			fmt.Sprintf("Something went wrong getting orders by player %s", playerId),
 			err,
 		)
 	}

@@ -81,7 +81,19 @@ func (b *BoardRepositoryAdapter) Exist(ctx context.Context, name string) (bool, 
 	return result[0][0].(int64) != 0, nil
 }
 
-func (b *BoardRepositoryAdapter) DeleteAll(ctx context.Context) {}
+func (b *BoardRepositoryAdapter) DeleteAll(ctx context.Context) {
+	query := "MATCH (n) detach delete n"
+
+	_, err := b.repository.QueryRaw(ctx, query, map[string]interface{}{})
+
+	if err != nil {
+		fmt.Println(
+			fmt.Sprintf("Something went wrong deleting all boards"),
+			err,
+		)
+	}
+
+}
 
 func (b *BoardRepositoryAdapter) GetByPlayer(ctx context.Context, id string) (*domain.Board, error) {
 	entityId, _ := strconv.ParseInt(id, 0, 64)
@@ -100,7 +112,7 @@ func (b *BoardRepositoryAdapter) GetByPlayer(ctx context.Context, id string) (*d
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", id),
+			fmt.Sprintf("Something went wrong getting board by player %s", id),
 			err,
 		)
 	}
