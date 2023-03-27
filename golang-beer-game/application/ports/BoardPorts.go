@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )
@@ -12,6 +13,7 @@ type IBoardApi interface {
 	GetByName(ctx context.Context, name string) (*model.Board, error)
 	GetAvailableRoles(ctx context.Context, id string) ([]*model.Role, error)
 	GetByPlayer(ctx context.Context, playerId string) (*model.Board, error)
+	Subscribe(ctx context.Context, boardId string, streamers *events.Streamers) (chan *model.Board, error)
 }
 
 type IBoardService interface {

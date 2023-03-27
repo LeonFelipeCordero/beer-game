@@ -4,21 +4,27 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/google/uuid"
 )
 
 type PlayerService struct {
 	repository   ports.IPlayerRepository
 	boardService ports.IBoardService
+	eventChan    chan events.Event
 }
 
 func NewPlayerService(
 	repository ports.IPlayerRepository,
-	boardService ports.IBoardService) ports.IPlayerService {
+	boardService ports.IBoardService,
+	eventChan chan events.Event,
+) ports.IPlayerService {
 	return &PlayerService{
 		repository:   repository,
 		boardService: boardService,
+		eventChan:    eventChan,
 	}
 }
 
@@ -44,6 +50,18 @@ func (p *PlayerService) AddPlayer(ctx context.Context, boardId string, role stri
 
 	if len(board.Players) == 2 {
 		p.boardService.CompleteBoard(ctx, boardId)
+		p.eventChan <- events.Event{
+			Id:        uuid.NewString(),
+			ObjectId:  board.Id,
+			EventType: events.EventTypeUpdate,
+			Object:    *board,
+		}
+	}
+	p.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  board.Id,
+		EventType: events.EventTypeNew,
+		Object:    *player,
 	}
 
 	return player, nil
@@ -65,7 +83,17 @@ func (p *PlayerService) UpdateWeeklyOrder(ctx context.Context, playerId string, 
 
 	player.WeeklyOrder = amount
 
-	return p.repository.Save(ctx, *player)
+	response, err := p.repository.Save(ctx, *player)
+
+	board, _ := p.boardService.GetByPlayer(ctx, playerId)
+	p.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  board.Id,
+		EventType: events.EventTypeUpdate,
+		Object:    *player,
+	}
+
+	return response, err
 }
 
 func (p *PlayerService) GetContraPart(ctx context.Context, player domain.Player) (*domain.Player, error) {

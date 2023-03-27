@@ -17,6 +17,9 @@ func TestBoardPlayerAndOrder(t *testing.T) {
 	boardRepository := NewBoardRepository(repository)
 	playerRepository := NewPlayerRepository(repository, boardRepository)
 	orderRepository := NewOrderRepository(repository, playerRepository)
+
+	boardRepository.DeleteAll(ctx)
+
 	t.Run("create all relations between boards and player easily", func(t *testing.T) {
 		board := createBoard(ctx, boardRepository)
 		retailer := createPlayer(ctx, playerRepository, board, "RETAILER")
@@ -34,6 +37,8 @@ func TestBoardPlayerAndOrder(t *testing.T) {
 		}
 		loadOrdersByBoard(ctx, t, orderRepository, board.Id, ids)
 		loadOrdersByPlayer(ctx, t, orderRepository, retailer.Id, ids)
+
+		boardRepository.DeleteAll(ctx)
 	})
 }
 

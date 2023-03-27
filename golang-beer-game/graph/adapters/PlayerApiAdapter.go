@@ -2,8 +2,12 @@ package adapters
 
 import (
 	"context"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
+	"github.com/google/uuid"
+	"reflect"
 )
 
 type PlayerApiAdapter struct {
@@ -71,4 +75,48 @@ func (b *PlayerApiAdapter) UpdateWeeklyOrder(ctx context.Context, playerId strin
 		Message: &message,
 		Status:  &status,
 	}, nil
+}
+
+func (b *PlayerApiAdapter) Subscribe(ctx context.Context, playerId string, streamers *events.Streamers) (chan *model.Player, error) {
+	board, _ := b.boardService.GetByPlayer(ctx, playerId)
+
+	eventChan := make(chan events.Event)
+	responseChan := make(chan *model.Player)
+
+	references := []events.Reference{
+		{
+			Object:    reflect.TypeOf(domain.Player{}).String(),
+			ObjectId:  board.Id,
+			EventType: events.EventTypeUpdate,
+		},
+	}
+
+	streamer := events.Streamer{
+		Id:         uuid.NewString(),
+		References: references,
+		Chan:       eventChan,
+	}
+	streamers.Register(ctx, streamer)
+
+	go b.handleResponses(ctx, eventChan, responseChan, playerId)
+
+	return responseChan, nil
+}
+
+func (b *PlayerApiAdapter) handleResponses(ctx context.Context, eventChan chan events.Event, responseChan chan *model.Player, id string) {
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break loop
+		case event := <-eventChan:
+			player := event.Object.(domain.Player)
+			// Handle probably do this filtering by adding a filter by attribute in event
+			if player.Id == id {
+				response := &model.Player{}
+				response.FromPlayer(player, event.ObjectId)
+				responseChan <- response
+			}
+		}
+	}
 }

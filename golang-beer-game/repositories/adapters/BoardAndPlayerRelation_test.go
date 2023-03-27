@@ -33,6 +33,8 @@ func TestBoardAndPlayer(t *testing.T) {
 		checkPlayerByBoard(ctx, t, playerRepository, wholesaler, board)
 		checkPlayer(ctx, t, playerRepository, retailer)
 		updatePlayerAndValidate(ctx, t, playerRepository, retailer)
+
+		boardRepository.DeleteAll(ctx)
 	})
 }
 

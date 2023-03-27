@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/LeonFelipeCordero/golang-beer-game/graph"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
@@ -44,7 +43,7 @@ func (r *queryResolver) GetBoardByName(ctx context.Context, name *string) (*mode
 
 // Board is the resolver for the board field.
 func (r *subscriptionResolver) Board(ctx context.Context, boardID *string) (<-chan *model.Board, error) {
-	panic(fmt.Errorf("not implemented: Board - board"))
+	return r.BoardApiAdapter.Subscribe(ctx, *boardID, r.Streamers)
 }
 
 // Board returns graph.BoardResolver implementation.

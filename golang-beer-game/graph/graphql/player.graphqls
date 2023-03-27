@@ -1,11 +1,11 @@
 extend type Query {
     getPlayer(playerId: String): Player
     getPlayersByBoard(boardId: String): [Player]
-    updateWeeklyOrder(playerId: String, amount: Int): Response
 }
 
 extend type Mutation {
     addPlayer(boardId: String, role: Role): Player
+    updateWeeklyOrder(playerId: String, amount: Int): Response
 }
 
 extend type Subscription {

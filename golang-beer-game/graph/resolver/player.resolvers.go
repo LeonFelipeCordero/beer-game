@@ -6,8 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/LeonFelipeCordero/golang-beer-game/graph"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )
@@ -15,6 +13,11 @@ import (
 // AddPlayer is the resolver for the addPlayer field.
 func (r *mutationResolver) AddPlayer(ctx context.Context, boardID *string, role *model.Role) (*model.Player, error) {
 	return r.PlayerApiAdapter.AddPlayer(ctx, *boardID, role.String())
+}
+
+// UpdateWeeklyOrder is the resolver for the updateWeeklyOrder field.
+func (r *mutationResolver) UpdateWeeklyOrder(ctx context.Context, playerID *string, amount *int) (*model.Response, error) {
+	return r.PlayerApiAdapter.UpdateWeeklyOrder(ctx, *playerID, *amount)
 }
 
 // Board is the resolver for the board field.
@@ -37,14 +40,9 @@ func (r *queryResolver) GetPlayersByBoard(ctx context.Context, boardID *string) 
 	return r.PlayerApiAdapter.GetPlayersByBoard(ctx, *boardID)
 }
 
-// UpdateWeeklyOrder is the resolver for the updateWeeklyOrder field.
-func (r *queryResolver) UpdateWeeklyOrder(ctx context.Context, playerID *string, amount *int) (*model.Response, error) {
-	return r.PlayerApiAdapter.UpdateWeeklyOrder(ctx, *playerID, *amount)
-}
-
 // Player is the resolver for the player field.
 func (r *subscriptionResolver) Player(ctx context.Context, playerID *string) (<-chan *model.Player, error) {
-	panic(fmt.Errorf("not implemented: Player - player"))
+	return r.PlayerApiAdapter.Subscribe(ctx, *playerID, r.Streamers)
 }
 
 // Player returns graph.PlayerResolver implementation.

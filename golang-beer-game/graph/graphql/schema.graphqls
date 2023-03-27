@@ -2,3 +2,12 @@ type Response {
     message: String
     status: Int
 }
+
+type Time {
+    unixTime: Int!
+    timeStamp: String!
+}
+
+extend type Subscription {
+    currentTime: Time!
+}

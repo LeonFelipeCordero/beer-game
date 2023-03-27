@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )
@@ -11,6 +12,7 @@ type IPlayerApi interface {
 	Get(ctx context.Context, id string) (*model.Player, error)
 	GetPlayersByBoard(ctx context.Context, boardId string) ([]*model.Player, error)
 	UpdateWeeklyOrder(ctx context.Context, playerId string, amount int) (*model.Response, error)
+	Subscribe(ctx context.Context, playerId string, streamers *events.Streamers) (chan *model.Player, error)
 }
 
 type IPlayerService interface {

@@ -4,17 +4,28 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 	"time"
 )
 
 type BoardService struct {
 	repository ports.IBoardRepository
+	eventChan  chan events.Event
 }
 
-func NewBoardService(repository ports.IBoardRepository) ports.IBoardService {
-	return &BoardService{repository: repository}
+func (s *BoardService) Subscribe(ctx context.Context, boardId string) (chan *model.Board, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewBoardService(repository ports.IBoardRepository, eventChan chan events.Event) ports.IBoardService {
+	return &BoardService{
+		repository: repository,
+		eventChan:  eventChan,
+	}
 }
 
 func (s *BoardService) Create(ctx context.Context, name string) (*domain.Board, error) {
