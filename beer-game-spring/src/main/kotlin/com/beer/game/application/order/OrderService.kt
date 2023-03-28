@@ -121,7 +121,7 @@ class OrderService(
             .players
             .first { it.role == Role.FACTORY }
         factory.stock += factory.weeklyOrder
-        factory.backlog = factory.weeklyOrder
+        factory.backlog += factory.weeklyOrder
         factory.lastOrder = factory.weeklyOrder
         orderStorageAdapter.deliverFactoryBatch(board)
         factory.emitUpdate(internalEventListener, board.id)

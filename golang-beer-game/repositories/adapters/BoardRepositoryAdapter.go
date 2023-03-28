@@ -119,3 +119,31 @@ func (b *BoardRepositoryAdapter) GetByPlayer(ctx context.Context, id string) (*d
 
 	return boardNode.ToBoard(), nil
 }
+
+func (b *BoardRepositoryAdapter) GetActiveBoards(ctx context.Context) ([]*domain.Board, error) {
+	query := `
+			MATCH (b:BoardNode)<-[r:plays_in]-(p:PlayerNode) 
+			WHERE b.full = true 
+			AND b.state = "RUNNING"
+			RETURN b,r,p
+		 `
+
+	boardsNode := &[]entities.BoardNode{}
+
+	err := b.repository.Query(ctx, query, map[string]interface{}{}, boardsNode)
+
+	if err != nil && !isNotFound(err) {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting active board"),
+			err,
+		)
+	}
+
+	boards := []*domain.Board{}
+	for _, boardNode := range *boardsNode {
+		board := boardNode.ToBoard()
+		boards = append(boards, board)
+	}
+
+	return boards, nil
+}

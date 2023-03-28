@@ -77,3 +77,8 @@ func (b *BoardRepositoryAdapterFaker) GetByPlayer(ctx context.Context, id string
 	}
 	return nil, errors.New("player is not assign to a board")
 }
+
+func (b *BoardRepositoryAdapterFaker) GetActiveBoards(ctx context.Context) ([]*domain.Board, error) {
+	//TODO implement me
+	panic("implement me")
+}

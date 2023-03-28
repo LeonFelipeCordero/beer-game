@@ -3,23 +3,32 @@ package application
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/google/uuid"
 	"time"
 )
 
 type OrderService struct {
 	repository    ports.IOrderRepository
 	playerService ports.IPlayerService
+	boardService  ports.IBoardService
+	eventChan     chan events.Event
 }
 
 func NewOrderService(
 	repository ports.IOrderRepository,
 	playerService ports.IPlayerService,
+	boardService ports.IBoardService,
+	eventChan chan events.Event,
 ) ports.IOrderService {
 	return &OrderService{
 		repository:    repository,
 		playerService: playerService,
+		boardService:  boardService,
+		eventChan:     eventChan,
 	}
 }
 
@@ -29,6 +38,10 @@ func (o OrderService) CreateOrder(ctx context.Context, receiverId string) (*doma
 		return nil, err
 	}
 	sender, err := o.playerService.GetContraPart(ctx, *receiver)
+	if err != nil {
+		return nil, err
+	}
+	board, err := o.boardService.GetByPlayer(ctx, receiverId)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +59,12 @@ func (o OrderService) CreateOrder(ctx context.Context, receiverId string) (*doma
 	savedOrder, err := o.repository.Save(ctx, order)
 	if err != nil {
 		return nil, err
+	}
+	o.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  board.Id,
+		EventType: events.EventTypeNew,
+		Object:    *savedOrder,
 	}
 
 	return savedOrder, nil
@@ -67,6 +86,11 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 		return nil, err
 	}
 
+	board, err := o.boardService.GetByPlayer(ctx, receiver.Id)
+	if err != nil {
+		return nil, err
+	}
+
 	order.Amount = amount
 
 	if !order.ValidOrderAmount() {
@@ -81,9 +105,35 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 		receiver.Stock += order.Amount
 	}
 	order.Status = domain.StatusDelivered
+
+	//todo do all saves in a single transaction
 	o.playerService.Save(ctx, *receiver)
 	o.playerService.Save(ctx, *sender)
-	return o.repository.Save(ctx, *order)
+	savedOrder, err := o.repository.Save(ctx, *order)
+	if err != nil {
+		return nil, err
+	}
+
+	o.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  board.Id,
+		EventType: events.EventTypeUpdate,
+		Object:    *savedOrder,
+	}
+	o.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  board.Id,
+		EventType: events.EventTypeUpdate,
+		Object:    *receiver,
+	}
+	o.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  board.Id,
+		EventType: events.EventTypeUpdate,
+		Object:    *sender,
+	}
+
+	return savedOrder, nil
 }
 
 func (o OrderService) Get(ctx context.Context, orderId string) (*domain.Order, error) {
@@ -96,4 +146,51 @@ func (o OrderService) LoadByBoard(ctx context.Context, boardId string) ([]*domai
 
 func (o OrderService) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
 	return o.repository.LoadByBoard(ctx, playerId)
+}
+
+func (o OrderService) DeliverFactoryBatch(ctx context.Context) {
+	boards, err := o.boardService.GetActiveBoards(ctx)
+	if err != nil {
+		panic(fmt.Sprintf("error getting active boards %s", err))
+	}
+	for _, board := range boards {
+		factory := board.GetFactory()
+		if factory != nil {
+			factory.Stock += factory.WeeklyOrder
+			factory.Backlog += factory.WeeklyOrder
+			factory.LastOrder = factory.WeeklyOrder
+			o.playerService.Save(ctx, *factory)
+			o.eventChan <- events.Event{
+				Id:        uuid.NewString(),
+				ObjectId:  board.Id,
+				EventType: events.EventTypeUpdate,
+				Object:    factory,
+			}
+		}
+	}
+}
+
+func (o OrderService) CreateCpuOrders(ctx context.Context) {
+	boards, err := o.boardService.GetActiveBoards(ctx)
+	if err != nil {
+		panic(fmt.Sprintf("error getting active boards %s", err))
+	}
+	for _, board := range boards {
+		for _, player := range board.Players {
+			order := domain.Order{
+				Amount:         player.WeeklyOrder / 4,
+				OriginalAmount: player.WeeklyOrder / 4,
+				OrderType:      domain.OrderTypeCPUOrder,
+				Sender:         player.Id,
+				CreatedAt:      time.Now().UTC(),
+			}
+			o.repository.Save(ctx, order)
+			o.eventChan <- events.Event{
+				Id:        uuid.NewString(),
+				ObjectId:  board.Id,
+				EventType: events.EventTypeUpdate,
+				Object:    order,
+			}
+		}
+	}
 }

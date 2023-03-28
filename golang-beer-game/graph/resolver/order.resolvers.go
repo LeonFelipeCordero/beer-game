@@ -6,8 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/LeonFelipeCordero/golang-beer-game/graph"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )
@@ -39,12 +37,12 @@ func (r *orderResolver) Board(ctx context.Context, obj *model.Order) (*model.Boa
 
 // NewOrder is the resolver for the newOrder field.
 func (r *subscriptionResolver) NewOrder(ctx context.Context, playerID *string) (<-chan *model.Order, error) {
-	panic(fmt.Errorf("not implemented: NewOrder - newOrder"))
+	return r.OrderApiAdapter.NewOrderSubscription(ctx, *playerID, r.Streamers)
 }
 
 // OrderDelivery is the resolver for the orderDelivery field.
 func (r *subscriptionResolver) OrderDelivery(ctx context.Context, playerID *string) (<-chan *model.Order, error) {
-	panic(fmt.Errorf("not implemented: OrderDelivery - orderDelivery"))
+	return r.OrderApiAdapter.NewOrderSubscription(ctx, *playerID, r.Streamers)
 }
 
 // Order returns graph.OrderResolver implementation.

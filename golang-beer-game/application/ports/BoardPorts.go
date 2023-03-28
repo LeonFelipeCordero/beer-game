@@ -23,6 +23,7 @@ type IBoardService interface {
 	GetByPlayer(ctx context.Context, playerId string) (*domain.Board, error)
 	CompleteBoard(ctx context.Context, id string) error
 	GetAvailableRoles(ctx context.Context, id string) ([]domain.Role, error)
+	GetActiveBoards(ctx context.Context) ([]*domain.Board, error)
 }
 
 type IBoardRepository interface {
@@ -32,4 +33,5 @@ type IBoardRepository interface {
 	GetByPlayer(ctx context.Context, playerId string) (*domain.Board, error)
 	Exist(ctx context.Context, name string) (bool, error)
 	DeleteAll(ctx context.Context)
+	GetActiveBoards(ctx context.Context) ([]*domain.Board, error)
 }

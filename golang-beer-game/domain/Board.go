@@ -61,3 +61,12 @@ func (b *Board) Start() {
 func (b *Board) AddPlayer(player Player) {
 	b.Players = append(b.Players, player)
 }
+
+func (b *Board) GetFactory() *Player {
+	for _, player := range b.Players {
+		if player.Role == RoleFactory {
+			return &player
+		}
+	}
+	return nil
+}

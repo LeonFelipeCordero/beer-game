@@ -50,10 +50,14 @@ func (p PlayerRepositoryAdapter) Get(ctx context.Context, id string) (*domain.Pl
 	err := p.repository.Query(ctx, query, map[string]interface{}{"id": entityId}, playerNode)
 
 	if err != nil {
-		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting player %s", id),
-			err,
-		)
+		if isNotFound(err) {
+			return nil, nil
+		} else {
+			return nil, fmt.Errorf(
+				fmt.Sprintf("Something went wrong getting player %s", id),
+				err,
+			)
+		}
 	}
 
 	player := playerNode.ToPlayer()

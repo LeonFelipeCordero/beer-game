@@ -32,7 +32,7 @@ func (o OrderRepositoryAdapter) Save(ctx context.Context, order domain.Order) (*
 		return nil, err
 	}
 	receiverNode := &entities.PlayerNode{}
-	receiverNode.FromPlayer(*receiver)
+
 	sender, err := o.playerRepository.Get(ctx, order.Sender)
 	if err != nil {
 		return nil, err
@@ -42,8 +42,11 @@ func (o OrderRepositoryAdapter) Save(ctx context.Context, order domain.Order) (*
 
 	orderNode := &entities.OrderNode{}
 	orderNode.FromOrder(order)
-	orderNode.Receiver = receiverNode
 	orderNode.Sender = senderNode
+	if receiver != nil {
+		receiverNode.FromPlayer(*receiver)
+		orderNode.Receiver = receiverNode
+	}
 	err = o.repository.SaveDepth(ctx, orderNode)
 	if err != nil {
 		return nil, err

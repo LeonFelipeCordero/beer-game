@@ -32,6 +32,11 @@ func (o *OrderNode) FromOrder(order domain.Order) {
 }
 
 func (o *OrderNode) ToOrder() domain.Order {
+	var receiverId string
+	if o.Receiver != nil {
+		receiverId = strconv.FormatInt(*o.Receiver.Id, 10)
+	}
+
 	return domain.Order{
 		Id:             strconv.FormatInt(*o.Id, 10),
 		Amount:         o.Amount,
@@ -40,7 +45,7 @@ func (o *OrderNode) ToOrder() domain.Order {
 		OrderType:      toType(o.OrderType),
 		CreatedAt:      o.CreatedAt,
 		Sender:         strconv.FormatInt(*o.Sender.Id, 10),
-		Receiver:       strconv.FormatInt(*o.Receiver.Id, 10),
+		Receiver:       receiverId,
 	}
 }
 
