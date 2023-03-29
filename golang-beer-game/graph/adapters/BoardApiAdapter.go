@@ -116,7 +116,7 @@ loop:
 			if event.Object == reflect.TypeOf(domain.Board{}).String() {
 				board = event.Object.(domain.Board)
 			} else {
-				ref, _ := b.service.Get(ctx, event.Id)
+				ref, _ := b.service.Get(ctx, event.ObjectId)
 				board = *ref
 			}
 			response := &model.Board{}

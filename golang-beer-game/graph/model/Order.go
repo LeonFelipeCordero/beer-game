@@ -20,7 +20,7 @@ type Order struct {
 }
 
 func (o *Order) FromOrder(order domain.Order) {
-	// todo find the way to pass the board here if need for graphql
+	// todo find the way to pass the board here if graphql need
 	o.ID = order.Id
 	o.Amount = order.Amount
 	o.OriginalAmount = order.OriginalAmount

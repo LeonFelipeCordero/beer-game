@@ -18,8 +18,8 @@ func NewOrderScheduler(service ports.IOrderService) OrderScheduler {
 }
 
 func (o *OrderScheduler) Start() {
-	cpuTicker := time.NewTicker(3 * time.Second)
-	factoryTicker := time.NewTicker(3 * time.Second)
+	cpuTicker := time.NewTicker(60 * time.Second)
+	factoryTicker := time.NewTicker(60 * time.Second)
 	go func() {
 		for {
 			select {

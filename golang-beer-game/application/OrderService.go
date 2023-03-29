@@ -145,7 +145,7 @@ func (o OrderService) LoadByBoard(ctx context.Context, boardId string) ([]*domai
 }
 
 func (o OrderService) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
-	return o.repository.LoadByBoard(ctx, playerId)
+	return o.repository.LoadByPlayer(ctx, playerId)
 }
 
 func (o OrderService) DeliverFactoryBatch(ctx context.Context) {
@@ -164,7 +164,7 @@ func (o OrderService) DeliverFactoryBatch(ctx context.Context) {
 				Id:        uuid.NewString(),
 				ObjectId:  board.Id,
 				EventType: events.EventTypeUpdate,
-				Object:    factory,
+				Object:    *factory,
 			}
 		}
 	}
@@ -181,15 +181,19 @@ func (o OrderService) CreateCpuOrders(ctx context.Context) {
 				Amount:         player.WeeklyOrder / 4,
 				OriginalAmount: player.WeeklyOrder / 4,
 				OrderType:      domain.OrderTypeCPUOrder,
+				Status:         domain.StatusPending,
 				Sender:         player.Id,
 				CreatedAt:      time.Now().UTC(),
 			}
-			o.repository.Save(ctx, order)
+			savedOrder, err2 := o.repository.Save(ctx, order)
+			if err2 != nil {
+				panic("Something went wrong creating cpu order")
+			}
 			o.eventChan <- events.Event{
 				Id:        uuid.NewString(),
 				ObjectId:  board.Id,
-				EventType: events.EventTypeUpdate,
-				Object:    order,
+				EventType: events.EventTypeNew,
+				Object:    *savedOrder,
 			}
 		}
 	}

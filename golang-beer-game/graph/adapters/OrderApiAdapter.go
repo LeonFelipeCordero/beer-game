@@ -52,7 +52,7 @@ func (o *OrderApiAdapter) LoadByBoard(ctx context.Context, boardId string) ([]*m
 	if err != nil {
 		return nil, err
 	}
-	var ordersResponse []*model.Order
+	ordersResponse := []*model.Order{}
 	for _, order := range loadedOrders {
 		orderResponse := &model.Order{}
 		orderResponse.FromOrder(*order)
@@ -62,11 +62,11 @@ func (o *OrderApiAdapter) LoadByBoard(ctx context.Context, boardId string) ([]*m
 }
 
 func (o *OrderApiAdapter) LoadByPlayer(ctx context.Context, playerId string) ([]*model.Order, error) {
-	loadedOrders, err := o.service.LoadByBoard(ctx, playerId)
+	loadedOrders, err := o.service.LoadByPlayer(ctx, playerId)
 	if err != nil {
 		return nil, err
 	}
-	var ordersResponse []*model.Order
+	ordersResponse := []*model.Order{}
 	for _, order := range loadedOrders {
 		orderResponse := &model.Order{}
 		orderResponse.FromOrder(*order)

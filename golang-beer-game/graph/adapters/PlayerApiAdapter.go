@@ -33,6 +33,10 @@ func (b *PlayerApiAdapter) AddPlayer(ctx context.Context, boardId string, role s
 }
 
 func (b *PlayerApiAdapter) Get(ctx context.Context, id string) (*model.Player, error) {
+	if id == "" {
+		return nil, nil
+	}
+
 	player, err := b.service.Get(ctx, id)
 	if err != nil {
 		return nil, err

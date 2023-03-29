@@ -68,7 +68,7 @@ func (s *Streamers) deregister(id string) {
 func (s *Streamers) Handle(event Event) {
 	for _, streamer := range s.Streamers {
 		if streamer.isRelevantEvent(event) {
-			fmt.Printf("redirecting event %s to streamer\n", event.Id)
+			fmt.Printf("redirecting event %s to streamer %s\n", event.Id, streamer.Id)
 			streamer.Chan <- event
 		}
 	}
