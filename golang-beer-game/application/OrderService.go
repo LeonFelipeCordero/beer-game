@@ -86,7 +86,7 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 		return nil, err
 	}
 
-	board, err := o.boardService.GetByPlayer(ctx, receiver.Id)
+	board, err := o.boardService.GetByPlayer(ctx, sender.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,16 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 	order.Status = domain.StatusDelivered
 
 	//todo do all saves in a single transaction
-	o.playerService.Save(ctx, *receiver)
+	if receiver != nil {
+		o.playerService.Save(ctx, *receiver)
+
+		o.eventChan <- events.Event{
+			Id:        uuid.NewString(),
+			ObjectId:  board.Id,
+			EventType: events.EventTypeUpdate,
+			Object:    *receiver,
+		}
+	}
 	o.playerService.Save(ctx, *sender)
 	savedOrder, err := o.repository.Save(ctx, *order)
 	if err != nil {
@@ -120,12 +129,7 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 		EventType: events.EventTypeUpdate,
 		Object:    *savedOrder,
 	}
-	o.eventChan <- events.Event{
-		Id:        uuid.NewString(),
-		ObjectId:  board.Id,
-		EventType: events.EventTypeUpdate,
-		Object:    *receiver,
-	}
+
 	o.eventChan <- events.Event{
 		Id:        uuid.NewString(),
 		ObjectId:  board.Id,

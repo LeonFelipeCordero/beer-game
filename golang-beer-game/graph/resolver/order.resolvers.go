@@ -42,7 +42,7 @@ func (r *subscriptionResolver) NewOrder(ctx context.Context, playerID *string) (
 
 // OrderDelivery is the resolver for the orderDelivery field.
 func (r *subscriptionResolver) OrderDelivery(ctx context.Context, playerID *string) (<-chan *model.Order, error) {
-	return r.OrderApiAdapter.NewOrderSubscription(ctx, *playerID, r.Streamers)
+	return r.OrderApiAdapter.OrderDeliveredSubscription(ctx, *playerID, r.Streamers)
 }
 
 // Order returns graph.OrderResolver implementation.

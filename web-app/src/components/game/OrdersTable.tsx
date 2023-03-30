@@ -82,7 +82,7 @@ function OrdersTable(props: { orders: Orders, player: Player, board: Board, deli
                           rounded focus:outline-none focus:shadow-outline w-full"
                                                         onclick={e => {
                                                             e.preventDefault()
-                                                            deliverOrder(order.id, order.amount)
+                                                            deliverOrder(order.id, order.originalAmount)
                                                         }}>
                                                     deliver
                                                 </button>
