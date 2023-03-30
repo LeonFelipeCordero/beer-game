@@ -8,6 +8,7 @@ import (
 	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/google/uuid"
+	"math/rand"
 	"time"
 )
 
@@ -180,25 +181,37 @@ func (o OrderService) CreateCpuOrders(ctx context.Context) {
 		panic(fmt.Sprintf("error getting active boards %s", err))
 	}
 	for _, board := range boards {
-		for _, player := range board.Players {
-			order := domain.Order{
-				Amount:         player.WeeklyOrder / 4,
-				OriginalAmount: player.WeeklyOrder / 4,
-				OrderType:      domain.OrderTypeCPUOrder,
-				Status:         domain.StatusPending,
-				Sender:         player.Id,
-				CreatedAt:      time.Now().UTC(),
-			}
-			savedOrder, err2 := o.repository.Save(ctx, order)
-			if err2 != nil {
-				panic("Something went wrong creating cpu order")
-			}
-			o.eventChan <- events.Event{
-				Id:        uuid.NewString(),
-				ObjectId:  board.Id,
-				EventType: events.EventTypeNew,
-				Object:    *savedOrder,
-			}
+		o.createOrdersForBoard(ctx, *board)
+	}
+}
+
+func (o OrderService) createOrdersForBoard(ctx context.Context, board domain.Board) {
+	for _, player := range board.Players {
+		o.createOrdersForPlayer(ctx, player, board)
+	}
+}
+
+func (o OrderService) createOrdersForPlayer(ctx context.Context, player domain.Player, board domain.Board) {
+	num := rand.Intn(5-1) + 1
+
+	for i := 0; i < num; i++ {
+		order := domain.Order{
+			Amount:         player.WeeklyOrder / 4,
+			OriginalAmount: player.WeeklyOrder / 4,
+			OrderType:      domain.OrderTypeCPUOrder,
+			Status:         domain.StatusPending,
+			Sender:         player.Id,
+			CreatedAt:      time.Now().UTC(),
+		}
+		savedOrder, err2 := o.repository.Save(ctx, order)
+		if err2 != nil {
+			panic("Something went wrong creating cpu order")
+		}
+		o.eventChan <- events.Event{
+			Id:        uuid.NewString(),
+			ObjectId:  board.Id,
+			EventType: events.EventTypeNew,
+			Object:    *savedOrder,
 		}
 	}
 }
