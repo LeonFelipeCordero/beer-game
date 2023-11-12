@@ -23,7 +23,7 @@ spring:
   config:
     activate:
       on-profile: test
-  data:
-    mongodb:
-      uri: mongodb://${embedded.mongodb.host}:${embedded.mongodb.port}/${embedded.mongodb.database}
-      database: ${embedded.mongodb.database}
+#  data:
+#    mongodb:
+#      uri: mongodb://localhost:${}/beer_game
+#      database: beer_game

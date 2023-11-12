@@ -24,7 +24,7 @@ internal class BoardControllerGraphQLTest : IntegrationTestBase() {
     fun `should create and fetch board from graphql interface`() {
         val board = graphQlTester
             .document(documentCreateBoard)
-            .variable("name", boardName)
+            .variable("name", BOARD_NAME)
             .execute()
             .path("createBoard")
             .entity(BoardGraph::class.java)

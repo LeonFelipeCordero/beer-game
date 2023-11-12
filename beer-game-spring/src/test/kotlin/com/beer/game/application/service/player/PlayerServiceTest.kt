@@ -19,7 +19,7 @@ internal class PlayerServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should add players to board and start game and validate impossible actions`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
 
         playerService.addPlayer(board.id, RETAILER)
         var loadedBoard = boardService.loadBoard(board.id)
@@ -52,7 +52,7 @@ internal class PlayerServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should fetch player`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
 
         val player = playerService.addPlayer(board.id, RETAILER)
         val loadedPayer = playerService.getPlayer(player.id).first
@@ -62,7 +62,7 @@ internal class PlayerServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should fetch all players in board`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
 
         playerService.addPlayer(board.id, RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
@@ -76,7 +76,7 @@ internal class PlayerServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should update weekly order for customer`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
 
         val player = playerService.addPlayer(board.id, RETAILER)
         playerService.changeWeeklyOrder(player.id, 200)

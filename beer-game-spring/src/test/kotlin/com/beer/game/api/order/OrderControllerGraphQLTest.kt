@@ -26,7 +26,7 @@ class OrderControllerGraphQLTest : IntegrationTestBase() {
     fun `should create board with players and receive orders`() {
         val board = graphQlTester
             .document(documentCreateBoard)
-            .variable("name", boardName)
+            .variable("name", BOARD_NAME)
             .execute()
             .path("createBoard")
             .entity(BoardGraph::class.java)

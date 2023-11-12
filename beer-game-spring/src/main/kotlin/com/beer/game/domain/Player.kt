@@ -18,6 +18,47 @@ data class Player(
     val cpu: Boolean,
     val orders: MutableList<Order>
 ) {
+    companion object {
+        fun retailPlayer(): Player {
+            return Player(
+                name = Role.RETAILER.toString(),
+                role = Role.RETAILER,
+                stock = 80,
+                backlog = 80,
+                weeklyOrder = 40,
+                lastOrder = 40,
+                cpu = false,
+                orders = mutableListOf()
+            )
+        }
+
+        fun wholesalerPlayer(): Player {
+            return Player(
+                name = Role.WHOLESALER.toString(),
+                role = Role.WHOLESALER,
+                stock = 1200,
+                backlog = 1200,
+                weeklyOrder = 600,
+                lastOrder = 600,
+                cpu = false,
+                orders = mutableListOf()
+            )
+        }
+
+        fun factoryPlayer(): Player {
+            return Player(
+                name = Role.FACTORY.name,
+                role = Role.FACTORY,
+                stock = 12000,
+                backlog = 12000,
+                weeklyOrder = 6000,
+                lastOrder = 6000,
+                cpu = false,
+                orders = mutableListOf()
+            )
+        }
+    }
+
     fun addOrder(order: Order) {
         orders.add(order)
     }

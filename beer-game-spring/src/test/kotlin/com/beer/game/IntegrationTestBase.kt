@@ -12,11 +12,16 @@ import com.beer.game.common.Role
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.graphql.test.tester.GraphQlTester
 import org.springframework.test.context.ActiveProfiles
+import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import reactor.core.publisher.Mono
 import java.lang.IllegalStateException
 
+@Testcontainers
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
@@ -24,8 +29,18 @@ import java.lang.IllegalStateException
 class IntegrationTestBase {
 
     companion object {
-        const val boardName = "test"
+        const val BOARD_NAME = "test"
+
+        @Container
+        @ServiceConnection
+        val container: MongoDBContainer = MongoDBContainer("mongo:latest")
+            .apply {
+                portBindings.add("27017:27017")
+                withReuse(true)
+                start()
+            }
     }
+
 
     @LocalServerPort
     private var port: Int? = null
@@ -58,11 +73,8 @@ class IntegrationTestBase {
         boardRepository.deleteAll()
     }
 
-    protected fun getPort() =
-        port ?: throw IllegalStateException("Spring context is not initialized correctly for the test.")
-
     protected fun createBoard(): Mono<BoardGraph> {
-        return boardController.createBoard(boardName)
+        return boardController.createBoard(BOARD_NAME)
     }
 
     protected fun createBoardAndPlayers(): BoardGraph? {

@@ -18,7 +18,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should create cpu orders for all players in a board`() {
-        var board = boardService.createBoard(boardName)
+        var board = boardService.createBoard(BOARD_NAME)
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
@@ -46,7 +46,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should deliver factory batch`() {
-        var board = boardService.createBoard(boardName)
+        var board = boardService.createBoard(BOARD_NAME)
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
@@ -60,7 +60,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should deliver cpu orders`() {
-        var board = boardService.createBoard(boardName)
+        var board = boardService.createBoard(BOARD_NAME)
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
@@ -85,7 +85,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should fail if order to deliver amount is bigger than original amount`() {
-        var board = boardService.createBoard(boardName)
+        var board = boardService.createBoard(BOARD_NAME)
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
@@ -105,7 +105,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should create order with sender and receiver`() {
-        var board = boardService.createBoard(boardName)
+        var board = boardService.createBoard(BOARD_NAME)
         val retailer = playerService.addPlayer(board.id, Role.RETAILER)
         val wholesaler = playerService.addPlayer(board.id, Role.WHOLESALER)
         val factory = playerService.addPlayer(board.id, Role.FACTORY)
@@ -121,7 +121,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should fail if order amount bigger than sender stock`() {
-        var board = boardService.createBoard(boardName)
+        var board = boardService.createBoard(BOARD_NAME)
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
@@ -153,7 +153,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should fetch all orders from a board`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
@@ -170,7 +170,7 @@ internal class OrderServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should get order with id`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
         val retailer = playerService.addPlayer(board.id, Role.RETAILER)
         val wholesaler = playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)

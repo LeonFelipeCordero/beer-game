@@ -20,7 +20,7 @@ class BoardControllerTest : IntegrationTestBase() {
     fun `should create board`() {
         StepVerifier.create(createBoard())
             .assertNext {
-                assertThat(it.name).isEqualTo(boardName)
+                assertThat(it.name).isEqualTo(BOARD_NAME)
                 assertThat(it.state).isEqualTo(BoardState.CREATED)
                 assertThat(it.full).isEqualTo(false)
                 assertThat(it.finished).isEqualTo(false)
@@ -35,7 +35,7 @@ class BoardControllerTest : IntegrationTestBase() {
         val boardGraph = createBoard().block()
         StepVerifier.create(boardController.getBoard(boardGraph?.id.toString()))
             .assertNext {
-                assertThat(it.name).isEqualTo(boardName)
+                assertThat(it.name).isEqualTo(BOARD_NAME)
                 assertThat(it.state).isEqualTo(BoardState.CREATED)
                 assertThat(it.full).isEqualTo(false)
                 assertThat(it.finished).isEqualTo(false)
@@ -48,9 +48,9 @@ class BoardControllerTest : IntegrationTestBase() {
     @Test
     fun `should get board by name`() {
         createBoard().block()
-        StepVerifier.create(boardController.getBoardByName(boardName))
+        StepVerifier.create(boardController.getBoardByName(BOARD_NAME))
             .assertNext {
-                assertThat(it.name).isEqualTo(boardName)
+                assertThat(it.name).isEqualTo(BOARD_NAME)
                 assertThat(it.state).isEqualTo(BoardState.CREATED)
                 assertThat(it.full).isEqualTo(false)
                 assertThat(it.finished).isEqualTo(false)
@@ -63,9 +63,9 @@ class BoardControllerTest : IntegrationTestBase() {
     @Test
     fun `should update board if gets full`() {
         createBoardAndPlayers()
-        StepVerifier.create(boardController.getBoardByName(boardName))
+        StepVerifier.create(boardController.getBoardByName(BOARD_NAME))
             .assertNext {
-                assertThat(it.name).isEqualTo(boardName)
+                assertThat(it.name).isEqualTo(BOARD_NAME)
                 assertThat(it.state).isEqualTo(BoardState.RUNNING)
                 assertThat(it.full).isEqualTo(true)
                 assertThat(it.finished).isEqualTo(false)

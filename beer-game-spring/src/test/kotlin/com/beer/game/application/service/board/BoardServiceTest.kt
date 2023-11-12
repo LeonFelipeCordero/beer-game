@@ -27,10 +27,10 @@ internal class BoardServiceTest : IntegrationTestBase() {
 
     @Test
     fun `should save board document in repository and return a board`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
 
         assertThat(board.id).isNotNull.isNotEmpty
-        assertThat(board.name).isEqualTo(boardName)
+        assertThat(board.name).isEqualTo(BOARD_NAME)
         assertThat(board.state).isEqualTo(BoardState.CREATED)
         assertThat(board.full).isFalse
         assertThat(board.finished).isFalse
@@ -38,13 +38,13 @@ internal class BoardServiceTest : IntegrationTestBase() {
         assertThat(board.players).hasSize(0)
 
         assertThatExceptionOfType(ImpossibleActionException::class.java)
-            .isThrownBy { boardService.createBoard(boardName) }
+            .isThrownBy { boardService.createBoard(BOARD_NAME) }
             .withMessage("Name is already used by another board")
     }
 
     @Test
     fun `should create board and only returned as active when starting the game`() {
-        val board = boardService.createBoard(boardName)
+        val board = boardService.createBoard(BOARD_NAME)
 
         playerService.addPlayer(board.id, Role.RETAILER)
         var loadedBoards = boardService.loadActiveBoards()

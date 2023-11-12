@@ -2,20 +2,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    id("org.springframework.boot") version "2.7.5"
-    id("io.spring.dependency-management") version "1.0.15.RELEASE"
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.spring") version "1.6.21"
-    id("org.springframework.experimental.aot") version "0.12.1"
+    id("org.springframework.boot") version "3.1.5"
+    id("io.spring.dependency-management") version "1.1.3"
+    kotlin("jvm") version "1.8.22"
+    kotlin("plugin.spring") version "1.8.22"
 }
 
 group = "com.beer.game"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
-    maven { url = uri("https://repo.spring.io/release") }
-    maven { url = uri("https://repo.spring.io/milestone") }
     mavenCentral()
 }
 
@@ -23,7 +23,7 @@ val ktlint by configurations.creating
 
 val ktlintVersion = "0.47.1"
 val mockitoKotlinVersion = "2.2.0"
-val springCloudVersion = "3.1.5"
+val mockkVersion = "1.13.8"
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-graphql")
@@ -40,12 +40,13 @@ dependencies {
         }
     }
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.springframework.cloud:spring-cloud-starter-bootstrap:$springCloudVersion")
-    testImplementation("org.springframework.graphql:spring-graphql-test:1.1.0")
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
-    testImplementation("com.playtika.testcontainers:embedded-mongodb:2.2.12")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.graphql:spring-graphql-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mongodb")
+    testImplementation("io.mockk:mockk:${mockkVersion}")
 }
 
 tasks.withType<KotlinCompile> {
@@ -57,11 +58,6 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-tasks.withType<BootBuildImage> {
-    builder = "paketobuildpacks/builder:tiny"
-    environment = mapOf("BP_NATIVE_IMAGE" to "true")
 }
 
 

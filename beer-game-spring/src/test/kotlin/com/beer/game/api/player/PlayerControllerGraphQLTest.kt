@@ -24,7 +24,7 @@ class PlayerControllerGraphQLTest : IntegrationTestBase() {
     fun `should add all players to game and start it`() {
         val board = graphQlTester
             .document(documentCreateBoard)
-            .variable("name", boardName)
+            .variable("name", BOARD_NAME)
             .execute()
             .path("createBoard")
             .entity(BoardGraph::class.java)

@@ -47,8 +47,7 @@ class PlayerService(
     }
 
     fun getPlayersInBoard(boardId: String): MutableList<Player> {
-        return boardStorageAdapter.loadBoard(boardId)
-            .players
+        return boardStorageAdapter.loadBoard(boardId).players
     }
 
     fun changeWeeklyOrder(playerId: String, amount: Int) {
@@ -61,37 +60,8 @@ class PlayerService(
 
     private fun createPlayer(role: Role) =
         when (role) {
-            Role.RETAILER -> Player(
-                name = role.toString(),
-                role = role,
-                stock = 80,
-                backlog = 80,
-                weeklyOrder = 40,
-                lastOrder = 40,
-                cpu = false,
-                orders = mutableListOf()
-            )
-
-            Role.WHOLESALER -> Player(
-                name = role.toString(),
-                role = role,
-                stock = 1200,
-                backlog = 1200,
-                weeklyOrder = 600,
-                lastOrder = 600,
-                cpu = false,
-                orders = mutableListOf()
-            )
-
-            else -> Player(
-                name = role.toString(),
-                role = role,
-                stock = 12000,
-                backlog = 12000,
-                weeklyOrder = 6000,
-                lastOrder = 6000,
-                cpu = false,
-                orders = mutableListOf()
-            )
+            Role.RETAILER -> Player.retailPlayer()
+            Role.WHOLESALER -> Player.wholesalerPlayer()
+            else -> Player.factoryPlayer()
         }
 }
