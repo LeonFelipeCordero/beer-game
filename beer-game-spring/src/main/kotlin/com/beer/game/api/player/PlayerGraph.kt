@@ -13,7 +13,7 @@ data class PlayerGraph(
     var lastOrder: Int?,
     val cpu: Boolean?,
     val boardId: String?,
-    val ordersId: List<String>?
+    val ordersId: List<String>?,
 ) {
     companion object {
         fun fromPlayer(player: Player, boardId: String): PlayerGraph {
@@ -27,7 +27,7 @@ data class PlayerGraph(
                 lastOrder = player.lastOrder,
                 cpu = player.cpu,
                 boardId = boardId,
-                ordersId = player.orders.map { it.id }
+                ordersId = player.orders.map { it.id },
             )
         }
     }

@@ -2,10 +2,10 @@ package com.beer.game.api.board
 
 import com.beer.game.api.order.OrderGraph
 import com.beer.game.api.player.PlayerGraph
+import com.beer.game.application.board.BoardEvenListener
 import com.beer.game.application.board.BoardService
 import com.beer.game.application.order.OrderService
 import com.beer.game.application.player.PlayerService
-import com.beer.game.application.board.BoardEvenListener
 import com.beer.game.common.Role
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -17,7 +17,7 @@ class BoardApiAdapter(
     private val boardService: BoardService,
     private val playerService: PlayerService,
     private val orderService: OrderService,
-    private val boardEvenListener: BoardEvenListener
+    private val boardEvenListener: BoardEvenListener,
 ) {
 
     fun createBoard(name: String): Mono<BoardGraph> {

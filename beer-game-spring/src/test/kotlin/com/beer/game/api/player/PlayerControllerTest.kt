@@ -18,7 +18,7 @@ class PlayerControllerTest : IntegrationTestBase() {
     fun `should add player to board`() {
         val board = createBoard().block()
         StepVerifier.create(
-            playerController.addPlayer(board?.id.toString(), Role.RETAILER)
+            playerController.addPlayer(board?.id.toString(), Role.RETAILER),
         ).assertNext {
             assertThat(it.name).isEqualTo(Role.RETAILER.toString())
             assertThat(it.role).isEqualTo(Role.RETAILER)
@@ -41,8 +41,8 @@ class PlayerControllerTest : IntegrationTestBase() {
         ).block()
         StepVerifier.create(
             playerController.getPlayer(
-                board.playersId?.first()!!
-            )
+                board.playersId?.first()!!,
+            ),
         ).assertNext {
             assertThat(it.weeklyOrder).isEqualTo(1)
         }.verifyComplete()
@@ -52,7 +52,7 @@ class PlayerControllerTest : IntegrationTestBase() {
     fun `should get all players in a board`() {
         val board = createBoardAndPlayers()
         StepVerifier.create(
-            playerController.getPlayersByBoard(board?.id.toString())
+            playerController.getPlayersByBoard(board?.id.toString()),
         ).assertNext {
             assertThat(it.role).isEqualTo(Role.RETAILER)
         }.assertNext {
@@ -66,10 +66,10 @@ class PlayerControllerTest : IntegrationTestBase() {
     fun `should get the board of player graph`() {
         val board = createBoardAndPlayers()
         val player = playerController.getPlayer(
-            board?.playersId?.first()!!
+            board?.playersId?.first()!!,
         ).block()
         StepVerifier.create(
-            playerController.board(player!!)
+            playerController.board(player!!),
         ).assertNext {
             assertThat(it.id).isEqualTo(board.id)
         }.verifyComplete()
@@ -82,13 +82,13 @@ class PlayerControllerTest : IntegrationTestBase() {
         val sender = playerController.getPlayer(board.playersId!![1]).block()
         val order = orderController.createOrder(receiver?.id.toString()).block()
         StepVerifier.create(
-            playerController.orders(receiver!!)
+            playerController.orders(receiver!!),
         ).assertNext {
             assertThat(it.id).isEqualTo(order?.id)
         }.verifyComplete()
 
         StepVerifier.create(
-            playerController.orders(sender!!)
+            playerController.orders(sender!!),
         ).assertNext {
             assertThat(it.id).isEqualTo(order?.id)
         }.verifyComplete()

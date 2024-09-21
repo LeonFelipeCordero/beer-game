@@ -12,7 +12,7 @@ class BoardGraph(
     var finished: Boolean?,
     val createdAt: LocalDateTime?,
     val playersId: List<String>?,
-    val ordersId: List<String>?
+    val ordersId: List<String>?,
 ) {
     companion object {
         fun fromBoard(board: Board): BoardGraph {
@@ -24,7 +24,7 @@ class BoardGraph(
                 finished = board.finished,
                 createdAt = board.createdAt,
                 playersId = board.players.map { it.id },
-                ordersId = board.players.flatMap { it.orders }.map { it.id }
+                ordersId = board.players.flatMap { it.orders }.map { it.id },
             )
         }
     }

@@ -1,11 +1,11 @@
 package com.beer.game.domain
 
+import com.beer.game.application.events.InternalEventListener
 import com.beer.game.common.BoardState
+import com.beer.game.common.Role
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
 import com.beer.game.events.EventType
-import com.beer.game.application.events.InternalEventListener
-import com.beer.game.common.Role
 import java.lang.RuntimeException
 import java.time.LocalDateTime
 
@@ -28,7 +28,7 @@ class Board(
                 full = false,
                 finished = false,
                 createdAt = LocalDateTime.now(),
-                players = mutableListOf()
+                players = mutableListOf(),
             )
         }
     }
@@ -73,8 +73,8 @@ class Board(
                 document = this,
                 documentId = id,
                 documentType = DocumentType.PLAYER,
-                eventType = EventType.UPDATE
-            )
+                eventType = EventType.UPDATE,
+            ),
         )
     }
 }

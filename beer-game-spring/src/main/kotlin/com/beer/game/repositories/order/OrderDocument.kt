@@ -1,8 +1,8 @@
 package com.beer.game.repositories.order
 
-import com.beer.game.domain.Order
 import com.beer.game.common.OrderState
 import com.beer.game.common.OrderType
+import com.beer.game.domain.Order
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -14,7 +14,7 @@ data class OrderDocument(
     val type: String,
     val sender: String,
     val receiver: String? = null,
-    val createAt: LocalDateTime
+    val createAt: LocalDateTime,
 ) {
 
     companion object {
@@ -27,7 +27,7 @@ data class OrderDocument(
                 type = order.type.toString(),
                 sender = order.sender,
                 receiver = order.receiver,
-                createAt = order.createdAt
+                createAt = order.createdAt,
             )
         }
     }
@@ -41,7 +41,7 @@ data class OrderDocument(
             type = OrderType.valueOf(type),
             sender = sender,
             receiver = receiver,
-            createdAt = createAt
+            createdAt = createAt,
         )
     }
 }

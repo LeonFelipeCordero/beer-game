@@ -4,26 +4,24 @@ import com.beer.game.api.board.BoardController
 import com.beer.game.api.board.BoardGraph
 import com.beer.game.api.order.OrderController
 import com.beer.game.api.player.PlayerController
-import com.beer.game.repositories.board.BoardRepository
 import com.beer.game.application.board.BoardService
 import com.beer.game.application.order.OrderService
 import com.beer.game.application.player.PlayerService
 import com.beer.game.common.Role
+import com.beer.game.repositories.board.BoardRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.graphql.test.tester.GraphQlTester
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import reactor.core.publisher.Mono
-import java.lang.IllegalStateException
 
-@Testcontainers
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @ActiveProfiles("test")
 class IntegrationTestBase {
@@ -32,15 +30,16 @@ class IntegrationTestBase {
         const val BOARD_NAME = "test"
 
         @Container
-        @ServiceConnection
         val container: MongoDBContainer = MongoDBContainer("mongo:latest")
-            .apply {
-                portBindings.add("27017:27017")
-                withReuse(true)
-                start()
-            }
-    }
+            .withReuse(true)
+            .apply { start() }
 
+        @DynamicPropertySource
+        @JvmStatic
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.data.mongodb.uri") { container.replicaSetUrl }
+        }
+    }
 
     @LocalServerPort
     private var port: Int? = null

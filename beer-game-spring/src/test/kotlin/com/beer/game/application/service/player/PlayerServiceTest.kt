@@ -73,7 +73,6 @@ internal class PlayerServiceTest : IntegrationTestBase() {
         assertThat(players).hasSize(3)
     }
 
-
     @Test
     fun `should update weekly order for customer`() {
         val board = boardService.createBoard(BOARD_NAME)

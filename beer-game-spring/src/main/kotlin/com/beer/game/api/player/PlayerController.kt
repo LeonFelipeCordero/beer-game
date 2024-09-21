@@ -26,7 +26,7 @@ class PlayerController(
     @MutationMapping
     fun updateWeeklyOrder(
         @Argument playerId: String,
-        @Argument amount: Int
+        @Argument amount: Int,
     ): Mono<Response> {
         return playerApiAdapter.updateWeeklyOrder(playerId, amount)
     }

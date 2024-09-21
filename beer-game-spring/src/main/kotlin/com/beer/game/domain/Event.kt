@@ -1,6 +1,5 @@
 package com.beer.game.events
 
-
 data class Event(
     val document: Any,
     val documentId: String,
@@ -16,7 +15,7 @@ data class Event(
 
     fun isRelevantForBoard(): Boolean {
         return (documentType == DocumentType.BOARD && eventType == EventType.UPDATE) ||
-                (documentType == DocumentType.PLAYER && eventType == EventType.NEW)
+            (documentType == DocumentType.PLAYER && eventType == EventType.NEW)
     }
 
     fun isRelevantForPlayer(): Boolean {
@@ -34,11 +33,11 @@ data class Event(
 
 enum class EventType {
     NEW,
-    UPDATE
+    UPDATE,
 }
 
 enum class DocumentType {
     BOARD,
     PLAYER,
-    ORDER
+    ORDER,
 }

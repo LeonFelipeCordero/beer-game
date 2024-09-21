@@ -102,7 +102,6 @@ internal class OrderServiceTest : IntegrationTestBase() {
             .withMessage("deliver amount can't be bigger than original amount")
     }
 
-
     @Test
     fun `should create order with sender and receiver`() {
         var board = boardService.createBoard(BOARD_NAME)
@@ -125,7 +124,6 @@ internal class OrderServiceTest : IntegrationTestBase() {
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
-
 
         for (i in 1.rangeTo(8)) {
             orderService.createCpuOrders()
@@ -157,7 +155,6 @@ internal class OrderServiceTest : IntegrationTestBase() {
         playerService.addPlayer(board.id, Role.RETAILER)
         playerService.addPlayer(board.id, Role.WHOLESALER)
         playerService.addPlayer(board.id, Role.FACTORY)
-
 
         for (i in 1.rangeTo(8)) {
             orderService.createCpuOrders()

@@ -1,7 +1,7 @@
 package com.beer.game.repositories.board
 
-import com.beer.game.domain.Board
 import com.beer.game.common.BoardState
+import com.beer.game.domain.Board
 import com.beer.game.repositories.order.OrderDocument
 import com.beer.game.repositories.player.PlayerDocument
 import org.bson.types.ObjectId
@@ -20,7 +20,7 @@ data class BoardDocument(
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
     val players: MutableList<PlayerDocument> = mutableListOf(),
-    val orders: MutableSet<OrderDocument> = mutableSetOf()
+    val orders: MutableSet<OrderDocument> = mutableSetOf(),
 ) {
 
     companion object {
@@ -33,7 +33,7 @@ data class BoardDocument(
                 finished = board.finished,
                 createdAt = board.createdAt,
                 players = board.players.map { PlayerDocument.fromPlayer(it) }.toMutableList(),
-                orders = board.players.flatMap { it.orders }.map { OrderDocument.fromOrder(it) }.toMutableSet()
+                orders = board.players.flatMap { it.orders }.map { OrderDocument.fromOrder(it) }.toMutableSet(),
             )
         }
     }
@@ -56,7 +56,3 @@ data class BoardDocument(
         )
     }
 }
-
-
-
-

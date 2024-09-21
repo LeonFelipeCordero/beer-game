@@ -2,11 +2,11 @@ package com.beer.game.api.order
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
-import com.beer.game.api.board.BoardGraph
-import com.beer.game.api.player.PlayerGraph
 import com.beer.game.api.GraphQlDocuments.documentAddPlayerMinimal
 import com.beer.game.api.GraphQlDocuments.documentCreateBoard
 import com.beer.game.api.GraphQlDocuments.documentCreateOrder
+import com.beer.game.api.board.BoardGraph
+import com.beer.game.api.player.PlayerGraph
 import com.beer.game.common.Role
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -56,8 +56,8 @@ class OrderControllerGraphQLTest : IntegrationTestBase() {
                 Customization("sender.id") { _, _ -> true },
                 Customization("sender.createdAt") { _, _ -> true },
                 Customization("receiver.id") { _, _ -> true },
-                Customization("receiver.createdAt") { _, _ -> true }
-            )
+                Customization("receiver.createdAt") { _, _ -> true },
+            ),
         )
     }
 

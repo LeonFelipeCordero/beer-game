@@ -17,13 +17,21 @@ spring:
     cors:
       allowed-origins: "*"
 
+beer-game:
+  schedulers:
+    orders:
+      enabled: true
+
 ---
-# test
 spring:
   config:
     activate:
       on-profile: test
-#  data:
-#    mongodb:
-#      uri: mongodb://localhost:${}/beer_game
-#      database: beer_game
+  data:
+    mongodb:
+      database: beer_game
+
+beer-game:
+  schedulers:
+    orders:
+      enabled: false

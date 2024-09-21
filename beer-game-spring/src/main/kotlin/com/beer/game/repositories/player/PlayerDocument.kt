@@ -1,7 +1,7 @@
 package com.beer.game.repositories.player
 
-import com.beer.game.domain.Player
 import com.beer.game.common.Role
+import com.beer.game.domain.Player
 import com.beer.game.repositories.order.OrderDocument
 import java.util.UUID
 
@@ -47,7 +47,7 @@ data class PlayerDocument(
             weeklyOrder = weeklyOrder,
             lastOrder = lastOrder,
             cpu = cpu,
-            orders = orders.map { it.toOrder() }.toMutableList()
+            orders = orders.map { it.toOrder() }.toMutableList(),
         )
     }
 }

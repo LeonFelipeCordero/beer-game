@@ -1,21 +1,18 @@
 package com.beer.game.schedulers
 
 import com.beer.game.application.order.OrderService
-import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Profile
+import mu.KotlinLogging
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
+private val logger = KotlinLogging.logger {}
 
 @Component
-@Profile("!test")
+@ConditionalOnProperty(name = ["beer-game.schedulers.orders.enabled"], havingValue = "true", matchIfMissing = true)
 class OrderAndBatchScheduler(
-    private var orderService: OrderService
+    private var orderService: OrderService,
 ) {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(OrderAndBatchScheduler::class.java)
-    }
 
     @Scheduled(fixedDelay = 60000)
     fun createOrders() {

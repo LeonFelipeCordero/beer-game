@@ -1,18 +1,18 @@
 package com.beer.game.application.player
 
 import com.beer.game.application.board.BoardStorageAdapter
-import com.beer.game.common.BoardState
-import com.beer.game.domain.Player
-import com.beer.game.common.Role
-import com.beer.game.domain.exceptions.ImpossibleActionException
 import com.beer.game.application.events.InternalEventListener
+import com.beer.game.common.BoardState
+import com.beer.game.common.Role
+import com.beer.game.domain.Player
+import com.beer.game.domain.exceptions.ImpossibleActionException
 import org.springframework.stereotype.Service
 
 @Service
 class PlayerService(
     private val playerStorageAdapter: PlayerStorageAdapter,
     private val boardStorageAdapter: BoardStorageAdapter,
-    private val internalEventListener: InternalEventListener
+    private val internalEventListener: InternalEventListener,
 ) {
 
     fun addPlayer(boardId: String, role: Role): Player {
@@ -24,7 +24,7 @@ class PlayerService(
         board.players.find { it.role == role }?.let {
             throw ImpossibleActionException(
                 "Board $boardId already has role $role",
-                "Verify the id provided"
+                "Verify the id provided",
             )
         }
 

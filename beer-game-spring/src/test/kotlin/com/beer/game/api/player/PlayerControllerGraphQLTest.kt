@@ -2,9 +2,9 @@ package com.beer.game.api.player
 
 import com.beer.game.IntegrationTestBase
 import com.beer.game.TestUtils
-import com.beer.game.api.board.BoardGraph
 import com.beer.game.api.GraphQlDocuments.documentAddPlayer
 import com.beer.game.api.GraphQlDocuments.documentCreateBoard
+import com.beer.game.api.board.BoardGraph
 import com.beer.game.common.Role
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -62,7 +62,7 @@ class PlayerControllerGraphQLTest : IntegrationTestBase() {
                 Customization("id") { _, _ -> true },
                 Customization("board.id") { _, _ -> true },
                 Customization("board.createdAt") { _, _ -> true },
-            )
+            ),
         )
     }
 }

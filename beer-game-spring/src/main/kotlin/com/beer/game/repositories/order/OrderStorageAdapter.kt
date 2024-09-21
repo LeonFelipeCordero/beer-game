@@ -1,13 +1,15 @@
 package com.beer.game.repositories.order
 
 import com.beer.game.application.order.OrderStorageAdapter
-import com.beer.game.domain.*
+import com.beer.game.domain.Board
+import com.beer.game.domain.Order
+import com.beer.game.domain.Player
 import com.beer.game.repositories.board.BoardMongoAdapter
 import org.springframework.stereotype.Component
 
 @Component
 class OrderStorageAdapter(
-    private val boardMongoAdapter: BoardMongoAdapter
+    private val boardMongoAdapter: BoardMongoAdapter,
 ) : OrderStorageAdapter {
 
     override fun createOrder(board: Board, order: Order): Order {

@@ -1,15 +1,15 @@
 package com.beer.game.repositories.board
 
 import com.beer.game.application.board.BoardStorageAdapter
-import com.beer.game.domain.Board
 import com.beer.game.common.BoardState
+import com.beer.game.domain.Board
 import com.beer.game.domain.exceptions.NotFoundException
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
 
 @Component
 class BoardMongoAdapter(
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
 ) : BoardStorageAdapter {
 
     override fun loadBoard(boardId: String): Board {

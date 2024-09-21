@@ -1,14 +1,15 @@
 package com.beer.game.application.order
 
 import com.beer.game.application.board.BoardService
-import com.beer.game.repositories.order.OrderStorageAdapter
+import com.beer.game.application.events.InternalEventListener
+import com.beer.game.application.player.PlayerService
 import com.beer.game.common.OrderState
 import com.beer.game.common.OrderType
 import com.beer.game.common.Role
-import com.beer.game.domain.*
+import com.beer.game.domain.Board
+import com.beer.game.domain.Order
 import com.beer.game.domain.exceptions.ImpossibleActionException
-import com.beer.game.application.events.InternalEventListener
-import com.beer.game.application.player.PlayerService
+import com.beer.game.repositories.order.OrderStorageAdapter
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
@@ -17,7 +18,7 @@ class OrderService(
     private val orderStorageAdapter: OrderStorageAdapter,
     private val boardService: BoardService,
     private val playerService: PlayerService,
-    private val internalEventListener: InternalEventListener
+    private val internalEventListener: InternalEventListener,
 ) {
 
     fun createCpuOrders() {
@@ -35,7 +36,7 @@ class OrderService(
             type = OrderType.PLAYER_ORDER,
             sender = sender.id,
             receiver = receiver.id,
-            createdAt = LocalDateTime.now()
+            createdAt = LocalDateTime.now(),
         )
         sender.addOrder(order)
         receiver.addOrder(order)
@@ -53,14 +54,14 @@ class OrderService(
         if (!order.validOderAmount()) {
             throw ImpossibleActionException(
                 "deliver amount can't be bigger than original amount",
-                "verify order amount"
+                "verify order amount",
             )
         }
         if (!sender.hasEnoughStock(order.amount)) {
             sender.emitUpdate(internalEventListener, board.id)
             throw ImpossibleActionException(
                 "Sender doesn't have enough stock to deliver the order",
-                "wait until the sender has enough stock, you can order more"
+                "wait until the sender has enough stock, you can order more",
             )
         }
 
@@ -108,7 +109,7 @@ class OrderService(
                     originalAmount = player.weeklyOrder / 4,
                     type = OrderType.CPU_ORDER,
                     sender = player.id,
-                    createdAt = LocalDateTime.now()
+                    createdAt = LocalDateTime.now(),
                 )
                 player.addOrder(order)
                 orderStorageAdapter.createOrder(board, order)

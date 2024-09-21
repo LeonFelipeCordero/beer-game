@@ -1,8 +1,8 @@
 package com.beer.game.api.order
 
-import com.beer.game.api.domain.Response
 import com.beer.game.api.board.BoardApiAdapter
 import com.beer.game.api.board.BoardGraph
+import com.beer.game.api.domain.Response
 import com.beer.game.api.player.PlayerApiAdapter
 import com.beer.game.api.player.PlayerGraph
 import org.springframework.graphql.data.method.annotation.Argument
@@ -17,12 +17,12 @@ import reactor.core.publisher.Mono
 class OrderController(
     private val orderApiAdapter: OrderApiAdapter,
     private val playerApiAdapter: PlayerApiAdapter,
-    private val boardApiAdapter: BoardApiAdapter
+    private val boardApiAdapter: BoardApiAdapter,
 ) {
 
     @MutationMapping
     fun createOrder(
-        @Argument receiverId: String
+        @Argument receiverId: String,
     ): Mono<OrderGraph> {
         return orderApiAdapter.createOrder(receiverId)
     }
@@ -30,7 +30,7 @@ class OrderController(
     @MutationMapping
     fun deliverOrder(
         @Argument orderId: String,
-        @Argument amount: Int? = null
+        @Argument amount: Int? = null,
     ): Mono<Response> {
         return orderApiAdapter.deliverOrder(orderId, amount)
     }
@@ -60,4 +60,3 @@ class OrderController(
         return boardApiAdapter.getBoard(order.boardId!!)
     }
 }
-

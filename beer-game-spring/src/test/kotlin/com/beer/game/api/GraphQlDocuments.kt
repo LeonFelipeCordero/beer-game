@@ -37,7 +37,7 @@ object GraphQlDocuments {
                     $boardData                
                 }
             }
-        """.trimIndent()
+    """.trimIndent()
 
     val documentGetBoard = """
              query getBoard(${'$'}id: String) {
@@ -45,7 +45,7 @@ object GraphQlDocuments {
                    $boardData 
                 }
             }
-        """.trimIndent()
+    """.trimIndent()
 
     val documentAddPlayer = """
         mutation addPlayer(${'$'}boardId: String, ${'$'}role: Role) {
@@ -82,5 +82,4 @@ object GraphQlDocuments {
            }
        }
     """.trimIndent()
-
 }

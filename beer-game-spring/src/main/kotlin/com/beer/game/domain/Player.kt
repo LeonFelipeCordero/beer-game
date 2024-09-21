@@ -1,10 +1,10 @@
 package com.beer.game.domain
 
+import com.beer.game.application.events.InternalEventListener
 import com.beer.game.common.Role
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
 import com.beer.game.events.EventType
-import com.beer.game.application.events.InternalEventListener
 import java.util.UUID
 
 data class Player(
@@ -16,7 +16,7 @@ data class Player(
     var weeklyOrder: Int,
     var lastOrder: Int,
     val cpu: Boolean,
-    val orders: MutableList<Order>
+    val orders: MutableList<Order>,
 ) {
     companion object {
         fun retailPlayer(): Player {
@@ -28,7 +28,7 @@ data class Player(
                 weeklyOrder = 40,
                 lastOrder = 40,
                 cpu = false,
-                orders = mutableListOf()
+                orders = mutableListOf(),
             )
         }
 
@@ -41,7 +41,7 @@ data class Player(
                 weeklyOrder = 600,
                 lastOrder = 600,
                 cpu = false,
-                orders = mutableListOf()
+                orders = mutableListOf(),
             )
         }
 
@@ -54,7 +54,7 @@ data class Player(
                 weeklyOrder = 6000,
                 lastOrder = 6000,
                 cpu = false,
-                orders = mutableListOf()
+                orders = mutableListOf(),
             )
         }
     }
@@ -74,8 +74,8 @@ data class Player(
                 documentId = board.id,
                 entityId = id,
                 documentType = DocumentType.PLAYER,
-                eventType = EventType.NEW
-            )
+                eventType = EventType.NEW,
+            ),
         )
     }
 
@@ -86,8 +86,8 @@ data class Player(
                 documentId = boardId,
                 entityId = id,
                 documentType = DocumentType.PLAYER,
-                eventType = EventType.UPDATE
-            )
+                eventType = EventType.UPDATE,
+            ),
         )
     }
 }

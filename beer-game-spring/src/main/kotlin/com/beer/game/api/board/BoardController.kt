@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono
 
 @Controller
 class BoardController(
-    private val boardApiAdapter: BoardApiAdapter
+    private val boardApiAdapter: BoardApiAdapter,
 ) {
 
     @MutationMapping
@@ -36,7 +36,6 @@ class BoardController(
     fun board(@Argument boardId: String): Flux<BoardGraph> {
         return boardApiAdapter.subscribeToBoard(boardId)
     }
-
 
     @SchemaMapping(typeName = "Board", field = "players")
     fun players(boardGraph: BoardGraph): Flux<PlayerGraph> {

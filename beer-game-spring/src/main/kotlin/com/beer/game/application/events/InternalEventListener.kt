@@ -1,19 +1,15 @@
 package com.beer.game.application.events
 
 import com.beer.game.events.Event
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Sinks
-import java.lang.RuntimeException
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 class InternalEventListener : EventEmitter<Event> {
-
-    companion object {
-        val logger: Logger = LoggerFactory.getLogger(InternalEventListener::class.java)
-    }
 
     private val sink = Sinks.many().multicast().onBackpressureBuffer<Event>()
 

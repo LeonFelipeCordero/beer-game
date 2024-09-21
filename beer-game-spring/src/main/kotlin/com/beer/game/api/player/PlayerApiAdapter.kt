@@ -1,13 +1,13 @@
 package com.beer.game.api.player
 
 import com.beer.game.api.board.BoardGraph
-import com.beer.game.api.order.OrderGraph
 import com.beer.game.api.domain.Response
+import com.beer.game.api.order.OrderGraph
 import com.beer.game.application.board.BoardService
 import com.beer.game.application.order.OrderService
+import com.beer.game.application.player.PlayerEvenListener
 import com.beer.game.application.player.PlayerService
 import com.beer.game.common.Role
-import com.beer.game.application.player.PlayerEvenListener
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -18,7 +18,7 @@ class PlayerApiAdapter(
     private val playerService: PlayerService,
     private val boardService: BoardService,
     private val orderService: OrderService,
-    private val playerEvenListener: PlayerEvenListener
+    private val playerEvenListener: PlayerEvenListener,
 ) {
 
     fun addPlayer(boardId: String, role: Role): Mono<PlayerGraph> {
@@ -35,7 +35,7 @@ class PlayerApiAdapter(
         }.map {
             Response(
                 message = "weekly order updated",
-                status = 200
+                status = 200,
             )
         }.subscribeOn(Schedulers.boundedElastic())
     }
@@ -50,7 +50,7 @@ class PlayerApiAdapter(
 
     fun getPlayersByBoard(boardId: String): Flux<PlayerGraph> {
         return Flux.fromIterable(
-            playerService.getPlayersInBoard(boardId)
+            playerService.getPlayersInBoard(boardId),
         ).map {
             PlayerGraph.fromPlayer(it, boardId)
         }.subscribeOn(Schedulers.boundedElastic())

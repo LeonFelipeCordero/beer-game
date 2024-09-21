@@ -14,7 +14,7 @@ data class OrderGraph(
     val senderId: String?,
     val receiverId: String?,
     val boardId: String?,
-    val createdAt: LocalDateTime?
+    val createdAt: LocalDateTime?,
 ) {
     companion object {
         fun fromOrder(order: Order, boardId: String, receiverId: String? = null): OrderGraph {

@@ -12,7 +12,6 @@ import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.comparator.CustomComparator
 import java.time.LocalDateTime
 
-
 internal class BoardControllerGraphQLTest : IntegrationTestBase() {
 
     @AfterEach
@@ -47,8 +46,8 @@ internal class BoardControllerGraphQLTest : IntegrationTestBase() {
                     val date1 = LocalDateTime.parse(o1.toString())
                     val date2 = LocalDateTime.parse(o2.toString())
                     date1.toLocalDate() == date2.toLocalDate()
-                }
-            )
+                },
+            ),
         )
     }
 }

@@ -79,7 +79,7 @@ class BoardControllerTest : IntegrationTestBase() {
     fun `should get corresponding players from board graph`() {
         val board = createBoardAndPlayers()
         StepVerifier.create(
-            boardController.players(board!!)
+            boardController.players(board!!),
         ).assertNext {
             assertThat(it.role).isEqualTo(Role.RETAILER)
         }.assertNext {
@@ -95,7 +95,7 @@ class BoardControllerTest : IntegrationTestBase() {
         val receiverId = board?.playersId?.first()!!
         val order = orderController.createOrder(receiverId).block()
         StepVerifier.create(
-            boardController.orders(board)
+            boardController.orders(board),
         ).assertNext {
             assertThat(it.id).isEqualTo(order?.id)
         }.assertNext {
@@ -107,7 +107,7 @@ class BoardControllerTest : IntegrationTestBase() {
     fun `should get available roles from a board graph`() {
         val board = createBoard().block()
         StepVerifier.create(
-            boardController.availableRoles(board!!)
+            boardController.availableRoles(board!!),
         ).assertNext {
             assertThat(it).isEqualTo(Role.RETAILER)
         }.assertNext {

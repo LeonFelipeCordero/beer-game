@@ -22,7 +22,7 @@ class OrderControllerTest : IntegrationTestBase() {
         val receiverId = board?.playersId?.first()!!
         val senderId = board.playersId!![1]
         StepVerifier.create(
-            orderController.createOrder(receiverId)
+            orderController.createOrder(receiverId),
         ).assertNext {
             assertThat(it.amount).isEqualTo(40)
             assertThat(it.originalAmount).isEqualTo(40)
@@ -43,7 +43,7 @@ class OrderControllerTest : IntegrationTestBase() {
         orderController.deliverOrder(order?.id.toString(), order?.amount).block()
         StepVerifier.create(
             boardController.orders(board)
-                .filter { it.id == order?.id }
+                .filter { it.id == order?.id },
         ).assertNext {
             assertThat(it.amount).isEqualTo(40)
             assertThat(it.originalAmount).isEqualTo(40)
@@ -72,7 +72,7 @@ class OrderControllerTest : IntegrationTestBase() {
         orderController.deliverOrder(order?.id.toString(), 1).block()
         StepVerifier.create(
             boardController.orders(board)
-                .filter { it.id == order?.id }
+                .filter { it.id == order?.id },
         ).assertNext {
             assertThat(it.amount).isEqualTo(1)
             assertThat(it.originalAmount).isEqualTo(40)
@@ -99,7 +99,7 @@ class OrderControllerTest : IntegrationTestBase() {
         val order = orderController.createOrder(receiverId).block()
         orderController.deliverOrder(order?.id.toString(), 10).block()
         StepVerifier.create(
-            boardController.players(board)
+            boardController.players(board),
         ).assertNext {
             assertThat(it.stock).isEqualTo(90)
             assertThat(it.lastOrder).isEqualTo(10)
@@ -117,7 +117,7 @@ class OrderControllerTest : IntegrationTestBase() {
         val senderId = board.playersId!![1]
         val order = orderController.createOrder(receiverId).block()
         StepVerifier.create(
-            orderController.sender(order!!)
+            orderController.sender(order!!),
         ).assertNext {
             assertThat(it.id).isEqualTo(senderId)
         }.verifyComplete()
@@ -129,7 +129,7 @@ class OrderControllerTest : IntegrationTestBase() {
         val receiverId = board?.playersId?.first()!!
         val order = orderController.createOrder(receiverId).block()
         StepVerifier.create(
-            orderController.receiver(order!!)
+            orderController.receiver(order!!),
         ).assertNext {
             assertThat(it.id).isEqualTo(receiverId)
         }.verifyComplete()
@@ -141,7 +141,7 @@ class OrderControllerTest : IntegrationTestBase() {
         val receiverId = board?.playersId?.first()!!
         val order = orderController.createOrder(receiverId).block()
         StepVerifier.create(
-            orderController.board(order!!)
+            orderController.board(order!!),
         ).assertNext {
             assertThat(it.id).isEqualTo(board.id)
         }.verifyComplete()

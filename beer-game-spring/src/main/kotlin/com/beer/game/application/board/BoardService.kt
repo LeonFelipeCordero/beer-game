@@ -21,7 +21,7 @@ class BoardService(
             ?.let {
                 throw ImpossibleActionException(
                     "Name is already used by another board",
-                    "find another name for your game"
+                    "find another name for your game",
                 )
             }
             ?: boardStorageAdapter.saveBoard(name)

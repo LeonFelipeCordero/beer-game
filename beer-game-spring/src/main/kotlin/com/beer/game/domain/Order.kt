@@ -1,11 +1,11 @@
 package com.beer.game.domain
 
+import com.beer.game.application.events.InternalEventListener
 import com.beer.game.common.OrderState
 import com.beer.game.common.OrderType
 import com.beer.game.events.DocumentType
 import com.beer.game.events.Event
 import com.beer.game.events.EventType
-import com.beer.game.application.events.InternalEventListener
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -17,7 +17,7 @@ data class Order(
     val type: OrderType,
     val sender: String,
     val receiver: String? = null,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 ) {
     fun isPlayerInvolved(playerId: String): Boolean {
         return sender == playerId || receiver == playerId
@@ -34,8 +34,8 @@ data class Order(
                 documentId = boardId,
                 entityId = id,
                 documentType = DocumentType.ORDER,
-                eventType = EventType.NEW
-            )
+                eventType = EventType.NEW,
+            ),
         )
     }
 
@@ -46,8 +46,8 @@ data class Order(
                 documentId = boardId,
                 entityId = id,
                 documentType = DocumentType.ORDER,
-                eventType = EventType.UPDATE
-            )
+                eventType = EventType.UPDATE,
+            ),
         )
     }
 }
