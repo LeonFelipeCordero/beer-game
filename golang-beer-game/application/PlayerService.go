@@ -5,23 +5,23 @@ import (
 	"errors"
 	"fmt"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
 	"github.com/google/uuid"
 )
 
 type PlayerService struct {
-	repository   ports.IPlayerRepository
-	boardService ports.IBoardService
+	repository   adapters.PlayerRepositoryAdapter
+	boardService BoardService
 	eventChan    chan events.Event
 }
 
 func NewPlayerService(
-	repository ports.IPlayerRepository,
-	boardService ports.IBoardService,
+	repository adapters.PlayerRepositoryAdapter,
+	boardService BoardService,
 	eventChan chan events.Event,
-) ports.IPlayerService {
-	return &PlayerService{
+) PlayerService {
+	return PlayerService{
 		repository:   repository,
 		boardService: boardService,
 		eventChan:    eventChan,
@@ -38,8 +38,14 @@ func (p *PlayerService) AddPlayer(ctx context.Context, boardId string, role stri
 		return nil, err
 	}
 
-	board, err := p.boardService.Get(ctx, boardId)
-	if !board.HasRoleAvailable(selectedRole) {
+	availableRoles, err := p.boardService.GetAvailableRoles(ctx, boardId)
+	var isAvailable = false
+	for _, availableRole := range availableRoles {
+		if availableRole == selectedRole {
+			isAvailable = true
+		}
+	}
+	if !isAvailable {
 		return nil, errors.New(fmt.Sprintf("Role %s is already selected in the board", role))
 	}
 
@@ -47,21 +53,22 @@ func (p *PlayerService) AddPlayer(ctx context.Context, boardId string, role stri
 	if err != nil {
 		return nil, err
 	}
+	p.eventChan <- events.Event{
+		Id:        uuid.NewString(),
+		ObjectId:  boardId,
+		EventType: events.EventTypeNew,
+		Object:    *player,
+	}
 
-	if len(board.Players) == 2 {
-		p.boardService.CompleteBoard(ctx, boardId)
+	if len(availableRoles) == 1 {
+		board, _ := p.boardService.Get(ctx, boardId)
+		p.boardService.StartBoard(ctx, boardId)
 		p.eventChan <- events.Event{
 			Id:        uuid.NewString(),
-			ObjectId:  board.Id,
+			ObjectId:  boardId,
 			EventType: events.EventTypeUpdate,
 			Object:    *board,
 		}
-	}
-	p.eventChan <- events.Event{
-		Id:        uuid.NewString(),
-		ObjectId:  board.Id,
-		EventType: events.EventTypeNew,
-		Object:    *player,
 	}
 
 	return player, nil
@@ -75,7 +82,7 @@ func (p *PlayerService) GetPlayersByBoard(ctx context.Context, boardId string) (
 	return p.repository.GetPlayersByBoard(ctx, boardId)
 }
 
-func (p *PlayerService) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int) (*domain.Player, error) {
+func (p *PlayerService) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int64) (*domain.Player, error) {
 	player, err := p.repository.Get(ctx, playerId)
 	if err != nil {
 		return nil, err
@@ -101,17 +108,20 @@ func (p *PlayerService) GetContraPart(ctx context.Context, player domain.Player)
 	if err != nil {
 		return nil, err
 	}
-	contraPart := getContraPart(*board, player)
-	return &contraPart, nil
+	contraPartRole := getContraPart(player)
+	contraPart, err := p.repository.GetByRoleAndBoardId(ctx, board.Id, string(contraPartRole))
+	if err != nil {
+		return nil, err
+	}
+	return contraPart, nil
 }
 
-func getContraPart(board domain.Board, receiver domain.Player) domain.Player {
-	var sender domain.Player
+func getContraPart(receiver domain.Player) domain.Role {
 	switch receiver.Role {
 	case domain.RoleRetailer:
-		sender = board.GetPlayerByRole(domain.RoleWholesaler)
+		return domain.RoleWholesaler
 	case domain.RoleWholesaler:
-		sender = board.GetPlayerByRole(domain.RoleFactory)
+		return domain.RoleFactory
 	}
-	return sender
+	panic("Role not found in board")
 }

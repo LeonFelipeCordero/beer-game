@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - includeAll:
+      path: migrations
+      relativeToChangelogFile: true
+      resourceComparator: com.beer.game.configuration.LiquibaseComparator

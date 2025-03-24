@@ -21,8 +21,8 @@ type Player {
     weeklyOrder: Int!
     lastOrder: Int!
     cpu: Boolean!
-    board: Board,
-    orders: [Order!]
+    board: Board!,
+    orders: [Order!]!
 }
 
 enum Role {

@@ -3,24 +3,35 @@ package adapters
 import (
 	"context"
 	"fmt"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
+	testingutil "github.com/LeonFelipeCordero/golang-beer-game/testing"
+	"testing"
+
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	adapters2 "github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestBoard(t *testing.T) {
+	ctx := context.Background()
 	boardName := "test"
 
-	boardRepository := adapters2.NewBoardRepositoryFaker()
-	playerRepository := adapters2.NewPlayerRepositoryFaker(boardRepository)
-	boardService := application.NewBoardService(boardRepository)
-	playerService := application.NewPlayerService(playerRepository, boardService)
+	queries := testingutil.SetupDatabaseConnection(ctx)
+
+	streamers, eventChan := events.CreateEventBus()
+	go events.EventHandler(streamers, eventChan)
+
+	boardRepository := adapters2.NewBoardRepository(queries)
+	playerRepository := adapters2.NewPlayerRepository(queries)
+	boardService := application.NewBoardService(boardRepository, eventChan)
+	playerService := application.NewPlayerService(playerRepository, boardService, eventChan)
 	boardApiAdapter := NewBoardApiAdapter(boardService)
 	playerApiAdapter := NewPlayerApiAdapter(playerService, boardService)
 
+	testingutil.Clean(ctx, queries)
+
 	t.Run("a board should be created if name is not taken", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		savedBoard, err := boardApiAdapter.Create(ctx, boardName)
 		if err != nil {
 			t.Error("There should not be errors")
@@ -33,12 +44,10 @@ func TestBoard(t *testing.T) {
 		assert.Equal(t, savedBoard.Finished, result.Finished, "wrong finished")
 		assert.Equal(t, savedBoard.Full, result.Full, "wrong full")
 		assert.Equal(t, len(savedBoard.PlayersId), len(result.PlayersId), "wrong size")
-
-		boardRepository.DeleteAll(ctx)
 	})
 
 	t.Run("a board should not be created if name is taken", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		_, err := boardApiAdapter.Create(ctx, boardName)
 		if err != nil {
 			t.Error("There should not be errors")
@@ -55,12 +64,10 @@ func TestBoard(t *testing.T) {
 		assert.Equal(t, secondBoard.Finished, result.Finished, "wrong finished")
 		assert.Equal(t, secondBoard.Full, result.Full, "wrong full")
 		assert.Equal(t, len(secondBoard.PlayersId), len(result.PlayersId), "wrong size")
-
-		boardRepository.DeleteAll(ctx)
 	})
 
 	t.Run("should return available roles", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardApiAdapter.Create(ctx, boardName)
 
 		availableRoles, _ := boardApiAdapter.GetAvailableRoles(ctx, board.ID)
@@ -72,8 +79,5 @@ func TestBoard(t *testing.T) {
 		board, _ = boardApiAdapter.Get(ctx, board.ID)
 		availableRoles, _ = boardApiAdapter.GetAvailableRoles(ctx, board.ID)
 		assert.Equal(t, len(availableRoles), 0)
-
-		boardRepository.DeleteAll(ctx)
-		playerRepository.DeleteAll(ctx)
 	})
 }

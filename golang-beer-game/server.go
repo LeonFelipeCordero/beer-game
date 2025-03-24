@@ -1,6 +1,12 @@
 package main
 
 import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
@@ -8,26 +14,23 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/schedulers"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/adapters"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/resolver"
 	adapters2 "github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j"
+	storage "github.com/LeonFelipeCordero/golang-beer-game/repositories/postgres"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/cors"
-	"log"
-	"net/http"
-	"os"
-	"time"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 const defaultPort = "8080"
 
 func main() {
-	streamers, eventChan := createEventBus()
+	streamers, eventChan := events.CreateEventBus()
 	boardApiAdapter, playerApiAdapter, orderApiAdapter := createAdapters(eventChan)
 
 	graphResolver := graph.Config{
@@ -62,13 +65,15 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
-func createAdapters(eventChan chan events.Event) (ports.IBoardApi, ports.IPlayerApi, ports.IOrderApi) {
-	neo4j.ConfigureDatabase()
-	neo4jRepository := neo4j.NewRepository()
+func createAdapters(eventChan chan events.Event) (adapters.BoardApiAdapter, adapters.PlayerApiAdapter, adapters.OrderApiAdapter) {
+	ctx := context.Background()
+	url := "postgres://beer_game:beer_game@localhost:5432/beer_game"
+	conn, _ := pgx.Connect(ctx, url)
+	queries := storage.New(conn)
 
-	boardRepository := adapters2.NewBoardRepository(neo4jRepository)
-	playerRepository := adapters2.NewPlayerRepository(neo4jRepository, boardRepository)
-	orderRepository := adapters2.NewOrderRepository(neo4jRepository, playerRepository)
+	boardRepository := adapters2.NewBoardRepository(queries)
+	playerRepository := adapters2.NewPlayerRepository(queries)
+	orderRepository := adapters2.NewOrderRepository(queries)
 
 	boardService := application.NewBoardService(boardRepository, eventChan)
 	playerService := application.NewPlayerService(playerRepository, boardService, eventChan)
@@ -82,14 +87,6 @@ func createAdapters(eventChan chan events.Event) (ports.IBoardApi, ports.IPlayer
 	orderScheduler.Start()
 
 	return boardApiAdapter, playerApiAdapter, orderApiAdapter
-}
-
-func createEventBus() (*events.Streamers, chan events.Event) {
-	streamers := &events.Streamers{
-		Streamers: map[string]events.Streamer{},
-	}
-	eventChan := make(chan events.Event)
-	return streamers, eventChan
 }
 
 func configureServer(srv *handler.Server) {
@@ -108,10 +105,10 @@ func configureServer(srv *handler.Server) {
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})
 
-	srv.SetQueryCache(lru.New(1000))
+	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 
 	srv.Use(extension.Introspection{})
 	srv.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New(100),
+		Cache: lru.New[string](100),
 	})
 }

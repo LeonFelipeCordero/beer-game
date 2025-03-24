@@ -2,23 +2,22 @@ package adapters
 
 import (
 	"context"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
-	"github.com/LeonFelipeCordero/golang-beer-game/domain"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j"
-	"github.com/stretchr/testify/assert"
+	testingutil "github.com/LeonFelipeCordero/golang-beer-game/testing"
 	"testing"
 	"time"
+
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBoardPlayerAndOrder(t *testing.T) {
-	neo4j.ConfigureDatabase()
 	ctx := context.Background()
-	repository := neo4j.NewRepository()
-	boardRepository := NewBoardRepository(repository)
-	playerRepository := NewPlayerRepository(repository, boardRepository)
-	orderRepository := NewOrderRepository(repository, playerRepository)
+	queries := testingutil.SetupDatabaseConnection(ctx)
+	boardRepository := NewBoardRepository(queries)
+	playerRepository := NewPlayerRepository(queries)
+	orderRepository := NewOrderRepository(queries)
 
-	boardRepository.DeleteAll(ctx)
+	testingutil.Clean(ctx, queries)
 
 	t.Run("create all relations between boards and player easily", func(t *testing.T) {
 		board := createBoard(ctx, boardRepository)
@@ -37,12 +36,10 @@ func TestBoardPlayerAndOrder(t *testing.T) {
 		}
 		loadOrdersByBoard(ctx, t, orderRepository, board.Id, ids)
 		loadOrdersByPlayer(ctx, t, orderRepository, retailer.Id, ids)
-
-		boardRepository.DeleteAll(ctx)
 	})
 }
 
-func createOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepository, receiver domain.Player, sender domain.Player) *domain.Order {
+func createOrder(ctx context.Context, t *testing.T, repository OrderRepositoryAdapter, receiver domain.Player, sender domain.Player) *domain.Order {
 	order := domain.Order{
 		Amount:         5,
 		OriginalAmount: 5,
@@ -57,7 +54,7 @@ func createOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepos
 	return savedOrder
 }
 
-func validateOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepository, order domain.Order) {
+func validateOrder(ctx context.Context, t *testing.T, repository OrderRepositoryAdapter, order domain.Order) {
 	savedOrder, err := repository.Get(ctx, order.Id)
 	assert.Nil(t, err, "error when saving order")
 	assert.Equal(t, savedOrder.Amount, order.Amount, "wrong amount")
@@ -69,28 +66,29 @@ func validateOrder(ctx context.Context, t *testing.T, repository ports.IOrderRep
 	assert.Equal(t, savedOrder.Sender, order.Sender, "wrong sender")
 }
 
-func deliverOrder(ctx context.Context, t *testing.T, repository ports.IOrderRepository, order domain.Order) {
-	savedOrder, _ := repository.Get(ctx, order.Id)
-	savedOrder.Status = domain.StatusDelivered
-	savedOrder.Amount = 1
-	savedOrder, err := repository.Save(ctx, *savedOrder)
+func deliverOrder(ctx context.Context, t *testing.T, repository OrderRepositoryAdapter, order domain.Order) {
+	savedOrder, err := repository.MarkAsFilled(ctx, order.Id, int64(1))
 	assert.Nil(t, err, "error when saving order")
-	assert.Equal(t, savedOrder.Amount, 1, "wrong amount")
+	fetchedOrder, err := repository.Get(ctx, order.Id)
+	assert.Nil(t, err, "error when saving order")
+	assert.Equal(t, savedOrder.Amount, int64(1), "wrong amount")
+	assert.Equal(t, fetchedOrder.Amount, savedOrder.Amount, "wrong amount")
 	assert.Equal(t, savedOrder.Status, domain.StatusDelivered, "wrong status")
+	assert.Equal(t, fetchedOrder.Status, savedOrder.Status, "wrong amount")
 }
 
-func loadOrdersByBoard(ctx context.Context, t *testing.T, repository ports.IOrderRepository, board string, orders []string) {
+func loadOrdersByBoard(ctx context.Context, t *testing.T, repository OrderRepositoryAdapter, board string, orders []string) {
 	savedOrders, err := repository.LoadByBoard(ctx, board)
 	var savedIds []string
 	for _, order := range savedOrders {
 		savedIds = append(savedIds, order.Id)
 	}
 	assert.Nil(t, err, "error when saving order")
-	assert.ElementsMatch(t, savedIds, orders, "wrong response")
+	assert.ElementsMatch(t, savedIds, orders, "wrong orders load from bd compared to in memory")
 }
 
-func loadOrdersByPlayer(ctx context.Context, t *testing.T, repository ports.IOrderRepository, player string, orders []string) {
-	savedOrders, err := repository.LoadByBoard(ctx, player)
+func loadOrdersByPlayer(ctx context.Context, t *testing.T, repository OrderRepositoryAdapter, player string, orders []string) {
+	savedOrders, err := repository.LoadByPlayer(ctx, player)
 	var savedIds []string
 	for _, order := range savedOrders {
 		savedIds = append(savedIds, order.Id)

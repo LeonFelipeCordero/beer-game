@@ -16,8 +16,8 @@ type Order {
     type: OrderType!
     sender: Player!
     receiver: Player
-    board: Board,
-    createdAt: String!
+    board: Board!,
+    createdAt: Time!
 }
 
 enum OrderState {

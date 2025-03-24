@@ -3,7 +3,7 @@ package adapters
 import "strings"
 
 func isNotFound(err error) bool {
-	errorMessage := getMessage("not_found")
+	errorMessage := getMessage("no rows in result set")
 	return strings.Contains(err.Error(), errorMessage)
 }
 

@@ -3,56 +3,69 @@ package adapters
 import (
 	"context"
 	"fmt"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j/entities"
-	"strconv"
+	storage "github.com/LeonFelipeCordero/golang-beer-game/repositories/postgres"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type BoardRepositoryAdapter struct {
-	repository neo4j.IRepository
+	queries          *storage.Queries
+	playerRepository PlayerRepositoryAdapter
 }
 
-func NewBoardRepository(repository neo4j.IRepository) ports.IBoardRepository {
-	return &BoardRepositoryAdapter{
-		repository: repository,
+func NewBoardRepository(queries *storage.Queries) BoardRepositoryAdapter {
+	return BoardRepositoryAdapter{
+		queries:          queries,
+		playerRepository: NewPlayerRepository(queries),
 	}
 }
 
 func (b *BoardRepositoryAdapter) Save(ctx context.Context, board domain.Board) (*domain.Board, error) {
-	boardNode := &entities.BoardNode{}
-	boardNode.FromBoard(board)
-	err := b.repository.SaveDepth(ctx, boardNode)
+	boardEntity, err := b.queries.SaveBoard(ctx, board.Name)
+
 	if err != nil {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong creating new board %s", boardNode.Name),
+			fmt.Sprintf("Something went wrong creating new board %s", board.Name),
 			err,
 		)
 	}
-	return boardNode.ToBoard(), nil
+
+	return boardEntityToDomain(boardEntity), nil
 }
 
-func (b *BoardRepositoryAdapter) Get(ctx context.Context, id string) (*domain.Board, error) {
-	entityId, _ := strconv.ParseInt(id, 0, 64)
-	boardNode := &entities.BoardNode{}
-	err := b.repository.LoadDepth(ctx, entityId, boardNode)
+func (b *BoardRepositoryAdapter) Get(ctx context.Context, boardId string) (*domain.Board, error) {
+	boardEntity, err := b.queries.FindBoardById(ctx, pgtype.UUID{Bytes: uuid.MustParse(boardId), Valid: true})
+
+	if err != nil && !isNotFound(err) {
+		return nil, nil
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board %s", id),
+			fmt.Sprintf("Something went wrong getting board %s", boardId),
 			err,
 		)
 	}
 
-	return boardNode.ToBoard(), nil
+	board, err := b.complement(ctx, boardEntityToDomain(boardEntity))
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting board %s", boardId),
+			err,
+		)
+	}
+
+	return board, nil
 }
 
 func (b *BoardRepositoryAdapter) GetByName(ctx context.Context, name string) (*domain.Board, error) {
-	query := "MATCH (b:BoardNode{name: $name}) RETURN b"
-	boardNode := &entities.BoardNode{}
+	boardEntity, err := b.queries.FindBoardByName(ctx, name)
 
-	err := b.repository.Query(ctx, query, map[string]interface{}{"name": name}, boardNode)
+	if err != nil && isNotFound(err) {
+		return nil, nil
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -61,30 +74,25 @@ func (b *BoardRepositoryAdapter) GetByName(ctx context.Context, name string) (*d
 		)
 	}
 
-	return boardNode.ToBoard(), nil
-}
-
-func (b *BoardRepositoryAdapter) Exist(ctx context.Context, name string) (bool, error) {
-	query := "MATCH (b:BoardNode{name: $name}) RETURN count(b) as count"
-
-	result, err := b.repository.QueryRaw(ctx, query, map[string]interface{}{
-		"name": name,
-	})
+	board, err := b.complement(ctx, boardEntityToDomain(boardEntity))
 
 	if err != nil {
-		return true, fmt.Errorf(
-			fmt.Sprintf("Something went wrong validating board %s", name),
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting board %s", name),
 			err,
 		)
 	}
 
-	return result[0][0].(int64) != 0, nil
+	return board, nil
+}
+
+func (b *BoardRepositoryAdapter) Exist(ctx context.Context, name string) (bool, error) {
+	boardEntity, err := b.GetByName(ctx, name)
+	return boardEntity != nil, err
 }
 
 func (b *BoardRepositoryAdapter) DeleteAll(ctx context.Context) {
-	query := "MATCH (n) detach delete n"
-
-	_, err := b.repository.QueryRaw(ctx, query, map[string]interface{}{})
+	err := b.queries.DeleteAllBoards(ctx)
 
 	if err != nil {
 		fmt.Println(
@@ -92,58 +100,113 @@ func (b *BoardRepositoryAdapter) DeleteAll(ctx context.Context) {
 			err,
 		)
 	}
-
 }
 
-func (b *BoardRepositoryAdapter) GetByPlayer(ctx context.Context, id string) (*domain.Board, error) {
-	entityId, _ := strconv.ParseInt(id, 0, 64)
-	query := `
-		MATCH (p:PlayerNode)-[r:plays_in]->(b:BoardNode) WHERE ID(p) = $id
-		CALL {
-			WITH b
-			MATCH (p2:PlayerNode)-[r2:plays_in]->(b2:BoardNode) WHERE b2.name = b.name RETURN b2,r2,p2
-		}
-		RETURN b2,r2,p2
-	`
-
-	boardNode := &entities.BoardNode{}
-
-	err := b.repository.Query(ctx, query, map[string]interface{}{"id": entityId}, boardNode)
+func (b *BoardRepositoryAdapter) GetByPlayer(ctx context.Context, boardId string) (*domain.Board, error) {
+	boardEntity, err := b.queries.FindBoardByPlayerId(ctx, pgtype.UUID{Bytes: uuid.MustParse(boardId), Valid: true})
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting board by player %s", id),
+			fmt.Sprintf("Something went wrong getting board by player %s", boardId),
+			err,
+		)
+	}
+	board, err := b.complement(ctx, boardEntityToDomain(boardEntity))
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong getting board %s", boardId),
 			err,
 		)
 	}
 
-	return boardNode.ToBoard(), nil
+	return board, nil
 }
 
-func (b *BoardRepositoryAdapter) GetActiveBoards(ctx context.Context) ([]*domain.Board, error) {
-	query := `
-			MATCH (b:BoardNode)<-[r:plays_in]-(p:PlayerNode) 
-			WHERE b.full = true 
-			AND b.state = "RUNNING"
-			RETURN b,r,p
-		 `
-
-	boardsNode := &[]entities.BoardNode{}
-
-	err := b.repository.Query(ctx, query, map[string]interface{}{}, boardsNode)
+func (b *BoardRepositoryAdapter) GetActiveBoards(ctx context.Context) ([]domain.Board, error) {
+	boardEntities, err := b.queries.GetRunningBoards(ctx)
 
 	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting active board"),
+			fmt.Sprintf("Something went wrong getting running boards"),
 			err,
 		)
 	}
 
-	boards := []*domain.Board{}
-	for _, boardNode := range *boardsNode {
-		board := boardNode.ToBoard()
-		boards = append(boards, board)
+	var boards []domain.Board
+	for _, boardEntity := range boardEntities {
+		board := boardEntityToDomain(boardEntity)
+		boards = append(boards, *board)
 	}
 
 	return boards, nil
+}
+
+func (b *BoardRepositoryAdapter) StartBoard(ctx context.Context, boardId string) error {
+	err := b.queries.StartBoard(ctx, pgtype.UUID{Bytes: uuid.MustParse(boardId), Valid: true})
+	if err != nil {
+		return fmt.Errorf(
+			fmt.Sprintf("Something went wrong starting board %s", boardId),
+			err,
+		)
+	}
+	return nil
+}
+
+func (b *BoardRepositoryAdapter) GetAvailableRoles(ctx context.Context, boardId string) ([]string, error) {
+	roles, err := b.queries.GetAvailableRoles(ctx, pgtype.UUID{Bytes: uuid.MustParse(boardId), Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong starting board %s", boardId),
+			err,
+		)
+	}
+
+	var result []string
+	for _, role := range roles {
+		result = append(result, role.String)
+	}
+
+	return result, nil
+}
+
+func (b *BoardRepositoryAdapter) complement(ctx context.Context, board *domain.Board) (*domain.Board, error) {
+	player, err := b.playerRepository.GetPlayersByBoard(ctx, board.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong fetching clients for board %s", board.Id),
+			err,
+		)
+	}
+
+	board.Players = player
+
+	return board, nil
+}
+
+func boardEntityFromDomain(board domain.Board) storage.Board {
+	timestamp := pgtype.Timestamp{}
+	timestamp.Scan(board.CreatedAt)
+
+	return storage.Board{
+		BoardID:    pgtype.UUID{Bytes: uuid.MustParse(board.Id), Valid: true},
+		Name:       board.Name,
+		State:      string(board.State),
+		IsFull:     board.Full,
+		IsFinished: board.Finished,
+		CreatedAt:  timestamp,
+		UpdatedAt:  timestamp,
+	}
+}
+
+func boardEntityToDomain(boardEntity storage.Board) *domain.Board {
+	return &domain.Board{
+		Id:        boardEntity.BoardID.String(),
+		Name:      boardEntity.Name,
+		State:     domain.State(boardEntity.State),
+		Full:      boardEntity.IsFull,
+		Finished:  boardEntity.IsFinished,
+		CreatedAt: boardEntity.CreatedAt.Time,
+	}
 }

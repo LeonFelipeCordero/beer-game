@@ -3,11 +3,13 @@ type Response {
     status: Int
 }
 
-type Time {
-    unixTime: Int!
-    timeStamp: String!
-}
+# type Time {
+#     unixTime: Int!
+#     timeStamp: String!
+# }
 
 extend type Subscription {
     currentTime: Time!
 }
+
+scalar Time

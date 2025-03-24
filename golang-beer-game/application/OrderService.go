@@ -5,27 +5,27 @@ import (
 	"errors"
 	"fmt"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
 	"github.com/google/uuid"
 	"math/rand"
 	"time"
 )
 
 type OrderService struct {
-	repository    ports.IOrderRepository
-	playerService ports.IPlayerService
-	boardService  ports.IBoardService
+	repository    adapters.OrderRepositoryAdapter
+	playerService PlayerService
+	boardService  BoardService
 	eventChan     chan events.Event
 }
 
 func NewOrderService(
-	repository ports.IOrderRepository,
-	playerService ports.IPlayerService,
-	boardService ports.IBoardService,
+	repository adapters.OrderRepositoryAdapter,
+	playerService PlayerService,
+	boardService BoardService,
 	eventChan chan events.Event,
-) ports.IOrderService {
-	return &OrderService{
+) OrderService {
+	return OrderService{
 		repository:    repository,
 		playerService: playerService,
 		boardService:  boardService,
@@ -71,7 +71,7 @@ func (o OrderService) CreateOrder(ctx context.Context, receiverId string) (*doma
 	return savedOrder, nil
 }
 
-func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount int) (*domain.Order, error) {
+func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount int64) (*domain.Order, error) {
 	order, err := o.repository.Get(ctx, orderId)
 
 	var receiver *domain.Player
@@ -92,20 +92,24 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 		return nil, err
 	}
 
+	// todo change this
 	order.Amount = amount
-
 	if !order.ValidOrderAmount() {
 		return nil, errors.New("the new value can't be bigger than the original one")
 	} else if !sender.HasStock(order.Amount) {
 		return nil, errors.New("the Sender don't have enough stock to deliver this order")
 	}
 
-	// todo last order?
-	sender.Stock -= order.Amount
-	if order.Receiver != "" {
-		receiver.Stock += order.Amount
+	savedOrder, err := o.repository.MarkAsFilled(ctx, orderId, amount)
+	if err != nil {
+		return nil, err
 	}
-	order.Status = domain.StatusDelivered
+
+	// todo last order?
+	sender.Stock -= savedOrder.Amount
+	if savedOrder.Receiver != "" {
+		receiver.Stock += savedOrder.Amount
+	}
 
 	//todo do all saves in a single transaction
 	if receiver != nil {
@@ -119,7 +123,7 @@ func (o OrderService) DeliverOrder(ctx context.Context, orderId string, amount i
 		}
 	}
 	o.playerService.Save(ctx, *sender)
-	savedOrder, err := o.repository.Save(ctx, *order)
+	//savedOrder, err := o.repository.Save(ctx, *order)
 	if err != nil {
 		return nil, err
 	}
@@ -145,11 +149,11 @@ func (o OrderService) Get(ctx context.Context, orderId string) (*domain.Order, e
 	return o.repository.Get(ctx, orderId)
 }
 
-func (o OrderService) LoadByBoard(ctx context.Context, boardId string) ([]*domain.Order, error) {
+func (o OrderService) LoadByBoard(ctx context.Context, boardId string) ([]domain.Order, error) {
 	return o.repository.LoadByBoard(ctx, boardId)
 }
 
-func (o OrderService) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
+func (o OrderService) LoadByPlayer(ctx context.Context, playerId string) ([]domain.Order, error) {
 	return o.repository.LoadByPlayer(ctx, playerId)
 }
 
@@ -181,7 +185,7 @@ func (o OrderService) CreateCpuOrders(ctx context.Context) {
 		panic(fmt.Sprintf("error getting active boards %s", err))
 	}
 	for _, board := range boards {
-		o.createOrdersForBoard(ctx, *board)
+		o.createOrdersForBoard(ctx, board)
 	}
 }
 

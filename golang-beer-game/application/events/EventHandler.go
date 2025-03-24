@@ -38,6 +38,14 @@ const (
 	EventTypeUpdate EventType = "UPDATE"
 )
 
+func CreateEventBus() (*Streamers, chan Event) {
+	streamers := &Streamers{
+		Streamers: map[string]Streamer{},
+	}
+	eventChan := make(chan Event)
+	return streamers, eventChan
+}
+
 func (s *Streamers) Register(ctx context.Context, streamer Streamer) {
 	fmt.Printf("registering new streamer with id %s\n", streamer.Id)
 	s.Lock()

@@ -5,22 +5,31 @@ import (
 	"errors"
 	"fmt"
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
+	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	adapters2 "github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
+	testingutil "github.com/LeonFelipeCordero/golang-beer-game/testing"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestPlayer(t *testing.T) {
+	ctx := context.Background()
 	boardName := "test"
-	boardRepository := adapters2.NewBoardRepositoryFaker()
-	playerRepository := adapters2.NewPlayerRepositoryFaker(boardRepository)
-	boardService := application.NewBoardService(boardRepository)
-	playerService := application.NewPlayerService(playerRepository, boardService)
+
+	queries := testingutil.SetupDatabaseConnection(ctx)
+
+	streamers, eventChan := events.CreateEventBus()
+	go events.EventHandler(streamers, eventChan)
+
+	boardRepository := adapters2.NewBoardRepository(queries)
+	playerRepository := adapters2.NewPlayerRepository(queries)
+	boardService := application.NewBoardService(boardRepository, eventChan)
+	playerService := application.NewPlayerService(playerRepository, boardService, eventChan)
 	playerApiAdapter := NewPlayerApiAdapter(playerService, boardService)
 
 	t.Run("a player should be created if role not taken", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardService.Create(ctx, boardName)
 		player, err := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
 		if err != nil {
@@ -37,28 +46,22 @@ func TestPlayer(t *testing.T) {
 		assert.Equal(t, player.CPU, result.CPU, "wrong cpu")
 		assert.Equal(t, player.BoardId, board.Id, "wrong cpu")
 		assert.Equal(t, len(player.OrdersId), len(result.OrdersId), "wrong size")
-
-		playerRepository.DeleteAll(ctx)
-		boardRepository.DeleteAll(ctx)
 	})
 
 	t.Run("a player should not be created if role taken", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardService.Create(ctx, boardName)
 		_, err := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
 		if err != nil {
-			t.Error("There should not be errors")
+			t.Errorf("There should not be errors %e", err)
 		}
 
 		_, err = playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
 		assert.Error(t, err, "Role RETAILER is already selected in the board")
-
-		playerRepository.DeleteAll(ctx)
-		boardRepository.DeleteAll(ctx)
 	})
 
 	t.Run("a player should be part of a board", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardService.Create(ctx, boardName)
 		player, err := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
 		if err != nil {
@@ -77,29 +80,25 @@ func TestPlayer(t *testing.T) {
 				assert.Equal(t, len(player.OrdersId), len(boardPlayer.Orders), "wrong size")
 			}
 		}
-
-		playerRepository.DeleteAll(ctx)
-		boardRepository.DeleteAll(ctx)
 	})
 
 	t.Run("All players should be added to the board", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardService.Create(ctx, boardName)
-		player, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
-		player, _ = playerApiAdapter.AddPlayer(ctx, board.Id, "FACTORY")
-		player, _ = playerApiAdapter.AddPlayer(ctx, board.Id, "WHOLESALER")
 
-		board, _ = boardService.Get(ctx, player.BoardId)
-		assert.Equal(t, len(board.Players), 3, "players size is wrong")
-		assert.Equal(t, board.State, domain.StateRunning, "players size is wrong")
-		assert.Equal(t, board.Full, true, "players size is wrong")
+		playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
+		playerApiAdapter.AddPlayer(ctx, board.Id, "FACTORY")
+		playerApiAdapter.AddPlayer(ctx, board.Id, "WHOLESALER")
 
-		playerRepository.DeleteAll(ctx)
-		boardRepository.DeleteAll(ctx)
+		roles, _ := boardService.GetAvailableRoles(ctx, board.Id)
+		updatedBoard, _ := boardService.Get(ctx, board.Id)
+		assert.Equal(t, len(roles), 0, "players size is wrong")
+		assert.Equal(t, updatedBoard.State, domain.StateRunning, "players size is wrong")
+		assert.Equal(t, updatedBoard.Full, true, "players size is wrong")
 	})
 
 	t.Run("get all players by board board", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardService.Create(ctx, boardName)
 
 		retailer, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
@@ -116,17 +115,14 @@ func TestPlayer(t *testing.T) {
 				assert.Error(t, errors.New(fmt.Sprintf("Player %s should not be part of board", player.ID)))
 			}
 		}
-
-		playerRepository.DeleteAll(ctx)
-		boardRepository.DeleteAll(ctx)
 	})
 
 	t.Run("get all players by board board", func(t *testing.T) {
-		ctx := context.Background()
+		testingutil.Clean(ctx, queries)
 		board, _ := boardService.Create(ctx, boardName)
 
 		retailer, _ := playerApiAdapter.AddPlayer(ctx, board.Id, "RETAILER")
-		assert.Equal(t, retailer.WeeklyOrder, 40)
+		assert.Equal(t, retailer.WeeklyOrder, int64(40))
 
 		response, err := playerApiAdapter.UpdateWeeklyOrder(ctx, retailer.ID, 10000)
 		if err != nil {
@@ -137,9 +133,6 @@ func TestPlayer(t *testing.T) {
 		assert.Equal(t, *response.Status, 200)
 
 		player, _ := playerApiAdapter.Get(ctx, retailer.ID)
-		assert.Equal(t, player.WeeklyOrder, 10000)
-
-		playerRepository.DeleteAll(ctx)
-		boardRepository.DeleteAll(ctx)
+		assert.Equal(t, player.WeeklyOrder, int64(10000))
 	})
 }

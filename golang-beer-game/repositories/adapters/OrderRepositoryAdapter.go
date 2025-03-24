@@ -3,73 +3,46 @@ package adapters
 import (
 	"context"
 	"fmt"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j/entities"
-	"strconv"
+	storage "github.com/LeonFelipeCordero/golang-beer-game/repositories/postgres"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type OrderRepositoryAdapter struct {
-	repository       neo4j.IRepository
-	playerRepository ports.IPlayerRepository
+	queries *storage.Queries
 }
 
-func NewOrderRepository(
-	repository neo4j.IRepository,
-	playerRepository ports.IPlayerRepository,
-) ports.IOrderRepository {
-	return &OrderRepositoryAdapter{
-		repository:       repository,
-		playerRepository: playerRepository,
+func NewOrderRepository(queries *storage.Queries) OrderRepositoryAdapter {
+	return OrderRepositoryAdapter{
+		queries: queries,
 	}
 }
 
-// Save todo query players with one call
 func (o OrderRepositoryAdapter) Save(ctx context.Context, order domain.Order) (*domain.Order, error) {
-	receiver, err := o.playerRepository.Get(ctx, order.Receiver)
+	params := storage.SaveOrderParams{
+		Amount:     order.Amount,
+		Type:       string(order.OrderType),
+		SenderID:   pgtype.UUID{Bytes: uuid.MustParse(order.Sender), Valid: true},
+		ReceiverID: pgtype.UUID{Bytes: uuid.MustParse(order.Receiver), Valid: true},
+	}
+	orderEntity, err := o.queries.SaveOrder(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-	receiverNode := &entities.PlayerNode{}
-
-	sender, err := o.playerRepository.Get(ctx, order.Sender)
-	if err != nil {
-		return nil, err
-	}
-	senderNode := &entities.PlayerNode{}
-	senderNode.FromPlayer(*sender)
-
-	orderNode := &entities.OrderNode{}
-	orderNode.FromOrder(order)
-	orderNode.Sender = senderNode
-	if receiver != nil {
-		receiverNode.FromPlayer(*receiver)
-		orderNode.Receiver = receiverNode
-	}
-	err = o.repository.SaveDepth(ctx, orderNode)
-	if err != nil {
-		return nil, err
-	}
-
-	savedOrder := orderNode.ToOrder()
-	return &savedOrder, nil
+	return orderEntityToDomain(orderEntity), nil
 }
 
 func (o OrderRepositoryAdapter) Get(ctx context.Context, orderId string) (*domain.Order, error) {
-	entityId, _ := strconv.ParseInt(orderId, 0, 64)
-	orderNode := &entities.OrderNode{}
-	err := o.repository.LoadDepth(ctx, entityId, orderNode)
-
+	pgId := pgtype.UUID{Bytes: uuid.MustParse(orderId), Valid: true}
+	orderEntity, err := o.queries.FindOrderById(ctx, pgId)
 	if err != nil {
 		return nil, fmt.Errorf(
 			fmt.Sprintf("Something went wrong getting order %s", orderId),
 			err,
 		)
 	}
-
-	savedOrder := orderNode.ToOrder()
-	return &savedOrder, nil
+	return orderEntityToDomain(orderEntity), nil
 }
 
 func (o OrderRepositoryAdapter) DeleteAll(ctx context.Context) {
@@ -77,64 +50,81 @@ func (o OrderRepositoryAdapter) DeleteAll(ctx context.Context) {
 	panic("implement me")
 }
 
-func (o OrderRepositoryAdapter) LoadByBoard(ctx context.Context, boardId string) ([]*domain.Order, error) {
-	entityId, _ := strconv.ParseInt(boardId, 0, 64)
-	board := &entities.BoardNode{}
-	err := o.repository.LoadDepth(ctx, entityId, board)
-
+func (o OrderRepositoryAdapter) LoadByBoard(ctx context.Context, boardId string) ([]domain.Order, error) {
+	pgId := pgtype.UUID{Bytes: uuid.MustParse(boardId), Valid: true}
+	orderEntities, err := o.queries.FindOrderByBoardId(ctx, pgId)
 	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
 			fmt.Sprintf("Something went wrong getting order by board %s", boardId),
 			err,
 		)
 	}
-
-	ordersNode := map[int64]*entities.OrderNode{}
-	for _, player := range board.Players {
-		for _, order := range player.IncomingOrders {
-			if _, exist := ordersNode[*order.Id]; !exist {
-				ordersNode[*order.Id] = order
-			}
-		}
-		for _, order := range player.OutgoingOrders {
-			if _, exist := ordersNode[*order.Id]; !exist {
-				ordersNode[*order.Id] = order
-			}
-		}
+	var orders []domain.Order
+	for _, orderEntity := range orderEntities {
+		order := orderEntityToDomain(orderEntity)
+		orders = append(orders, *order)
 	}
-
-	var ordersResponse []*domain.Order
-	for _, orderNode := range ordersNode {
-		orderResponse := orderNode.ToOrder()
-		ordersResponse = append(ordersResponse, &orderResponse)
-	}
-	return ordersResponse, nil
+	return orders, nil
 }
 
-func (o OrderRepositoryAdapter) LoadByPlayer(ctx context.Context, playerId string) ([]*domain.Order, error) {
-	entityId, _ := strconv.ParseInt(playerId, 0, 64)
-	player := &entities.PlayerNode{}
-	err := o.repository.LoadDepth(ctx, entityId, player)
-
+func (o OrderRepositoryAdapter) LoadByPlayer(ctx context.Context, playerId string) ([]domain.Order, error) {
+	pgId := pgtype.UUID{Bytes: uuid.MustParse(playerId), Valid: true}
+	orderEntities, err := o.queries.FindOrderByPlayerId(ctx, pgId)
 	if err != nil && !isNotFound(err) {
 		return nil, fmt.Errorf(
-			fmt.Sprintf("Something went wrong getting orders by player %s", playerId),
+			fmt.Sprintf("Something went wrong getting order by player %s", playerId),
 			err,
 		)
 	}
+	var orders []domain.Order
+	for _, orderEntity := range orderEntities {
+		order := orderEntityToDomain(orderEntity)
+		orders = append(orders, *order)
+	}
+	return orders, nil
+}
 
-	ordersNode := map[int64]*entities.OrderNode{}
-	for _, order := range player.IncomingOrders {
-		ordersNode[*order.Id] = order
+func (o OrderRepositoryAdapter) MarkAsFilled(ctx context.Context, orderId string, amount int64) (*domain.Order, error) {
+	params := storage.MarkAsFilledParams{
+		Amount:  amount,
+		OrderID: pgtype.UUID{Bytes: uuid.MustParse(orderId), Valid: true},
 	}
-	for _, order := range player.OutgoingOrders {
-		ordersNode[*order.Id] = order
+	orderEntity, err := o.queries.MarkAsFilled(ctx, params)
+	if err != nil && !isNotFound(err) {
+		return nil, fmt.Errorf(
+			fmt.Sprintf("Something went wrong market order %s as filled", orderId),
+			err,
+		)
 	}
+	return orderEntityToDomain(orderEntity), nil
+}
 
-	var ordersResponse []*domain.Order
-	for _, orderNode := range ordersNode {
-		orderResponse := orderNode.ToOrder()
-		ordersResponse = append(ordersResponse, &orderResponse)
+func orderEntityFromDomain(order domain.Order) storage.Order {
+	timestamp := pgtype.Timestamp{}
+	timestamp.Scan(order.CreatedAt)
+
+	return storage.Order{
+		OrderID:        pgtype.UUID{Bytes: uuid.MustParse(order.Id), Valid: true},
+		Amount:         order.Amount,
+		OriginalAmount: order.OriginalAmount,
+		Type:           string(order.OrderType),
+		State:          string(order.Status),
+		SenderID:       pgtype.UUID{Bytes: uuid.MustParse(order.Sender), Valid: true},
+		ReceiverID:     pgtype.UUID{Bytes: uuid.MustParse(order.Receiver), Valid: true},
+		CreatedAt:      timestamp,
+		UpdatedAt:      timestamp,
 	}
-	return ordersResponse, nil
+}
+
+func orderEntityToDomain(orderEntity storage.Order) *domain.Order {
+	return &domain.Order{
+		Id:             orderEntity.OrderID.String(),
+		Amount:         orderEntity.Amount,
+		OriginalAmount: orderEntity.OriginalAmount,
+		OrderType:      domain.OrderType(orderEntity.Type),
+		Status:         domain.Status(orderEntity.State),
+		Sender:         orderEntity.SenderID.String(),
+		Receiver:       orderEntity.ReceiverID.String(),
+		CreatedAt:      orderEntity.CreatedAt.Time,
+	}
 }

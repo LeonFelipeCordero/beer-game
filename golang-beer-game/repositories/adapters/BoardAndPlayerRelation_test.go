@@ -3,22 +3,23 @@ package adapters
 import (
 	"context"
 	"fmt"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
-	"github.com/LeonFelipeCordero/golang-beer-game/domain"
-	"github.com/LeonFelipeCordero/golang-beer-game/repositories/neo4j"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	testingutil "github.com/LeonFelipeCordero/golang-beer-game/testing"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBoardAndPlayer(t *testing.T) {
-	neo4j.ConfigureDatabase()
 	ctx := context.Background()
-	repository := neo4j.NewRepository()
-	boardRepository := NewBoardRepository(repository)
-	playerRepository := NewPlayerRepository(repository, boardRepository)
+	queries := testingutil.SetupDatabaseConnection(ctx)
+	boardRepository := NewBoardRepository(queries)
+	playerRepository := NewPlayerRepository(queries)
 
-	boardRepository.DeleteAll(ctx)
+	testingutil.Clean(ctx, queries)
 
 	t.Run("create all relations between boards and player easily", func(t *testing.T) {
 		board := createBoard(ctx, boardRepository)
@@ -28,17 +29,14 @@ func TestBoardAndPlayer(t *testing.T) {
 		checkIfBoardExit(ctx, t, boardRepository, board)
 		checkBoard(ctx, t, boardRepository, board)
 		checkBoardByPlayer(ctx, t, boardRepository, board, retailer)
-		//checkBoardByName(ctx, t, boardRepository, board)
 		checkPlayerByBoard(ctx, t, playerRepository, retailer, board)
 		checkPlayerByBoard(ctx, t, playerRepository, wholesaler, board)
 		checkPlayer(ctx, t, playerRepository, retailer)
 		updatePlayerAndValidate(ctx, t, playerRepository, retailer)
-
-		boardRepository.DeleteAll(ctx)
 	})
 }
 
-func createBoard(ctx context.Context, repository ports.IBoardRepository) *domain.Board {
+func createBoard(ctx context.Context, repository BoardRepositoryAdapter) *domain.Board {
 	board := &domain.Board{
 		Name:      "test",
 		State:     "CREATED",
@@ -56,7 +54,7 @@ func createBoard(ctx context.Context, repository ports.IBoardRepository) *domain
 	return savedBoard
 }
 
-func getBoard(ctx context.Context, repository ports.IBoardRepository, board *domain.Board) *domain.Board {
+func getBoard(ctx context.Context, repository BoardRepositoryAdapter, board *domain.Board) *domain.Board {
 	board, err := repository.Get(ctx, board.Id)
 	if err != nil {
 		fmt.Printf("%e", err)
@@ -65,12 +63,12 @@ func getBoard(ctx context.Context, repository ports.IBoardRepository, board *dom
 	return board
 }
 
-func checkBoard(ctx context.Context, t *testing.T, repository ports.IBoardRepository, board *domain.Board) {
+func checkBoard(ctx context.Context, t *testing.T, repository BoardRepositoryAdapter, board *domain.Board) {
 	savedBoard := getBoard(ctx, repository, board)
 	validateBoard(t, *board, *savedBoard)
 }
 
-func checkBoardByPlayer(ctx context.Context, t *testing.T, repository ports.IBoardRepository, board *domain.Board, retailer *domain.Player) {
+func checkBoardByPlayer(ctx context.Context, t *testing.T, repository BoardRepositoryAdapter, board *domain.Board, retailer *domain.Player) {
 	savedBoard, err := repository.GetByPlayer(ctx, retailer.Id)
 
 	if err != nil {
@@ -80,7 +78,7 @@ func checkBoardByPlayer(ctx context.Context, t *testing.T, repository ports.IBoa
 	validateBoard(t, *board, *savedBoard)
 }
 
-func checkIfBoardExit(ctx context.Context, t *testing.T, repository ports.IBoardRepository, board *domain.Board) {
+func checkIfBoardExit(ctx context.Context, t *testing.T, repository BoardRepositoryAdapter, board *domain.Board) {
 	exist, err := repository.Exist(ctx, board.Name)
 
 	if err != nil {
@@ -100,7 +98,7 @@ func checkIfBoardExit(ctx context.Context, t *testing.T, repository ports.IBoard
 //	validateBoard(t, *board, *savedBoard)
 //}
 
-func createPlayer(ctx context.Context, repository ports.IPlayerRepository, board *domain.Board, role domain.Role) *domain.Player {
+func createPlayer(ctx context.Context, repository PlayerRepositoryAdapter, board *domain.Board, role domain.Role) *domain.Player {
 	player := domain.Player{
 		Name:        string(role),
 		Role:        role,
@@ -120,7 +118,7 @@ func createPlayer(ctx context.Context, repository ports.IPlayerRepository, board
 	return savedPlayer
 }
 
-func checkPlayerByBoard(ctx context.Context, t *testing.T, repository ports.IPlayerRepository, target *domain.Player, board *domain.Board) {
+func checkPlayerByBoard(ctx context.Context, t *testing.T, repository PlayerRepositoryAdapter, target *domain.Player, board *domain.Board) {
 	players, _ := repository.GetPlayersByBoard(ctx, board.Id)
 	var checked = false
 	for _, player := range players {
@@ -132,7 +130,7 @@ func checkPlayerByBoard(ctx context.Context, t *testing.T, repository ports.IPla
 	assert.Equal(t, checked, true, "there was no player to compare to")
 }
 
-func updatePlayerAndValidate(ctx context.Context, t *testing.T, repository ports.IPlayerRepository, player *domain.Player) {
+func updatePlayerAndValidate(ctx context.Context, t *testing.T, repository PlayerRepositoryAdapter, player *domain.Player) {
 	player.Stock = 100
 	player.Backlog = 101
 	player.WeeklyOrder = 102
@@ -140,13 +138,13 @@ func updatePlayerAndValidate(ctx context.Context, t *testing.T, repository ports
 
 	savedPlayer, err := repository.Save(ctx, *player)
 	assert.Nil(t, err, "there should no be errors")
-	assert.Equal(t, savedPlayer.Stock, 100, "stock is wrong")
-	assert.Equal(t, savedPlayer.Backlog, 101, "backlog is wrong")
-	assert.Equal(t, savedPlayer.WeeklyOrder, 102, "weekly order is wrong")
-	assert.Equal(t, savedPlayer.LastOrder, 103, "last order is wrong")
+	assert.Equal(t, savedPlayer.Stock, int64(100), "stock is wrong")
+	assert.Equal(t, savedPlayer.Backlog, int64(101), "backlog is wrong")
+	assert.Equal(t, savedPlayer.WeeklyOrder, int64(102), "weekly order is wrong")
+	assert.Equal(t, savedPlayer.LastOrder, int64(103), "last order is wrong")
 }
 
-func checkPlayer(ctx context.Context, t *testing.T, repository ports.IPlayerRepository, player *domain.Player) {
+func checkPlayer(ctx context.Context, t *testing.T, repository PlayerRepositoryAdapter, player *domain.Player) {
 	savedPlayer, _ := repository.Get(ctx, player.Id)
 	validatePlayers(t, *player, *savedPlayer)
 }

@@ -6,10 +6,10 @@ export type FragmentType<TDocumentType extends DocumentNode<any, any>> = TDocume
   any
 >
   ? TType extends { ' $fragmentName'?: infer TKey }
-    ? TKey extends string
-      ? { ' $fragmentRefs'?: { [key in TKey]: TType } }
-      : never
-    : never
+  ? TKey extends string
+  ? { ' $fragmentRefs'?: { [key in TKey]: TType } }
+  : never
+  : never
   : never;
 
 // return non-nullable if `fragmentType` is non-nullable

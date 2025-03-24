@@ -2,21 +2,23 @@ package model
 
 import (
 	"fmt"
-	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"io"
 	"strconv"
+	"time"
+
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 )
 
 type Order struct {
 	ID             string     `json:"id"`
-	Amount         int        `json:"amount"`
-	OriginalAmount int        `json:"originalAmount"`
+	Amount         int64      `json:"amount"`
+	OriginalAmount int64      `json:"originalAmount"`
 	State          OrderState `json:"state"`
 	Type           OrderType  `json:"type"`
 	SenderId       string     `json:"senderId"`
 	ReceiverId     string     `json:"receiverId"`
 	BoardId        string     `json:"boardId"`
-	CreatedAt      string     `json:"createdAt"`
+	CreatedAt      time.Time  `json:"createdAt"`
 }
 
 func (o *Order) FromOrder(order domain.Order) {
@@ -28,7 +30,7 @@ func (o *Order) FromOrder(order domain.Order) {
 	o.Type = FromOrderType(order.OrderType)
 	o.SenderId = order.Sender
 	o.ReceiverId = order.Receiver
-	o.CreatedAt = order.CreatedAt.String()
+	o.CreatedAt = order.CreatedAt
 }
 
 func FromOrderStatus(status domain.Status) OrderState {

@@ -3,15 +3,15 @@ package schedulers
 import (
 	"context"
 	"fmt"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
+	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"time"
 )
 
 type OrderScheduler struct {
-	orderService ports.IOrderService
+	orderService application.OrderService
 }
 
-func NewOrderScheduler(service ports.IOrderService) OrderScheduler {
+func NewOrderScheduler(service application.OrderService) OrderScheduler {
 	return OrderScheduler{
 		orderService: service,
 	}

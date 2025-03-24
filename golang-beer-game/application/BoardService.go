@@ -5,18 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
+	"github.com/LeonFelipeCordero/golang-beer-game/repositories/adapters"
 	"time"
 )
 
 type BoardService struct {
-	repository ports.IBoardRepository
+	repository adapters.BoardRepositoryAdapter
 	eventChan  chan events.Event
 }
 
-func NewBoardService(repository ports.IBoardRepository, eventChan chan events.Event) ports.IBoardService {
-	return &BoardService{
+func NewBoardService(repository adapters.BoardRepositoryAdapter, eventChan chan events.Event) BoardService {
+	return BoardService{
 		repository: repository,
 		eventChan:  eventChan,
 	}
@@ -60,30 +60,40 @@ func (s *BoardService) GetByPlayer(ctx context.Context, playerId string) (*domai
 	return s.repository.GetByPlayer(ctx, playerId)
 }
 
-func (s *BoardService) CompleteBoard(ctx context.Context, id string) error {
+func (s *BoardService) StartBoard(ctx context.Context, id string) error {
 	board, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	if len(board.Players) != 3 {
-		return err
+	availableRoles, err := s.repository.GetAvailableRoles(ctx, board.Id)
+	if len(availableRoles) == 0 {
+		return fmt.Errorf("not possible to start a game without all roles being selected %s", board.Id)
 	}
 
-	board.Start()
-	board, err = s.repository.Save(ctx, *board)
+	err = s.repository.StartBoard(ctx, board.Id)
 
 	return nil
 }
 
 func (s *BoardService) GetAvailableRoles(ctx context.Context, id string) ([]domain.Role, error) {
-	board, err := s.repository.Get(ctx, id)
+	roles, err := s.repository.GetAvailableRoles(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return board.AvailableRoles(), nil
+
+	availableRoles := []domain.Role{domain.RoleRetailer, domain.RoleWholesaler, domain.RoleFactory}
+	for _, role := range roles {
+		for index, availableRole := range availableRoles {
+			if availableRole == domain.Role(role) {
+				availableRoles = append(availableRoles[:index], availableRoles[index+1:]...)
+			}
+		}
+	}
+
+	return availableRoles, nil
 }
 
-func (s *BoardService) GetActiveBoards(ctx context.Context) ([]*domain.Board, error) {
+func (s *BoardService) GetActiveBoards(ctx context.Context) ([]domain.Board, error) {
 	return s.repository.GetActiveBoards(ctx)
 }

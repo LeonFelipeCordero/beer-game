@@ -2,9 +2,11 @@ package model
 
 import (
 	"fmt"
-	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"io"
 	"strconv"
+	"time"
+
+	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 )
 
 type Board struct {
@@ -13,7 +15,7 @@ type Board struct {
 	State          BoardState   `json:"state"`
 	Full           bool         `json:"full"`
 	Finished       bool         `json:"finished"`
-	CreatedAt      string       `json:"createdAt"`
+	CreatedAt      time.Time    `json:"createdAt"`
 	PlayersId      []string     `json:"playersId"`
 	OrdersId       []string     `json:"ordersId"`
 	AvailableRoles []BoardState `json:"availableRoles"`
@@ -62,7 +64,7 @@ func (e *Board) FromBoard(board domain.Board) {
 	e.State = fromBoardSate(board.State)
 	e.Full = board.Full
 	e.Finished = board.Finished
-	e.CreatedAt = board.CreatedAt.String()
+	e.CreatedAt = board.CreatedAt
 }
 
 func fromBoardSate(state domain.State) BoardState {

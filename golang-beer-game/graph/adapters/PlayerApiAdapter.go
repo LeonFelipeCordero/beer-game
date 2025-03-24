@@ -2,8 +2,8 @@ package adapters
 
 import (
 	"context"
+	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 	"github.com/google/uuid"
@@ -11,12 +11,12 @@ import (
 )
 
 type PlayerApiAdapter struct {
-	service      ports.IPlayerService
-	boardService ports.IBoardService
+	service      application.PlayerService
+	boardService application.BoardService
 }
 
-func NewPlayerApiAdapter(service ports.IPlayerService, boardService ports.IBoardService) ports.IPlayerApi {
-	return &PlayerApiAdapter{
+func NewPlayerApiAdapter(service application.PlayerService, boardService application.BoardService) PlayerApiAdapter {
+	return PlayerApiAdapter{
 		service:      service,
 		boardService: boardService,
 	}
@@ -60,15 +60,15 @@ func (b *PlayerApiAdapter) GetPlayersByBoard(ctx context.Context, boardId string
 
 	var playersGraph []*model.Player
 	for _, player := range players {
-		playerResponse := &model.Player{}
+		playerResponse := model.Player{}
 		playerResponse.FromPlayer(player, boardId)
-		playersGraph = append(playersGraph, playerResponse)
+		playersGraph = append(playersGraph, &playerResponse)
 	}
 
 	return playersGraph, nil
 }
 
-func (b *PlayerApiAdapter) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int) (*model.Response, error) {
+func (b *PlayerApiAdapter) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int64) (*model.Response, error) {
 	_, err := b.service.UpdateWeeklyOrder(ctx, playerId, amount)
 	if err != nil {
 		return nil, err

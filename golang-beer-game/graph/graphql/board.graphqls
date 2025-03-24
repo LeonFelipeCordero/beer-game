@@ -17,10 +17,10 @@ type Board {
     state: BoardState!
     full: Boolean!
     finished: Boolean!
-    createdAt: String!
-    players: [Player]
-    orders: [Order]
-    availableRoles: [Role]
+    createdAt: Time!
+    players: [Player]!
+    orders: [Order!]!
+    availableRoles: [Role]!
 }
 
 enum BoardState {

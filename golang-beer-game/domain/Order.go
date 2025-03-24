@@ -4,8 +4,8 @@ import "time"
 
 type Order struct {
 	Id             string
-	Amount         int
-	OriginalAmount int
+	Amount         int64
+	OriginalAmount int64
 	Status         Status
 	OrderType      OrderType
 	Sender         string

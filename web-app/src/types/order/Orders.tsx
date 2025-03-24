@@ -1,5 +1,5 @@
-import {Order} from "../../gql/graphql";
+import { Order } from "../../gql/graphql";
 
 export declare type Orders = {
-    value: Array<Order>
+  value: Array<Order>
 }

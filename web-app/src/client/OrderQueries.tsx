@@ -1,24 +1,24 @@
-import {gql, TypedDocumentNode} from "@urql/core"
+import { gql, TypedDocumentNode } from "@urql/core"
 
 export const orderQueryType = {
-    createOrder: "createOrder",
-    newOrder: "newOrder",
-    deliverOrder: "deliverOrder",
-    orderDelivery: "orderDelivery"
+  createOrder: "createOrder",
+  newOrder: "newOrder",
+  deliverOrder: "deliverOrder",
+  orderDelivery: "orderDelivery"
 }
 
 function orderQueries(query: string): TypedDocumentNode {
-    const queries = new Map<string, TypedDocumentNode>([
-        [orderQueryType.createOrder, createOrderMutation],
-        [orderQueryType.deliverOrder, deliverOrderMutation],
-        [orderQueryType.newOrder, newOrderSubscription],
-        [orderQueryType.orderDelivery, orderDeliverySubscription]
-    ])
-    if (queries.has(query)) {
-        return queries.get(query)!!
-    } else {
-        throw Error("Query doesn't exist")
-    }
+  const queries = new Map<string, TypedDocumentNode>([
+    [orderQueryType.createOrder, createOrderMutation],
+    [orderQueryType.deliverOrder, deliverOrderMutation],
+    [orderQueryType.newOrder, newOrderSubscription],
+    [orderQueryType.orderDelivery, orderDeliverySubscription]
+  ])
+  if (queries.has(query)) {
+    return queries.get(query)!!
+  } else {
+    throw Error("Query doesn't exist")
+  }
 }
 
 export default orderQueries

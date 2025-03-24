@@ -2,8 +2,8 @@ package adapters
 
 import (
 	"context"
+	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 	"github.com/google/uuid"
@@ -11,11 +11,11 @@ import (
 )
 
 type BoardApiAdapter struct {
-	service ports.IBoardService
+	service application.BoardService
 }
 
-func NewBoardApiAdapter(service ports.IBoardService) ports.IBoardApi {
-	return &BoardApiAdapter{
+func NewBoardApiAdapter(service application.BoardService) BoardApiAdapter {
+	return BoardApiAdapter{
 		service: service,
 	}
 }

@@ -11,10 +11,10 @@ type Player struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
 	Role        Role     `json:"role"`
-	Stock       int      `json:"stock"`
-	Backlog     int      `json:"backlog"`
-	WeeklyOrder int      `json:"weeklyOrder"`
-	LastOrder   int      `json:"lastOrder"`
+	Stock       int64    `json:"stock"`
+	Backlog     int64    `json:"backlog"`
+	WeeklyOrder int64    `json:"weeklyOrder"`
+	LastOrder   int64    `json:"lastOrder"`
 	CPU         bool     `json:"cpu"`
 	BoardId     string   `json:"boardId"`
 	OrdersId    []string `json:"ordersId"`

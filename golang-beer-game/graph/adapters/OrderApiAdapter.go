@@ -2,8 +2,8 @@ package adapters
 
 import (
 	"context"
+	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"github.com/LeonFelipeCordero/golang-beer-game/application/events"
-	"github.com/LeonFelipeCordero/golang-beer-game/application/ports"
 	"github.com/LeonFelipeCordero/golang-beer-game/domain"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 	"github.com/google/uuid"
@@ -11,12 +11,12 @@ import (
 )
 
 type OrderApiAdapter struct {
-	service      ports.IOrderService
-	boardService ports.IBoardService
+	service      application.OrderService
+	boardService application.BoardService
 }
 
-func NewOrderApiAdapter(service ports.IOrderService, boardService ports.IBoardService) ports.IOrderApi {
-	return &OrderApiAdapter{
+func NewOrderApiAdapter(service application.OrderService, boardService application.BoardService) OrderApiAdapter {
+	return OrderApiAdapter{
 		service:      service,
 		boardService: boardService,
 	}
@@ -32,7 +32,7 @@ func (o *OrderApiAdapter) CreateOrder(ctx context.Context, receiverId string) (*
 	return orderResponse, nil
 }
 
-func (o *OrderApiAdapter) DeliverOrder(ctx context.Context, orderId string, amount int) (*model.Response, error) {
+func (o *OrderApiAdapter) DeliverOrder(ctx context.Context, orderId string, amount int64) (*model.Response, error) {
 	order, err := o.service.DeliverOrder(ctx, orderId, amount)
 	if err != nil {
 		return nil, err
@@ -52,11 +52,11 @@ func (o *OrderApiAdapter) LoadByBoard(ctx context.Context, boardId string) ([]*m
 	if err != nil {
 		return nil, err
 	}
-	ordersResponse := []*model.Order{}
+	var ordersResponse []*model.Order
 	for _, order := range loadedOrders {
-		orderResponse := &model.Order{}
-		orderResponse.FromOrder(*order)
-		ordersResponse = append(ordersResponse, orderResponse)
+		orderResponse := model.Order{}
+		orderResponse.FromOrder(order)
+		ordersResponse = append(ordersResponse, &orderResponse)
 	}
 	return ordersResponse, nil
 }
@@ -66,11 +66,11 @@ func (o *OrderApiAdapter) LoadByPlayer(ctx context.Context, playerId string) ([]
 	if err != nil {
 		return nil, err
 	}
-	ordersResponse := []*model.Order{}
+	var ordersResponse []*model.Order
 	for _, order := range loadedOrders {
-		orderResponse := &model.Order{}
-		orderResponse.FromOrder(*order)
-		ordersResponse = append(ordersResponse, orderResponse)
+		orderResponse := model.Order{}
+		orderResponse.FromOrder(order)
+		ordersResponse = append(ordersResponse, &orderResponse)
 	}
 	return ordersResponse, nil
 }

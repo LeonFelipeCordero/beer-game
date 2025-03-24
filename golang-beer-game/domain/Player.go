@@ -3,18 +3,20 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 type Player struct {
 	Id          string
 	Name        string
 	Role        Role
-	Stock       int
-	Backlog     int
-	WeeklyOrder int
-	LastOrder   int
+	Stock       int64
+	Backlog     int64
+	WeeklyOrder int64
+	LastOrder   int64
 	Cpu         bool
 	Orders      []Order
+	CreatedAt   time.Time
 }
 
 type Role string
@@ -31,6 +33,7 @@ func CreateNewPlayer(role Role) Player {
 		Role:   role,
 		Cpu:    false,
 		Orders: []Order{},
+    CreatedAt: time.Now(),
 	}
 	switch role {
 	case RoleRetailer:
@@ -68,6 +71,6 @@ func (p *Player) AddOrder(order Order) {
 	p.Orders = append(p.Orders, order)
 }
 
-func (p *Player) HasStock(amount int) bool {
+func (p *Player) HasStock(amount int64) bool {
 	return p.Stock >= amount
 }

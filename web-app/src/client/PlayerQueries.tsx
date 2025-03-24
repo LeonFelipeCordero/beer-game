@@ -1,24 +1,24 @@
-import {gql, TypedDocumentNode} from "@urql/core"
+import { gql, TypedDocumentNode } from "@urql/core"
 
 export const playerQueryType = {
-    addPlayer: "addPlayer",
-    getPlayer: "getPlayer",
-    player: "player",
-    updateWeeklyOrder: "updateWeeklyOrder"
+  addPlayer: "addPlayer",
+  getPlayer: "getPlayer",
+  player: "player",
+  updateWeeklyOrder: "updateWeeklyOrder"
 }
 
 function PlayerQueries(query: string): TypedDocumentNode {
-    const queries = new Map<string, TypedDocumentNode>([
-        [playerQueryType.addPlayer, createPlayerMutation],
-        [playerQueryType.getPlayer, getPlayerQuery],
-        [playerQueryType.player, playerSubscription],
-        [playerQueryType.updateWeeklyOrder, updateWeeklyOrderMutation]
-    ])
-    if (queries.has(query)) {
-        return queries.get(query)!!
-    } else {
-        throw Error("Query doesn't exist")
-    }
+  const queries = new Map<string, TypedDocumentNode>([
+    [playerQueryType.addPlayer, createPlayerMutation],
+    [playerQueryType.getPlayer, getPlayerQuery],
+    [playerQueryType.player, playerSubscription],
+    [playerQueryType.updateWeeklyOrder, updateWeeklyOrderMutation]
+  ])
+  if (queries.has(query)) {
+    return queries.get(query)!!
+  } else {
+    throw Error("Query doesn't exist")
+  }
 }
 
 export default PlayerQueries

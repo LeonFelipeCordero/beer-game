@@ -1,123 +1,123 @@
 import boardClient from "../client/BoardClient";
-import {Board, Order, OrderState, Player} from "../gql/graphql";
-import {boardQueryType} from "../client/BoardQueries";
+import { Board, Order, OrderState, Player } from "../gql/graphql";
+import { boardQueryType } from "../client/BoardQueries";
 import createLocalStorage from "../localStorage/useLocalStorage";
-import {createSignal, For, Show} from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import Loading from "../components/common/Loading";
 import WaitingForPlayersMessage from "../components/board/WaitingForPlayersMessage";
 import playerClient from "../client/PLayerClient";
-import {playerQueryType} from "../client/PlayerQueries";
+import { playerQueryType } from "../client/PlayerQueries";
 import GameHeader from "../components/game/GameHeader";
 import GameStatus from "../components/game/GameStatus";
 import orderClient from "../client/OrderClient";
-import {orderQueryType} from "../client/OrderQueries";
-import {Orders} from "../types/order/Orders";
+import { orderQueryType } from "../client/OrderQueries";
+import { Orders } from "../types/order/Orders";
 import OrdersTable from "../components/game/OrdersTable";
 
 function Game() {
-    const [state, _] = createLocalStorage({board: undefined, player: undefined});
-    const [board, setBoard] = createSignal<Board | undefined>(undefined)
-    const [player, setPlayer] = createSignal<Player | undefined>(undefined)
-    const [orders, setOrders] = createSignal<Orders | undefined>(undefined)
-    const [error, setError] = createSignal(undefined)
+  const [state, _] = createLocalStorage({ board: undefined, player: undefined });
+  const [board, setBoard] = createSignal<Board | undefined>(undefined)
+  const [player, setPlayer] = createSignal<Player | undefined>(undefined)
+  const [orders, setOrders] = createSignal<Orders | undefined>(undefined)
+  const [error, setError] = createSignal(undefined)
 
-    const addOrder = (newOrder: Order) => {
-        let onGoingOrders = orders()?.value!!
-        onGoingOrders.push(newOrder)
-        setOrders({value: onGoingOrders} as Orders)
-    }
+  const addOrder = (newOrder: Order) => {
+    let onGoingOrders = orders()?.value!!
+    onGoingOrders.push(newOrder)
+    setOrders({ value: onGoingOrders } as Orders)
+  }
 
-    const orderDelivery = (order: Order) => {
-        let incomingOrders = orders()?.value!!
-        const filteredOrders = incomingOrders.filter(o => o.id !== order.id)
-        setOrders({value: filteredOrders} as Orders)
-    }
+  const orderDelivery = (order: Order) => {
+    let incomingOrders = orders()?.value!!
+    const filteredOrders = incomingOrders.filter(o => o.id !== order.id)
+    setOrders({ value: filteredOrders } as Orders)
+  }
 
-    const updatePlayer = (newValue: Player) => setPlayer(newValue)
+  const updatePlayer = (newValue: Player) => setPlayer(newValue)
 
-    boardClient.doSubscription(boardQueryType.board, {boardId: state.board}, setBoard)
+  boardClient.doSubscription(boardQueryType.board, { boardId: state.board }, setBoard)
 
-    boardClient.doQuery(boardQueryType.getBoard, {id: state.board})
-        .then(result => {
-            setBoard(result)
-        })
+  boardClient.doQuery(boardQueryType.getBoard, { id: state.board })
+    .then(result => {
+      setBoard(result)
+    })
 
-    playerClient.doQuery(playerQueryType.getPlayer, {playerId: state.player})
-        .then(result => {
-            setOrders({value: result.orders?.filter(o => o.state == OrderState.Pending)} as Orders)
-            result.orders = null
-            setPlayer(result)
-        })
+  playerClient.doQuery(playerQueryType.getPlayer, { playerId: state.player })
+    .then(result => {
+      setOrders({ value: result.orders?.filter(o => o.state == OrderState.Pending) } as Orders)
+      result.orders = null
+      setPlayer(result)
+    })
 
-    playerClient.doSubscription(playerQueryType.player, {playerId: state.player}, updatePlayer)
+  playerClient.doSubscription(playerQueryType.player, { playerId: state.player }, updatePlayer)
 
-    orderClient.doSubscription(orderQueryType.newOrder, {playerId: state.player}, addOrder)
+  orderClient.doSubscription(orderQueryType.newOrder, { playerId: state.player }, addOrder)
 
-    orderClient.doSubscription(orderQueryType.orderDelivery, {playerId: state.player}, orderDelivery)
+  orderClient.doSubscription(orderQueryType.orderDelivery, { playerId: state.player }, orderDelivery)
 
-    const updateOrderDetails = (amount: number) => {
-        playerClient.doMutation(playerQueryType.updateWeeklyOrder, {playerId: state.player, amount: amount})
-            .then(_ => {
-                console.log("details updated.")
-            })
-    }
+  const updateOrderDetails = (amount: number) => {
+    playerClient.doMutation(playerQueryType.updateWeeklyOrder, { playerId: state.player, amount: amount })
+      .then(_ => {
+        console.log("details updated.")
+      })
+  }
 
-    const createOrder = (receiverId: string) => {
-        orderClient.doMutation(orderQueryType.createOrder, {receiverId: receiverId})
-            .then(_ => {
-                console.log(`order created`)
-            })
-    }
+  const createOrder = (receiverId: string) => {
+    orderClient.doMutation(orderQueryType.createOrder, { receiverId: receiverId })
+      .then(_ => {
+        console.log(`order created`)
+      })
+  }
 
-    const deliverOrder = (orderId: string, amount: number) => {
-        orderClient.doMutation(orderQueryType.deliverOrder, {orderId: orderId, amount: amount})
-            .then(_ => {
-                console.log("order delivered")
-            })
-    }
+  const deliverOrder = (orderId: string, amount: number) => {
+    orderClient.doMutation(orderQueryType.deliverOrder, { orderId: orderId, amount: amount })
+      .then(_ => {
+        console.log("order delivered")
+      })
+  }
 
-    return (
-        <div>
-            <Show when={board()} fallback={<Loading></Loading>} keyed>
-                <Show when={board()?.full}
-                      fallback={
-                          <WaitingForPlayersMessage name={board()!!.name}></WaitingForPlayersMessage>
-                      }>
-                    <div class="h-screen">
-                        <div class="flex justify-between p-5">
-                            <Show when={player()} fallback={<Loading></Loading>} keyed>
-                                <div class="w-full">
-                                    <div class="flex grid-rows-2">
-                                        <div class="bg-slate-100 p-5 rounded mr-5 row-end-2">
-                                            <GameHeader boardName={board()!!.name}
-                                                        playerRole={player()!!.role}></GameHeader>
-                                            <GameStatus player={player()!!}
-                                                        board={board()!!}
-                                                        createOrder={createOrder}
-                                                        updateOrderDetails={updateOrderDetails}
-                                            ></GameStatus>
-                                        </div>
-                                        <div class="row-start-3">
-                                            <OrdersTable
-                                                orders={orders()!!}
-                                                player={player()!!}
-                                                board={board()!!}
-                                                deliver={deliverOrder}
-                                            ></OrdersTable>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Show>
-                        </div>
+  return (
+    <div>
+      <Show when={board()} fallback={<Loading></Loading>} keyed>
+        <Show when={board()?.full}
+          fallback={
+            <WaitingForPlayersMessage name={board()!!.name}></WaitingForPlayersMessage>
+          }>
+          <div class="h-screen">
+            <div class="flex justify-between p-5">
+              <Show when={player()} fallback={<Loading></Loading>} keyed>
+                <div class="w-full">
+                  <div class="flex grid-rows-2">
+                    <div class="bg-slate-100 p-5 rounded mr-5 row-end-2">
+                      <GameHeader boardName={board()!!.name}
+                        playerRole={player()!!.role}></GameHeader>
+                      <GameStatus player={player()!!}
+                        board={board()!!}
+                        createOrder={createOrder}
+                        updateOrderDetails={updateOrderDetails}
+                      ></GameStatus>
                     </div>
-                </Show>
-            </Show>
-            <Show when={error()} keyed>
-                <span class="text-red-600">Something went wrong</span>
-                <span class="text-red-600">{error()}</span>
-            </Show>
-        </div>
-    )
+                    <div class="row-start-3">
+                      <OrdersTable
+                        orders={orders()!!}
+                        player={player()!!}
+                        board={board()!!}
+                        deliver={deliverOrder}
+                      ></OrdersTable>
+                    </div>
+                  </div>
+                </div>
+              </Show>
+            </div>
+          </div>
+        </Show>
+      </Show>
+      <Show when={error()} keyed>
+        <span class="text-red-600">Something went wrong</span>
+        <span class="text-red-600">{error()}</span>
+      </Show>
+    </div>
+  )
 }
 
 export default Game

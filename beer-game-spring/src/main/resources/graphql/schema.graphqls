@@ -2,8 +2,8 @@ type Mutation {
     createBoard(name: String): Board
     addPlayer(boardId: String, role: Role): Player
     createOrder(receiverId: String): Order
-    deliverOrder(orderId: String, amount: Int): Response
-    updateWeeklyOrder(playerId: String, amount: Int): Response
+    deliverOrder(orderId: String, amount: Int64): Response
+    updateWeeklyOrder(playerId: String, amount: Int64): Response
 }
 
 type Query {
@@ -42,10 +42,10 @@ type Player {
     id: ID!
     name: String!
     role: Role!
-    stock: Int!
-    backlog: Int!
-    weeklyOrder: Int!
-    lastOrder: Int!
+    stock: Int64!
+    backlog: Int64!
+    weeklyOrder: Int64!
+    lastOrder: Int64!
     cpu: Boolean!
     board: Board,
     orders: [Order!]
@@ -59,8 +59,8 @@ enum Role {
 
 type Order {
     id: ID!
-    amount: Int!
-    originalAmount: Int!
+    amount: Int64!
+    originalAmount: Int64!
     state: OrderState!
     type: OrderType!
     sender: Player!
