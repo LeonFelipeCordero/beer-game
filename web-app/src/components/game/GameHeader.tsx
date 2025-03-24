@@ -1,4 +1,5 @@
 function GameHeader(props: { boardName: string, playerRole: string }) {
+  console.log("player role:", props.playerRole);
   return (
     <div>
       <strong class="text-6xl ">

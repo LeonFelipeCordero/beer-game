@@ -163,7 +163,7 @@ func (o OrderService) DeliverFactoryBatch(ctx context.Context) {
 		panic(fmt.Sprintf("error getting active boards %s", err))
 	}
 	for _, board := range boards {
-		factory := board.GetFactory()
+		factory, _ := o.playerService.GetPlayersByRoleAndBoard(ctx, board.Id, string(domain.RoleFactory))
 		if factory != nil {
 			factory.Stock += factory.WeeklyOrder
 			factory.Backlog += factory.WeeklyOrder
@@ -190,7 +190,11 @@ func (o OrderService) CreateCpuOrders(ctx context.Context) {
 }
 
 func (o OrderService) createOrdersForBoard(ctx context.Context, board domain.Board) {
-	for _, player := range board.Players {
+	players, err := o.playerService.GetPlayersByBoard(ctx, board.Id)
+	if err != nil {
+		panic(fmt.Sprintf("error getting players from board %s, %s", board.Id, err))
+	}
+	for _, player := range players {
 		o.createOrdersForPlayer(ctx, player, board)
 	}
 }

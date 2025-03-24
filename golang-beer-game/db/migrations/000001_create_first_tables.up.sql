@@ -1,4 +1,5 @@
-create extension if not exists "pgcrypto";
+create
+extension if not exists "pgcrypto";
 
 create table board
 (
@@ -11,7 +12,7 @@ create table board
     updated_at  timestamp not null default current_timestamp,
     constraint board_pk primary key (board_id)
 );
-create unique index board_name_ids on board(name);
+create unique index board_name_ids on board (name);
 
 create table player
 (
@@ -38,7 +39,7 @@ create table orders
     type            text      not null,
     state           text      not null default 'PENDING',
     sender_id       uuid      not null,
-    receiver_id     uuid      not null,
+    receiver_id     uuid,
     created_at      timestamp not null default current_timestamp,
     updated_at      timestamp not null default current_timestamp,
     constraint order_pk primary key (order_id),

@@ -3,6 +3,11 @@ insert into orders(amount, original_amount, type, sender_id, receiver_id)
 values ($1, $1, $2, $3, $4)
 returning *;
 
+-- name: SaveCpuOrder :one
+insert into orders(amount, original_amount, type, sender_id)
+values ($1, $1, $2, $3)
+returning *;
+
 -- name: FindOrderById :one
 select *
 from orders

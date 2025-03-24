@@ -34,8 +34,8 @@ function Game() {
   }
 
   const updatePlayer = (newValue: Player) => setPlayer(newValue)
-
   boardClient.doSubscription(boardQueryType.board, { boardId: state.board }, setBoard)
+
 
   boardClient.doQuery(boardQueryType.getBoard, { id: state.board })
     .then(result => {

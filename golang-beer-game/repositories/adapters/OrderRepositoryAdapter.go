@@ -20,17 +20,30 @@ func NewOrderRepository(queries *storage.Queries) OrderRepositoryAdapter {
 }
 
 func (o OrderRepositoryAdapter) Save(ctx context.Context, order domain.Order) (*domain.Order, error) {
-	params := storage.SaveOrderParams{
-		Amount:     order.Amount,
-		Type:       string(order.OrderType),
-		SenderID:   pgtype.UUID{Bytes: uuid.MustParse(order.Sender), Valid: true},
-		ReceiverID: pgtype.UUID{Bytes: uuid.MustParse(order.Receiver), Valid: true},
+	if order.OrderType == domain.OrderTypePlayerOrder {
+		params := storage.SaveOrderParams{
+			Amount:     order.Amount,
+			Type:       string(order.OrderType),
+			SenderID:   pgtype.UUID{Bytes: uuid.MustParse(order.Sender), Valid: true},
+			ReceiverID: pgtype.UUID{Bytes: uuid.MustParse(order.Receiver), Valid: true},
+		}
+		orderEntity, err := o.queries.SaveOrder(ctx, params)
+		if err != nil {
+			return nil, err
+		}
+		return orderEntityToDomain(orderEntity), nil
+	} else {
+		params := storage.SaveCpuOrderParams{
+			Amount:   order.Amount,
+			Type:     string(order.OrderType),
+			SenderID: pgtype.UUID{Bytes: uuid.MustParse(order.Sender), Valid: true},
+		}
+		orderEntity, err := o.queries.SaveCpuOrder(ctx, params)
+		if err != nil {
+			return nil, err
+		}
+		return orderEntityToDomain(orderEntity), nil
 	}
-	orderEntity, err := o.queries.SaveOrder(ctx, params)
-	if err != nil {
-		return nil, err
-	}
-	return orderEntityToDomain(orderEntity), nil
 }
 
 func (o OrderRepositoryAdapter) Get(ctx context.Context, orderId string) (*domain.Order, error) {

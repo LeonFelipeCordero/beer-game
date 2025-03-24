@@ -82,6 +82,10 @@ func (p *PlayerService) GetPlayersByBoard(ctx context.Context, boardId string) (
 	return p.repository.GetPlayersByBoard(ctx, boardId)
 }
 
+func (p *PlayerService) GetPlayersByRoleAndBoard(ctx context.Context, boardId string, role string) (*domain.Player, error) {
+	return p.repository.GetByRoleAndBoardId(ctx, boardId, role)
+}
+
 func (p *PlayerService) UpdateWeeklyOrder(ctx context.Context, playerId string, amount int64) (*domain.Player, error) {
 	player, err := p.repository.Get(ctx, playerId)
 	if err != nil {

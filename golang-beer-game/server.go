@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,6 @@ import (
 	storage "github.com/LeonFelipeCordero/golang-beer-game/repositories/postgres"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
-	"github.com/jackc/pgx/v5"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -68,8 +68,8 @@ func main() {
 func createAdapters(eventChan chan events.Event) (adapters.BoardApiAdapter, adapters.PlayerApiAdapter, adapters.OrderApiAdapter) {
 	ctx := context.Background()
 	url := "postgres://beer_game:beer_game@localhost:5432/beer_game"
-	conn, _ := pgx.Connect(ctx, url)
-	queries := storage.New(conn)
+	connectionPool, _ := pgxpool.New(ctx, url)
+	queries := storage.New(connectionPool)
 
 	boardRepository := adapters2.NewBoardRepository(queries)
 	playerRepository := adapters2.NewPlayerRepository(queries)

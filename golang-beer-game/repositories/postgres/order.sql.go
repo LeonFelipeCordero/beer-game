@@ -155,6 +155,35 @@ func (q *Queries) MarkAsFilled(ctx context.Context, arg MarkAsFilledParams) (Ord
 	return i, err
 }
 
+const saveCpuOrder = `-- name: SaveCpuOrder :one
+insert into orders(amount, original_amount, type, sender_id)
+values ($1, $1, $2, $3)
+returning order_id, amount, original_amount, type, state, sender_id, receiver_id, created_at, updated_at
+`
+
+type SaveCpuOrderParams struct {
+	Amount   int64
+	Type     string
+	SenderID pgtype.UUID
+}
+
+func (q *Queries) SaveCpuOrder(ctx context.Context, arg SaveCpuOrderParams) (Order, error) {
+	row := q.db.QueryRow(ctx, saveCpuOrder, arg.Amount, arg.Type, arg.SenderID)
+	var i Order
+	err := row.Scan(
+		&i.OrderID,
+		&i.Amount,
+		&i.OriginalAmount,
+		&i.Type,
+		&i.State,
+		&i.SenderID,
+		&i.ReceiverID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const saveOrder = `-- name: SaveOrder :one
 insert into orders(amount, original_amount, type, sender_id, receiver_id)
 values ($1, $1, $2, $3, $4)
