@@ -1,8 +1,6 @@
 package schedulers
 
 import (
-	"context"
-	"fmt"
 	"github.com/LeonFelipeCordero/golang-beer-game/application"
 	"time"
 )
@@ -24,11 +22,11 @@ func (o *OrderScheduler) Start() {
 		for {
 			select {
 			case <-cpuTicker.C:
-				fmt.Printf("delivering cpu orders\n")
-				o.orderService.CreateCpuOrders(context.Background())
+				// fmt.Printf("delivering cpu orders\n")
+				// o.orderService.CreateCpuOrders(context.Background())
 			case <-factoryTicker.C:
-				fmt.Printf("delivering factories batch\n")
-				o.orderService.DeliverFactoryBatch(context.Background())
+				// fmt.Printf("delivering factories batch\n")
+				// o.orderService.DeliverFactoryBatch(context.Background())
 			}
 		}
 	}()

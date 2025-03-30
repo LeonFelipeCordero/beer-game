@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-
 	"github.com/LeonFelipeCordero/golang-beer-game/graph"
 	"github.com/LeonFelipeCordero/golang-beer-game/graph/model"
 )

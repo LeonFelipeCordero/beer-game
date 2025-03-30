@@ -24,7 +24,7 @@
     "@graphql-codegen/client-preset": "^1.2.1",
     "@urql/core": "^3.0.5",
     "graphql": "^16.6.0",
-    "graphql-ws": "^5.11.2",
+    "graphql-ws": "^5.16.2",
     "solid-app-router": "^0.3.3",
     "solid-js": "^1.5.1",
     "subscriptions-transport-ws": "^0.11.0",

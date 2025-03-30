@@ -1,0 +1,60 @@
+subscription board($boardId: String) {
+    board(boardId: $boardId) {
+        id
+        state
+        full
+        players {
+            id
+            role
+        }
+        availableRoles
+    }
+}
+
+subscription player($playerId: String) {
+    player(playerId: $playerId) {
+        id
+        backlog
+        stock
+        lastOrder
+        weeklyOrder
+    }
+}
+
+subscription newOrder($playerId: String) {
+    newOrder(playerId: $playerId) {
+        id
+        originalAmount
+        state
+        createdAt
+        receiver {
+            id
+        }
+        sender {
+            id
+        }
+    }
+}
+
+subscription orderDelivery($playerId: String) {
+    orderDelivery(playerId: $playerId) {
+        id
+        amount
+        originalAmount
+        state
+    }
+}
+
+
+subscription board {
+    board(boardId: "31b05a9d-a3f8-40d2-b90a-69970be56286") {
+        id
+        state
+        full
+        players {
+            id
+            role
+        }
+        availableRoles
+    }
+}

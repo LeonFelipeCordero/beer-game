@@ -1,0 +1,27 @@
+mutation createBoard($name: String) {
+  createBoard(name: $name) {
+    id
+  }
+}
+
+query getBoardByName($name: String) {
+  getBoardByName(name: $name) {
+    id
+    full
+  }
+}
+
+query getBoard($id: String) {
+  getBoard(id: $id) {
+    id
+    name
+    state
+    full
+    players {
+      id
+      role
+    }
+    availableRoles
+  } 
+}
+

@@ -1,0 +1,17 @@
+mutation createOrder($receiverId: String) {
+  createOrder(receiverId: $receiverId) {
+    id
+    originalAmount
+    state
+    type
+    createdAt
+  }
+}
+
+mutation deliverOrder($orderId: String, $amount: Int) {
+  deliverOrder(orderId: $orderId, amount: $amount) {
+    message
+    status
+  }
+}
+ 

@@ -1,0 +1,37 @@
+mutation addPlayer($boardId: String, $role: Role) {
+  addPlayer(boardId: $boardId, role: $role) {
+    id
+    role
+  }
+}
+
+query getPlayer($playerId: String) {
+  getPlayer(playerId: $playerId) {
+    id
+    role
+    stock
+    backlog
+    weeklyOrder
+    lastOrder
+    orders {
+      id
+      originalAmount
+      state
+      createdAt
+      receiver {
+        id
+      }
+      sender {
+        id
+      }
+    }
+  }
+}
+
+mutation updateWeeklyOrder($playerId: String, $amount: Int) {
+  updateWeeklyOrder(playerId: $playerId, amount: $amount) {
+    message
+    status 
+  }
+}
+ 

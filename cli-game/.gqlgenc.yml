@@ -1,0 +1,18 @@
+model:
+  package: graph
+  filename: ./graph/models_gen.go 
+client:
+  package: graph
+  filename: ./graph/client_gen.go 
+models:
+  Int:
+    model: github.com/99designs/gqlgen/graphql.Int64
+  Date:
+    model: github.com/99designs/gqlgen/graphql.Time
+endpoint:
+  url: http://localhost:8080/graphql
+query:
+  - ./graph/queries/*.graphql
+generate:
+  clientInterfaceName: "BeerGameGraphQLClient"
+  structFieldsAlwaysPointers: true
